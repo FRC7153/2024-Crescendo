@@ -23,7 +23,7 @@ public class CANLogger {
 
     // Can't be constructed
     private CANLogger() {
-        throw new UnsupportedOperationException("Singleton class!");
+        throw new UnsupportedOperationException("Utility class!");
     }
 
     /**
