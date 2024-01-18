@@ -84,4 +84,12 @@ public class Constants {
 
         public static String kCANIVORE_BUS = "Canivore";
     }
+
+    public static class LEDConstants {
+        public static double kOFF = 0.99;
+        public static double kRED = 0.61;
+        public static double kBLUE = 0.87;
+        public static double kGREEN = 0.77;
+        public static double kYELLOW = 0.69;
+    }
 }

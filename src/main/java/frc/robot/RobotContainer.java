@@ -6,11 +6,14 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.led.DriverStationLEDCommand;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.drive.SwerveBase;
 
 public class RobotContainer {
   // Subsystems
   private SwerveBase driveBase = new SwerveBase();
+  private LED led = new LED();
 
   // Controls
 
@@ -18,7 +21,10 @@ public class RobotContainer {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    // Default commands
+    led.setDefaultCommand(new DriverStationLEDCommand(led));
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");

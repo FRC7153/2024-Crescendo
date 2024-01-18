@@ -26,11 +26,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.SPI.Port;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HardwareConstants;
 
-public class SwerveBase extends SubsystemBase {
+public class SwerveBase implements Subsystem {
     // Shared SwerveModuleStateStruct
     private static SwerveModuleStateStruct kSwerveModuleState = new SwerveModuleStateStruct();
 
