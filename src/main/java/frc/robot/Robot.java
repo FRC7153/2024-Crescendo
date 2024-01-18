@@ -25,7 +25,7 @@ public class Robot extends TimedRobot {
     DriverStation.startDataLog(DataLogManager.getLog(), true);
 
     // Log metadata
-    LoggingUtil.addDSMetadata(true);
+    LoggingUtil.addDefaultMetadata();
 
     // Create container
     m_robotContainer = new RobotContainer();

@@ -27,7 +27,10 @@ public class Constants {
         public static double kRR_STEER_ZERO = 0.0;
 
         // Pose Estimation
-        public static IMUAxis kYAW = IMUAxis.kX;
+        public static IMUAxis kGYRO_YAW = IMUAxis.kX;
+        public static IMUAxis kGYRO_PITCH = IMUAxis.kY;
+        public static IMUAxis kGYRO_ROLL = IMUAxis.kZ;
+        
         public static Vector<N3> kSTATE_STD_DEV = 
             VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(2.0)); // meters, meters, rads
         public static double kDEFAULT_VISION_XY_STD_DEV = 0.3;

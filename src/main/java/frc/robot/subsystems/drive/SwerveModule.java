@@ -12,10 +12,10 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.frc7153.diagnostics.DiagUtil;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkPIDController;
+import static com.revrobotics.CANSparkMax.ControlType;
+import static com.revrobotics.CANSparkMax.IdleMode;
+import static com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -43,7 +43,7 @@ public class SwerveModule {
     private MotionMagicVelocityVoltage driveControl;
     private StatusSignal<Double> drivePosition;
     private StatusSignal<Double> driveVelocity;
-    private SparkMaxPIDController steerPIDControl;
+    private SparkPIDController steerPIDControl;
     private RelativeEncoder steerRelEncoder;
     private StatusSignal<Double> steerCANCoderPos;
     private StatusSignal<Double> steerCANCoderVelocity;

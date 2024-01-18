@@ -2,7 +2,7 @@ package com.frc7153.diagnostics.devices;
 
 import com.frc7153.diagnostics.CheckableDevice;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.FaultID;
+import static com.revrobotics.CANSparkMax.FaultID;
 
 public class CANSparkMaxDevice extends CheckableDevice {
     // Faults to check

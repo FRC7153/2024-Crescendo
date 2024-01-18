@@ -27,6 +27,7 @@ import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
+import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -62,13 +63,16 @@ public class SwerveBase extends SubsystemBase {
     );
 
     // Pose estimation
-    private ADIS16470_IMU gyro = new ADIS16470_IMU(DriveConstants.kYAW, Port.kMXP, CalibrationTime._4s);
+    private ADIS16470_IMU gyro = new ADIS16470_IMU(
+        DriveConstants.kGYRO_YAW, DriveConstants.kGYRO_PITCH, 
+        DriveConstants.kGYRO_ROLL, Port.kMXP, CalibrationTime._4s
+    );
     private SwerveModulePosition[] modulePositions = {
         modules[0].getPosition(), modules[1].getPosition(), modules[2].getPosition(), modules[3].getPosition()
     };
     private SwerveDrivePoseEstimator estimator = new SwerveDrivePoseEstimator(
         kinematics, 
-        Rotation2d.fromDegrees(gyro.getAngle()), 
+        Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), 
         modulePositions, 
         new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)), 
         DriveConstants.kSTATE_STD_DEV, 
@@ -141,7 +145,7 @@ public class SwerveBase extends SubsystemBase {
             modulePositions[m] = modules[m].getPosition();
         }
 
-        estimator.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), modulePositions, pos);
+        estimator.resetPosition(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions, pos);
     }
 
     /**
@@ -242,7 +246,7 @@ public class SwerveBase extends SubsystemBase {
         }
 
         // Update pose estimator
-        estimator.update(Rotation2d.fromDegrees(gyro.getAngle()), modulePositions);
+        estimator.update(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions);
 
         // Log
         setpointLog.append(setpointArray);

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.util.WPILibVersion;
 
 /**
  * Additional methods for logging data with AdvantageScope through WPILOG files
@@ -62,17 +63,15 @@ public class LoggingUtil {
     }
 
     /**
-     * Waits for Driver Station to connect, then logs match info to metadata.
-     * This is non-blocking.
-     * Also logs RoboRIO data.
-     * @param startup If this is true, it will log the current timestamp as the 
-     * Startup timestamp
+     * Logs RoboRIO info. Then, waits for Driver Station to connect, then logs 
+     * match info to metadata. This is non-blocking.
      */
-    public static void addDSMetadata(boolean startup) {
-        if (startup) addMetadata("Startup TS", Timer.getFPGATimestamp(), MetadataType.TIMESTAMP_STARTUP);
+    public static void addDefaultMetadata() {
+        addMetadata("Startup TS", Timer.getFPGATimestamp(), MetadataType.TIMESTAMP_STARTUP);
 
         addMetadata("RoboRIO Comments", RobotController.getComments(), MetadataType.ROBORIO);
         addMetadata("RoboRIO FPGA Version", RobotController.getFPGAVersion(), MetadataType.ROBORIO);
+        addMetadata("WPILib Version", WPILibVersion.Version, MetadataType.ROBORIO);
 
         (new Thread(LoggingUtil::waitForDSThread)).start();
     }
