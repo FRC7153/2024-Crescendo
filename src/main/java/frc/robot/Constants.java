@@ -18,7 +18,7 @@ public class Constants {
     /** Swerve drive constants */
     public static class DriveConstants {
         // Base size
-        public static Translation2d kSIZE = new Translation2d(14.5, 7.0);
+        public static Translation2d kSIZE = new Translation2d(14.5, 7.0); // Track Width
 
         // CANCoder Offsets
         public static double kFL_STEER_ZERO = 0.0;
@@ -33,8 +33,9 @@ public class Constants {
         
         public static Vector<N3> kSTATE_STD_DEV = 
             VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(2.0)); // meters, meters, rads
-        public static double kDEFAULT_VISION_XY_STD_DEV = 0.3;
-        public static double kDEFAULT_VISION_RAD_STD_DEV = 0.52;
+        public static Vector<N3> kVISION_STD_DEV =
+            VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(5.0));
+
         public static Path kAPRIL_TAG_LAYOUT_JSON = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2024Layout.json");
     }
 
