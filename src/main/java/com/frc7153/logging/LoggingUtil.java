@@ -42,27 +42,6 @@ public class LoggingUtil {
     }
 
     /**
-     * Formats and logs the message, and prints it to standard output.
-     * @param msg
-     * @param args
-     */
-    public static void log(String msg, Object... args) {
-        DataLogManager.log(String.format(msg, args));
-    }
-
-    /**
-     * Formats and reports a warning to the log file and the DS
-     * @param msg
-     * @param args
-     */
-    public static void warn(String msg, Object... args) {
-        String output = String.format(msg, args);
-        
-        DataLogManager.log("Warning: " + output);
-        DriverStation.reportWarning(output, false);
-    }
-
-    /**
      * Logs RoboRIO info. Then, waits for Driver Station to connect, then logs 
      * match info to metadata. This is non-blocking.
      */
@@ -87,7 +66,7 @@ public class LoggingUtil {
                 else Thread.sleep(1500); // 1.5 second wait
             }
         } catch (InterruptedException e) {
-            warn("Logging interrupted while waiting for FMS connection.");
+            DriverStation.reportWarning("Logging interrupted while waiting for FMS connection.", false);
         }
 
         return DriverStation.isFMSAttached();

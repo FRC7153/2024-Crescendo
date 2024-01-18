@@ -36,7 +36,7 @@ public class Diagnostics {
 
     // Devices to check
     private ArrayList<CheckableDevice> devices;
-    private boolean errorThrown = false; // If evaluateResponse() finds error
+    private boolean errorThrown = false; // If appendFailedResponse() is called
 
     // Timer
     private Timer timer;

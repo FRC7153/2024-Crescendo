@@ -1,9 +1,8 @@
 package com.frc7153.logging.datalogentry;
 
-import com.frc7153.logging.LoggingUtil;
-
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * For putting x, y points into log files that can be viewed with 
@@ -68,11 +67,11 @@ public class PointsLogEntry {
     public void append(double... coordinates) {
         if (coordinates.length % 2 != 0) {
             // Length is not even
-            LoggingUtil.warn(
-                "Could not add points to '%s': number of coordinates must be even (is %d)", 
+            DriverStation.reportError(String.format(
+                "Could not add points to '%s': number of coordinates must be even (is %d)",
                 name,
                 coordinates.length
-            );
+            ), false);
             return;
         }
 

@@ -52,8 +52,8 @@ public class Encoder {
      * @param altered Whether the inversion, offset, conversion, or continuous range should be accounted for.
      * @return Position
      */
-    public double getPosition(boolean alter) {
-        if (alter) {
+    public double getPosition(boolean altered) {
+        if (altered) {
             double angle = encSupply.get() * (inverted ? -1 : 1) * conversion;
             angle += zeroOffset;
 

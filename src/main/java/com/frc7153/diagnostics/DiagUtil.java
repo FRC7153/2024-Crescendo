@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Diagnostics utility functions
@@ -97,11 +98,14 @@ public class DiagUtil {
     }
 
     /**
-     * Adds an error to the diagnostics log
+     * Adds an error to the diagnostics log. For example, if something doesn't boot or load correctly.
      * @param msg
      * @param args (will be formatted with these args)
      */
     public static void criticalError(String msg, Object... args) {
-        Diagnostics.getInstance().appendFailedResponse(String.format(msg, args));
+        String fMsg = String.format(msg, args);
+        
+        DriverStation.reportWarning(fMsg, false);
+        Diagnostics.getInstance().appendFailedResponse(fMsg);
     }
 }

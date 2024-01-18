@@ -4,10 +4,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.frc7153.diagnostics.DiagUtil;
-import com.frc7153.logging.LoggingUtil;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,7 +15,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
@@ -26,6 +22,7 @@ import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -76,9 +73,8 @@ public class SwerveBase extends SubsystemBase {
         modulePositions, 
         new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)), 
         DriveConstants.kSTATE_STD_DEV, 
-        VecBuilder.fill(0.1, 0.1, 0.1) // this won't be used
+        DriveConstants.kVISION_STD_DEV
     );
-    private Vector<N3> visionStandardDev = VecBuilder.fill(0, 0, 0); // pre-allocated
 
     // Logs
     private StructArrayLogEntry<SwerveModuleState> setpointLog = 
@@ -87,7 +83,7 @@ public class SwerveBase extends SubsystemBase {
         StructArrayLogEntry.create(DataLogManager.getLog(), "Drive/Swerve States", kSwerveModuleState, "m/s, rad");
     private StructLogEntry<Pose2d> poseLog =
         StructLogEntry.create(DataLogManager.getLog(), "Drive/Pose Estimation", new Pose2dStruct());
-    private DoubleLogEntry avgAmbiguityLog = 
+    private DoubleLogEntry ambiguityLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Drive/Tag Ambiguity (avg)", "Should not exceed 0.2");
     private IntegerLogEntry tagIdLog = 
         new IntegerLogEntry(DataLogManager.getLog(), "Drive/Tag IDs");
@@ -108,7 +104,10 @@ public class SwerveBase extends SubsystemBase {
      */
     public void drive(SwerveModuleState[] states) {
         if (states.length != 4) {
-            LoggingUtil.warn("Could not set swerve module states because did not receive 4 (received %d)", states.length);
+            DriverStation.reportWarning(String.format(
+                "Could not set swerve module states because did not receive 4 (received %d)", 
+                states.length
+            ), false);
             return;
         }
 
@@ -157,59 +156,6 @@ public class SwerveBase extends SubsystemBase {
         if (pose.targetsUsed.size() == 0) {
             // No targets here!
             return false;
-        } else if (pose.targetsUsed.size() == 1) {
-            // Only 1 target -> default distribution
-            PhotonTrackedTarget tag = pose.targetsUsed.get(0);
-
-            if (tag.getPoseAmbiguity() == -1 || tag.getPoseAmbiguity() > 0.2 || tag.getFiducialId() == -1) {
-                // This tag is bogus
-                LoggingUtil.warn("Invalid tag found in EstimatedRobotPose!");
-                return false;
-            }
-
-            visionStandardDev.set(0, 0, DriveConstants.kDEFAULT_VISION_XY_STD_DEV);
-            visionStandardDev.set(1, 0, DriveConstants.kDEFAULT_VISION_XY_STD_DEV);
-            visionStandardDev.set(2, 0, DriveConstants.kDEFAULT_VISION_RAD_STD_DEV);
-
-            // A histogram can be created to see which tags are seen the most
-            tagIdLog.append(tag.getFiducialId());
-            avgAmbiguityLog.append(tag.getPoseAmbiguity());
-        } else {
-            // Many tags, find the standard deviation
-            double minX = pose.targetsUsed.get(0).getBestCameraToTarget().getX();
-            double maxX = pose.targetsUsed.get(0).getBestCameraToTarget().getX();
-            double minY = pose.targetsUsed.get(0).getBestCameraToTarget().getY();
-            double maxY = pose.targetsUsed.get(0).getBestCameraToTarget().getY();
-            double minR = pose.targetsUsed.get(0).getBestCameraToTarget().getRotation().getZ();
-            double maxR = pose.targetsUsed.get(0).getBestCameraToTarget().getRotation().getZ();
-            double avgAmbiguity = 0.0; // IDK what to do with ambiguity.
-
-            for (PhotonTrackedTarget tag : pose.targetsUsed) {
-                if (tag.getPoseAmbiguity() == -1 || tag.getFiducialId() == -1) {
-                    // Bogus tags
-                    LoggingUtil.warn("Invalid tag found in EstimatedRobotPose!");
-                    return false;
-                }
-
-                // Recalculate std dev
-                minX = Math.min(minX, tag.getBestCameraToTarget().getX());
-                maxX = Math.min(minX, tag.getBestCameraToTarget().getX());
-                minY = Math.min(minX, tag.getBestCameraToTarget().getY());
-                maxY = Math.min(minX, tag.getBestCameraToTarget().getY());
-                minR = Math.min(minX, tag.getBestCameraToTarget().getRotation().getZ());
-                maxR = Math.min(minX, tag.getBestCameraToTarget().getRotation().getZ());
-                avgAmbiguity += tag.getPoseAmbiguity();
-
-                // Log
-                tagIdLog.append(tag.getFiducialId());
-                avgAmbiguityLog.append(avgAmbiguity);
-            }
-
-            // Calculate the distributions
-            avgAmbiguity /= pose.targetsUsed.size();
-            visionStandardDev.set(0, 0, Math.max(maxX - minX, 0.076));
-            visionStandardDev.set(1, 0, Math.max(maxY - minY, 0.076));
-            visionStandardDev.set(2, 0, Math.max(maxR - minR, 0.14));
         }
 
         Pose2d visionPos = pose.estimatedPose.toPose2d();
@@ -217,12 +163,19 @@ public class SwerveBase extends SubsystemBase {
         // Check how far off this is
         if (visionPos.getTranslation().getDistance(estimator.getEstimatedPosition().getTranslation()) > 1.3) {
             // More than 4ft off...
-            LoggingUtil.warn("Received vision pose that was far (>1.3m) off");
+            DriverStation.reportWarning("Received vision pose that was far (>1.3m) off", false);
             return false;
         }
 
         // Add this measurement
-        estimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds, visionStandardDev);
+        estimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+
+        // Log
+        for (PhotonTrackedTarget tag : pose.targetsUsed) {
+            ambiguityLog.append(tag.getPoseAmbiguity());
+            tagIdLog.append(tag.getFiducialId());
+        }
+
         return true;
     }
 

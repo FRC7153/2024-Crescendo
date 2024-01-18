@@ -2,7 +2,6 @@ package com.frc7153.math;
 
 /**
  * Shared, static math utility class for operation used by a number of other packages here.
- * Not all math utils have been moved here yet.
  */
 public class MathUtils {
     /**

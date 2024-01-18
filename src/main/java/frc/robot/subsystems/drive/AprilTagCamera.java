@@ -10,7 +10,6 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.common.hardware.VisionLEDMode;
 
 import com.frc7153.diagnostics.DiagUtil;
-import com.frc7153.logging.LoggingUtil;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -53,7 +52,6 @@ public class AprilTagCamera extends SubsystemBase {
             try {
                 kAprilTagLayout = new AprilTagFieldLayout(DriveConstants.kAPRIL_TAG_LAYOUT_JSON);
             } catch (IOException e) {
-                LoggingUtil.warn("Failed to load AprilTagFieldLayout: %s", e.getMessage());
                 DiagUtil.criticalError("Failed to load AprilTagFieldLayout: %s", e.getMessage());
                 e.printStackTrace();
             }
