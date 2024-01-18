@@ -15,9 +15,9 @@ public class CANLogger {
     private static DoubleLogEntry percentUtilLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "CAN/Percent Util", "%");
     private static DoubleLogEntry rxErr = 
-        new DoubleLogEntry(DataLogManager.getLog(), "CAN/Receive Error Count");
+        new DoubleLogEntry(DataLogManager.getLog(), "CAN/RX Error Count");
     private static DoubleLogEntry txErr = 
-        new DoubleLogEntry(DataLogManager.getLog(), "CAN/Transmit Error Count");
+        new DoubleLogEntry(DataLogManager.getLog(), "CAN/TX Error Count");
     private static DoubleLogEntry txFull = 
         new DoubleLogEntry(DataLogManager.getLog(), "CAN/TX Buffer Full Count");
 
