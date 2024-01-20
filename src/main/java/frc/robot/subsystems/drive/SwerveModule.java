@@ -28,12 +28,6 @@ import frc.robot.Constants.SwerveModuleConstants;
  * for heading.
  */
 public class SwerveModule {
-    /**
-     * CRITICAL TODO: coupling ratio math needs to be optimized, and telemetry-reporting methods
-     * need to respect the coupling ratio. Difference in steer needs to be periodically integrated
-     * to drive motor position with coupling ratio.
-     */
-
     // Hardware
     private TalonFX driveMotor;
     private CANSparkMax steerMotor; 
