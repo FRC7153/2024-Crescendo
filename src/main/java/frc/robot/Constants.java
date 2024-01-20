@@ -69,24 +69,18 @@ public class Constants {
 
     /** CAN Hardware Constants */
     public static class HardwareConstants {
-        public static int kFL_STEER_CAN = 2;
-        public static int kFR_STEER_CAN = 3;
-        public static int kRL_STEER_CAN = 4;
-        public static int kRR_STEER_CAN = 5;
-        public static int kFL_DRIVE_CAN = 6;
-        public static int kFR_DRIVE_CAN = 7;
-        public static int kRL_DRIVE_CAN = 8;
-        public static int kRR_DRIVE_CAN = 9;
-        
-        public static int kINDEXER_CAN = 10;
-        public static int kINTAKE_CAN = 11;
-        public static int kLEFT_SHOOTER_CAN = 12;
-        public static int kRIGHT_SHOOTER_CAN = 13;
-        
-        public static int kFL_CANCODER = 14;
-        public static int kFR_CANCODER = 15;
-        public static int kRL_CANCODER = 16;
-        public static int kRR_CANCODER = 17;
+        public static int kFL_DRIVE_CAN = 3;
+        public static int kFR_DRIVE_CAN = 4;
+        public static int kRL_DRIVE_CAN = 5;
+        public static int kRR_DRIVE_CAN = 6;
+        public static int kFL_STEER_CAN = 7;
+        public static int kFR_STEER_CAN = 8;
+        public static int kRL_STEER_CAN = 9;
+        public static int kRR_STEER_CAN = 10;
+        public static int kFL_CANCODER = 11;
+        public static int kFR_CANCODER = 12;
+        public static int kRL_CANCODER = 13;
+        public static int kRR_CANCODER = 14;
 
         public static String kCANIVORE_BUS = "Canivore";
     }
@@ -98,4 +92,10 @@ public class Constants {
         public static double kGREEN = 0.77;
         public static double kYELLOW = 0.69;
     }
+
+    public static class IntakeConstants {
+        public static int = ;
+    }
 }
+
+
