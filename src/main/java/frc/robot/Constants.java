@@ -15,6 +15,23 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
  * Swerve Base
  */
 public class Constants {
+    /** Shooter Constants */
+    public static class ShooterConstants {
+        public static int kSHOOT_CURRENT_LIMIT = 60;
+        public static double kSHOOT_RATIO = 2.0; // step-up ratio
+        public static double kSHOOT_P = 0.1;
+        public static double kSHOOT_I = 0.0;
+        public static double kSHOOT_D = 0.0;
+
+        public static int kINDEXER_CURRENT_LIMIT = 15;
+        public static double kINDEXER_RATIO = 1.0 / 5.0;
+        public static double kINDEXER_P = 0.1;
+        public static double kINDEXER_I = 0.0;
+        public static double kINDEXER_D = 0.0;
+
+        public static double kINDEXER_SETPOINT = 5.0; // r/s, while moving
+    }
+
     /** Swerve drive constants */
     public static class DriveConstants {
         // Base size
@@ -80,15 +97,15 @@ public class Constants {
         public static int kINDEXER_CAN = 10;
         public static int kINTAKE_CAN = 11;
 
-        public static int kSHOOTER1_CAN = 12;
-        public static int kSHOOTER2_CAN = 13;
+        public static int kSHOOTER_UPPER_CAN = 12;
+        public static int kSHOOTER_LOWER_CAN = 13;
 
         public static int kFL_CANCODER = 14;
         public static int kFR_CANCODER = 15;
         public static int kRL_CANCODER = 16;
         public static int kRR_CANCODER = 17;
 
-        public static String kCANIVORE_BUS = "Canivore";
+        public static String kCANIVORE_BUS = "CANivore";
     }
 
     public static class LEDConstants {
