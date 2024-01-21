@@ -41,7 +41,6 @@ public class ConsoleLogger {
 
             originalOut.append((char)b);
         }
-
     }
 
     /**
