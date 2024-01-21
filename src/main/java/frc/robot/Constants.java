@@ -84,7 +84,7 @@ public class Constants {
 
         public static int kSHOOTER1_CAN = 12;
         public static int kSHOOTER2_CAN = 13;
-
+ 
         public static int kFL_CANCODER = 14;
         public static int kFR_CANCODER = 15;
         public static int kRL_CANCODER = 16;
@@ -102,7 +102,11 @@ public class Constants {
     }
 
     public static class IntakeConstants {
-        //public static int = ;
+        public static int kINTAKE_VELOCITY = 0;
+
+        public static double kINTAKE_P = 0.0;
+        public static double kINTAKE_I = 0.0;
+        public static double kINTAKE_D = 0.0;
     }
 }
 
