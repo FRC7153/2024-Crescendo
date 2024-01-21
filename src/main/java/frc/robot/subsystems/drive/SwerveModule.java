@@ -124,9 +124,6 @@ public class SwerveModule {
         DiagUtil.addDevice(driveMotor);
         DiagUtil.addDevice(steerCANCoder);
         DiagUtil.addDevice(steerMotor);
-
-        DiagUtil.addDevice(steerCANCoderPos, steerCANCoder);
-        DiagUtil.addDevice(steerCANCoderVelocity, steerCANCoder);
     }
 
     /**

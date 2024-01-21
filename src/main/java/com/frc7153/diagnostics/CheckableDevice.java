@@ -17,6 +17,13 @@ public abstract class CheckableDevice {
     public abstract String getMessage();
 
     /**
+     * Log diagnostic information. It is expected that the user will be logging useful information
+     * about the output (ie, position or velocity) themselves. All logs should be under {@code Hardware/.../}.
+     * The overall OK is logged automatically.
+     */
+    public abstract void performLogging();
+
+    /**
      * @return ID for this device, used for debugging
      */
     public abstract String getID();

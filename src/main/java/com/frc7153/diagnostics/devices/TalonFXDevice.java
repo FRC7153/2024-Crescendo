@@ -5,14 +5,25 @@ import java.util.ArrayList;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.frc7153.diagnostics.CheckableDevice;
+import com.frc7153.logging.LoggingUtil;
+import com.frc7153.math.MathUtils;
+
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 
 public class TalonFXDevice extends CheckableDevice {
+    private TalonFX talon;
     private ArrayList<StatusSignal<Boolean>> signals = new ArrayList<>(10);
     private StringBuilder faultMsg = new StringBuilder(); // cached on rawIsOK()
     private String id;
 
+    // Logging
+    private DoubleLogEntry motorTempLog;
+    private DoubleLogEntry procTempLog;
+
     public TalonFXDevice(TalonFX talon) {
-        id = String.format("TalonFX %d (bus: %s)", talon.getDeviceID(), talon.getNetwork());
+        this.talon = talon;
+        id = LoggingUtil.formatPhoenixDevice(talon);
         
         signals.add(talon.getFault_BootDuringEnable());
         signals.add(talon.getFault_BridgeBrownout());
@@ -25,7 +36,8 @@ public class TalonFXDevice extends CheckableDevice {
         signals.add(talon.getFault_UnlicensedFeatureInUse());
         signals.add(talon.getFault_UnstableSupplyV());
 
-        talon.getFaultField();
+        motorTempLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Motor Temp", id), "F");
+        procTempLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Proc Temp", id), "F");
     }
 
     @Override
@@ -56,4 +68,9 @@ public class TalonFXDevice extends CheckableDevice {
         return id;
     }
     
+    @Override
+    public void performLogging() {
+        motorTempLog.append(MathUtils.celsiusToFahrenheit(talon.getDeviceTemp().getValue()));
+        procTempLog.append(MathUtils.celsiusToFahrenheit(talon.getProcessorTemp().getValue()));
+    }
 }

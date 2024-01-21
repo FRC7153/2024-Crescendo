@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -82,6 +83,13 @@ public class Shooter implements Subsystem {
         DiagUtil.addDevice(shooterUpper);
         DiagUtil.addDevice(shooterLower);
         DiagUtil.addDevice(indexer);
+
+        // Initial log values
+        shooterSetpointLog.append(0.0);
+        indexerEnabledLog.append(false);
+
+        // Register
+        register();
     }
 
     /** Set shoot velocity (r/s) */
@@ -110,5 +118,6 @@ public class Shooter implements Subsystem {
         lowerShooterVeloLog.append(shooterLower.getVelocity().getValue() / ShooterConstants.kSHOOT_RATIO);
 
         indexerVeloLog.append(indexerEncoder.getVelocity() / ShooterConstants.kINDEXER_RATIO);
+        System.out.println("loop " + Timer.getFPGATimestamp());
     }
 }

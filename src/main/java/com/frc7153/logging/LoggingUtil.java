@@ -104,7 +104,7 @@ public class LoggingUtil {
      * @return Contains type, CAN id, and CAN bus name
      */
     public static String formatPhoenixDevice(ParentDevice device) {
-        return String.format("CTRE %s #%d (bus: '%s')",
+        return String.format("CTRE %s #%d (bus '%s')",
             device.getClass().getSimpleName(), device.getDeviceID(), device.getNetwork()
         );
     }

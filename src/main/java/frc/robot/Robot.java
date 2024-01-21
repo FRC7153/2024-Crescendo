@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.frc7153.logging.LoggingUtil;
 
-import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;

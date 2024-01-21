@@ -3,7 +3,6 @@ package com.frc7153.diagnostics;
 import org.photonvision.PhotonCamera;
 
 import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -11,7 +10,6 @@ import com.frc7153.diagnostics.devices.ADIS16470Device;
 import com.frc7153.diagnostics.devices.CANCoderDevice;
 import com.frc7153.diagnostics.devices.CANSparkMaxDevice;
 import com.frc7153.diagnostics.devices.PhotonCameraDevice;
-import com.frc7153.diagnostics.devices.StatusSignalDevice;
 import com.frc7153.diagnostics.devices.TalonFXDevice;
 import com.frc7153.logging.LoggingUtil;
 import com.revrobotics.CANSparkMax;
@@ -49,13 +47,6 @@ public class DiagUtil {
      * @param talon
      */
     public static void addDevice(TalonFX talon) { Diagnostics.getInstance().addDevice(new TalonFXDevice(talon)); }
-
-    /**
-     * Adds a new StatusSignal to be checked
-     * @param signal
-     * @param device The device that this signal belongs to
-     */
-    public static void addDevice(StatusSignal<?> signal, ParentDevice device) { Diagnostics.getInstance().addDevice(new StatusSignalDevice(signal, device)); }
 
     /**
      * Adds a new ADIS16470 to be checked
