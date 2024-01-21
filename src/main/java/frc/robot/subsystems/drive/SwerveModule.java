@@ -164,9 +164,7 @@ public class SwerveModule {
     public void setSteerAngle(double angle) {
         setpoint.angle = Rotation2d.fromDegrees(angle);
         angle = (angle/360.0) * SwerveModuleConstants.kSTEER_RATIO;
-        DiagUtil.evaluateResponse(
-            steerPIDControl.setReference(angle, ControlType.kPosition, 0),
-        steerMotor);
+        steerPIDControl.setReference(angle, ControlType.kPosition, 0);
     }
 
     /**
@@ -207,14 +205,12 @@ public class SwerveModule {
         velocity -= couplingEffect;
 
         // Set drive motor
-        DiagUtil.evaluateResponse(
-            drivePIDController.setReference(
-                velocity, 
-                ControlType.kSmartVelocity, 
-                0, 
-                driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
-            ),
-        driveMotor);
+        drivePIDController.setReference(
+            velocity, 
+            ControlType.kSmartVelocity, 
+            0, 
+            driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
+        );
 
         // Compensate coupling ratio in odometry
         drivePosOffset += ((getSteerAnglePosRots() - lastSteerAngle) * SwerveModuleConstants.kCOUPLING_RATIO);
