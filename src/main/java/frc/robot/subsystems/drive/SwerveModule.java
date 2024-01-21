@@ -2,12 +2,8 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.frc7153.diagnostics.DiagUtil;
 import com.revrobotics.CANSparkMax;
@@ -17,6 +13,7 @@ import static com.revrobotics.CANSparkMax.ControlType;
 import static com.revrobotics.CANSparkMax.IdleMode;
 import static com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -24,23 +21,27 @@ import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 
 /**
- * A single swerve module, with a Falcon500 for drive, NEO for steer, and CANCoder
+ * A single swerve module, with a NEO for drive, NEO for steer, and CANCoder
  * for heading.
  */
 public class SwerveModule {
     // Hardware
-    private TalonFX driveMotor;
+    private CANSparkMax driveMotor;
     private CANSparkMax steerMotor; 
     private CANcoder steerCANCoder;
 
     // Control
-    private MotionMagicVelocityVoltage driveControl;
-    private StatusSignal<Double> drivePosition;
-    private StatusSignal<Double> driveVelocity;
+    private SparkPIDController drivePIDController;
+    private RelativeEncoder driveEncoder;
+    private SimpleMotorFeedforward driveFF;
     private SparkPIDController steerPIDControl;
     private RelativeEncoder steerRelEncoder;
     private StatusSignal<Double> steerCANCoderPos;
     private StatusSignal<Double> steerCANCoderVelocity;
+
+    // Coupling ratio integration
+    private double drivePosOffset = 0.0;
+    private double lastSteerAngle = 0.0;
 
     // State
     private SwerveModuleState setpoint = new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0));
@@ -50,7 +51,7 @@ public class SwerveModule {
      * @param driveCan (on the Canivore's bus)
      * @param steerCan
      * @param cancoderCan
-     * @param steerZeroPos Added to angle of wheel(degrees, CCW positive)
+     * @param steerZeroPos Added to angle of wheel (rotations, CCW positive)
      */
     public SwerveModule(
         int driveCan,
@@ -59,40 +60,29 @@ public class SwerveModule {
         double steerZeroPos
     ) {
         // Create and config DRIVE MOTOR
-        driveMotor = new TalonFX(driveCan, HardwareConstants.kCANIVORE_BUS);
+        driveMotor = new CANSparkMax(driveCan, MotorType.kBrushless);
         driveMotor.setInverted(true); // Positive = CW rotation of motor, when observed from the top
+        driveMotor.setIdleMode(IdleMode.kBrake);
 
-        TalonFXConfiguration driveConfig = new TalonFXConfiguration();
+        driveMotor.setSmartCurrentLimit(SwerveModuleConstants.kDRIVE_CURRENT_LIMIT);
 
-        driveConfig.Voltage.PeakForwardVoltage = SwerveModuleConstants.kDRIVE_PEAK_VOLTAGE;
-        driveConfig.Voltage.PeakReverseVoltage = -SwerveModuleConstants.kDRIVE_PEAK_VOLTAGE;
-        
-        driveConfig.CurrentLimits.StatorCurrentLimit = SwerveModuleConstants.kDRIVE_STATOR_CURRENT_LIMIT;
-        driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        driveConfig.CurrentLimits.SupplyCurrentLimit = SwerveModuleConstants.kDRIVE_SUPPLY_CURRENT_LIMIT;
-        driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        drivePIDController = driveMotor.getPIDController();
 
-        driveConfig.Slot0.kP = SwerveModuleConstants.kDRIVE_P;
-        driveConfig.Slot0.kI = SwerveModuleConstants.kDRIVE_I;
-        driveConfig.Slot0.kD = SwerveModuleConstants.kDRIVE_D;
-        driveConfig.Slot0.kS = SwerveModuleConstants.kDRIVE_S;
-        driveConfig.Slot0.kV = SwerveModuleConstants.kDRIVE_V;
-        driveConfig.Slot0.kA = SwerveModuleConstants.kDRIVE_A;
-        
-        driveConfig.MotionMagic.MotionMagicCruiseVelocity = SwerveModuleConstants.kDRIVE_MAX_VELO;
-        driveConfig.MotionMagic.MotionMagicAcceleration = SwerveModuleConstants.kDRIVE_MAX_ACCEL;
+        drivePIDController.setP(SwerveModuleConstants.kDRIVE_P, 0);
+        drivePIDController.setI(SwerveModuleConstants.kDRIVE_I, 0);
+        drivePIDController.setD(SwerveModuleConstants.kDRIVE_D, 0);
+        drivePIDController.setSmartMotionMaxAccel(SwerveModuleConstants.kDRIVE_MAX_ACCEL, 0);
+        drivePIDController.setSmartMotionMaxVelocity(SwerveModuleConstants.kDRIVE_MAX_ACCEL, 0);
 
-        driveMotor.getConfigurator().apply(driveConfig);
-        driveMotor.setNeutralMode(NeutralModeValue.Brake);
+        driveEncoder = driveMotor.getEncoder();
+        driveEncoder.setPosition(0.0);
 
-        driveControl = new MotionMagicVelocityVoltage(0.0);
-        driveControl.Slot = 0;
-        driveMotor.setControl(driveControl);
-        
-        drivePosition = driveMotor.getRotorPosition();
-        driveVelocity = driveMotor.getRotorVelocity();
-
-        driveMotor.setPosition(0.0); // Ensure start at 0
+        // Configure drive feed forward
+        driveFF = new SimpleMotorFeedforward(
+            SwerveModuleConstants.kDRIVE_S, 
+            SwerveModuleConstants.kDRIVE_V, 
+            SwerveModuleConstants.kDRIVE_A
+        );
 
         // Create and config STEER CANCODER
         steerCANCoder = new CANcoder(cancoderCan, HardwareConstants.kCANIVORE_BUS);
@@ -100,7 +90,7 @@ public class SwerveModule {
         CANcoderConfiguration steerCANCoderConfigs = new CANcoderConfiguration();
         steerCANCoderConfigs.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
         steerCANCoderConfigs.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        steerCANCoderConfigs.MagnetSensor.MagnetOffset = (steerZeroPos / 360.0);
+        steerCANCoderConfigs.MagnetSensor.MagnetOffset = steerZeroPos;
         steerCANCoder.getConfigurator().apply(steerCANCoderConfigs);
 
         steerCANCoderVelocity = steerCANCoder.getVelocity();
@@ -134,11 +124,6 @@ public class SwerveModule {
         DiagUtil.addDevice(driveMotor);
         DiagUtil.addDevice(steerCANCoder);
         DiagUtil.addDevice(steerMotor);
-
-        DiagUtil.addDevice(drivePosition, driveMotor);
-        DiagUtil.addDevice(driveVelocity, driveMotor);
-        DiagUtil.addDevice(steerCANCoderPos, steerCANCoder);
-        DiagUtil.addDevice(steerCANCoderVelocity, steerCANCoder);
     }
 
     /**
@@ -148,7 +133,7 @@ public class SwerveModule {
      */
     private double getSteerAnglePosRots() {
         steerCANCoderPos.refresh();
-        if (steerCANCoderPos.getTimestamp().getLatency() < 2.5) { // CANCoder good
+        if (steerCANCoderPos.getTimestamp().getLatency() < 2.0) { // CANCoder good
             return steerCANCoderPos.getValue();
         } else { // CANCoder bad
             return steerRelEncoder.getPosition() / SwerveModuleConstants.kSTEER_RATIO;
@@ -162,7 +147,7 @@ public class SwerveModule {
      */
     private double getSteerAngleVelocity() {
         steerCANCoderVelocity.refresh();
-        if (steerCANCoderVelocity.getTimestamp().getLatency() < 2.5) { // CANCoder good
+        if (steerCANCoderVelocity.getTimestamp().getLatency() < 2.0) { // CANCoder good
             return steerCANCoderVelocity.getValue();
         } else { // CANCoder bad
             return steerRelEncoder.getVelocity() / SwerveModuleConstants.kSTEER_RATIO / 60.0;
@@ -176,9 +161,7 @@ public class SwerveModule {
     public void setSteerAngle(double angle) {
         setpoint.angle = Rotation2d.fromDegrees(angle);
         angle = (angle/360.0) * SwerveModuleConstants.kSTEER_RATIO;
-        DiagUtil.evaluateResponse(
-            steerPIDControl.setReference(angle, ControlType.kPosition, 0),
-        steerMotor);
+        steerPIDControl.setReference(angle, ControlType.kPosition, 0);
     }
 
     /**
@@ -214,15 +197,21 @@ public class SwerveModule {
         // Convert to wheel velocity (r/s)
         velocity /= SwerveModuleConstants.kWHEEL_CIRCUMFERENCE;
 
-        // Compensate for steer velocity
-        velocity *= SwerveModuleConstants.kDRIVE_STAGE_2_RATIO; // Velocity of double gear
-        /* Drive wheel forward is defined as clockwise rotation of the double gear,
-         * when observed from the top */
-        velocity -= getSteerAngleVelocity(); // Subtract speed of pulley
+        // Compensate for coupling ratio
+        double couplingEffect = getSteerAngleVelocity() * SwerveModuleConstants.kCOUPLING_RATIO;
+        velocity -= couplingEffect;
 
         // Set drive motor
-        velocity *= SwerveModuleConstants.kDRIVE_STAGE_1_RATIO; // Velocity of motor
-        DiagUtil.evaluateResponse(driveMotor.setControl(driveControl.withVelocity(velocity)), driveMotor);
+        drivePIDController.setReference(
+            velocity, 
+            ControlType.kSmartVelocity, 
+            0, 
+            driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
+        );
+
+        // Compensate coupling ratio in odometry
+        drivePosOffset += ((getSteerAnglePosRots() - lastSteerAngle) * SwerveModuleConstants.kCOUPLING_RATIO);
+        lastSteerAngle = getSteerAnglePosRots(); // rots
     }
 
     /**
@@ -236,10 +225,9 @@ public class SwerveModule {
      * @return  The current actual state
      */
     public SwerveModuleState getState() {
-        driveVelocity.refresh();
-        
+        double coupling = getSteerAngleVelocity() * SwerveModuleConstants.kCOUPLING_RATIO;    
         return new SwerveModuleState(
-            driveVelocity.getValue() / SwerveModuleConstants.kDRIVE_RATIO * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE,
+            ((driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) - coupling) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE,
             Rotation2d.fromRotations(getSteerAnglePosRots())
         );
     }
@@ -249,10 +237,8 @@ public class SwerveModule {
      * @return
      */
     public SwerveModulePosition getPosition() {
-        drivePosition.refresh();
-
         return new SwerveModulePosition(
-            drivePosition.getValue() / SwerveModuleConstants.kDRIVE_RATIO * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE,
+            (driveEncoder.getPosition() / SwerveModuleConstants.kDRIVE_RATIO * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE) - drivePosOffset,
             Rotation2d.fromRotations(getSteerAnglePosRots())
         );
     }

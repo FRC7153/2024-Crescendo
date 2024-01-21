@@ -8,6 +8,7 @@ import org.ejml.simple.UnsupportedOperation;
 
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Captures Java's Console messages to WPILogs
@@ -30,9 +31,9 @@ public class ConsoleLogger {
 
         @Override
         public void write(int b) throws IOException {
-            if (b == '\n') {
+            if (b == '\n' || buffer.length() > 800) {
                 // Flush buffer
-                dataLogOut.append(buffer.toString());
+                dataLogOut.append(String.format("[%f] %s", Timer.getFPGATimestamp(), buffer.toString()));
                 buffer.delete(0, buffer.length());
             } else {
                 // Append to buffer
@@ -41,7 +42,6 @@ public class ConsoleLogger {
 
             originalOut.append((char)b);
         }
-
     }
 
     /**

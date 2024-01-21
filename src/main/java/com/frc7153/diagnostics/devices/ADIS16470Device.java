@@ -27,5 +27,7 @@ public class ADIS16470Device extends CheckableDevice {
     public String getID() {
         return id;
     }
-    
+
+    @Override
+    public void performLogging() {} // None needed
 }
