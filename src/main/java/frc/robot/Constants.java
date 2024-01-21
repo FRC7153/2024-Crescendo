@@ -97,8 +97,8 @@ public class Constants {
         public static int kINDEXER_CAN = 10;
         public static int kINTAKE_CAN = 11;
 
-        public static int kSHOOTER1_CAN = 12;
-        public static int kSHOOTER2_CAN = 13;
+        public static int kSHOOTER_UPPER_CAN = 12;
+        public static int kSHOOTER_LOWER_CAN = 13;
  
         public static int kFL_CANCODER = 14;
         public static int kFR_CANCODER = 15;
