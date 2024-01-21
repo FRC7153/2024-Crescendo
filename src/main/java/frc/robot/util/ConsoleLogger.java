@@ -30,7 +30,7 @@ public class ConsoleLogger {
 
         @Override
         public void write(int b) throws IOException {
-            if (b == '\n') {
+            if (b == '\n' || buffer.length() > 800) {
                 // Flush buffer
                 dataLogOut.append(buffer.toString());
                 buffer.delete(0, buffer.length());
