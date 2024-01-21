@@ -21,7 +21,7 @@ public class Constants {
         public static Translation2d kSIZE = new Translation2d(14.5, 7.0); // Track Width
 
         // CANCoder Offsets
-        public static double kFL_STEER_ZERO = 0.0;
+        public static double kFL_STEER_ZERO = -0.364502;
         public static double kFR_STEER_ZERO = 0.0;
         public static double kRL_STEER_ZERO = 0.0;
         public static double kRR_STEER_ZERO = 0.0;
@@ -42,15 +42,12 @@ public class Constants {
     /** Swerve module constants */
     public static class SwerveModuleConstants {
         public static final double kWHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI; // meters
+        public static final double kCOUPLING_RATIO = (27.0  /16.0) / 3.0;
 
         // Drive Motor
         public static final double kDRIVE_RATIO = 6.12; // motor to wheel ratio (L3)
-        public static final double kDRIVE_STAGE_1_RATIO = 50.0 / 14.0; // motor to base pulley ratio
-        public static final double kDRIVE_STAGE_2_RATIO = (16.0 / 28.0) * (45.0 / 15.0); // base pulley to wheel ratio
-        public static final double kDRIVE_PEAK_VOLTAGE = 16;
-        public static final double kDRIVE_STATOR_CURRENT_LIMIT = 60;
-        public static final double kDRIVE_SUPPLY_CURRENT_LIMIT = 60;
-        public static final double kDRIVE_P = 0.1;
+        public static final int kDRIVE_CURRENT_LIMIT = 60;
+        public static final double kDRIVE_P = 0.01;
         public static final double kDRIVE_I = 0.0;
         public static final double kDRIVE_D = 0.0;
         public static final double kDRIVE_S = 0.0;
@@ -62,9 +59,10 @@ public class Constants {
         // Spin Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;
         public static final int kSTEER_CURRENT_LIMIT = 30;
-        public static final double kSTEER_P = 0.1;
-        public static final double kSTEER_I = 0.0;
+        public static final double kSTEER_P = 0.3;
+        public static final double kSTEER_I = 0.00001;
         public static final double kSTEER_D = 0.0;
+        public static final double kSTEER_FF = 0.0;
     }
 
     /** CAN Hardware Constants */
