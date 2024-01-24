@@ -96,6 +96,7 @@ public class SwerveBase implements Subsystem {
     public SwerveBase() {
         // Start logging
         DiagUtil.addDevice(gyro);
+        register();
     }
 
     /**

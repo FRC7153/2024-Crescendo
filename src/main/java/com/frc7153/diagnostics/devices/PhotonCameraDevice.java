@@ -35,4 +35,7 @@ public class PhotonCameraDevice extends CheckableDevice {
     public String getID() {
         return id;
     }
+
+    @Override
+    public void performLogging() {} // none needed
 }

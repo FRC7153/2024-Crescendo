@@ -4,20 +4,32 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.frc7153.diagnostics.CheckableDevice;
+import com.frc7153.logging.LoggingUtil;
+
+import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 
 public class CANCoderDevice extends CheckableDevice {
+    private CANcoder cancoder;
     private StatusSignal<Boolean> ss_badMagnet, ss_bde, ss_hardware, ss_uv, ss_unlicensed;
 
     private String id;
 
+    // Logging
+    private StringLogEntry magnetHealthLog;
+
     public CANCoderDevice(CANcoder cancoder) {
+        this.cancoder = cancoder;
+
         ss_badMagnet = cancoder.getFault_BadMagnet();
         ss_bde = cancoder.getFault_BootDuringEnable();
         ss_hardware = cancoder.getFault_Hardware();
         ss_uv = cancoder.getFault_Undervoltage();
         ss_unlicensed = cancoder.getFault_UnlicensedFeatureInUse();
 
-        id = String.format("CTRE CANCoder %d (bus: %s)", cancoder.getDeviceID(), cancoder.getNetwork());
+        id = LoggingUtil.formatPhoenixDevice(cancoder);
+
+        magnetHealthLog = new StringLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Magnet Health", id));
     }
 
     @Override
@@ -47,4 +59,8 @@ public class CANCoderDevice extends CheckableDevice {
         return id;
     }
     
+    @Override
+    public void performLogging() {
+        magnetHealthLog.append(cancoder.getMagnetHealth().getName());
+    }
 }

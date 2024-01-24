@@ -4,6 +4,7 @@ import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -36,6 +37,7 @@ public class Diagnostics {
 
     // Devices to check
     private ArrayList<CheckableDevice> devices;
+    private ArrayList<BooleanLogEntry> deviceOkLogs;
     private boolean errorThrown = false; // If appendFailedResponse() is called
 
     // Timer
@@ -58,10 +60,11 @@ public class Diagnostics {
         nt_msg.setDefault("NT using default values");
 
         // Init log
-        logEntry = new StringLogEntry(DataLogManager.getLog(), "Diagnostics");
+        logEntry = new StringLogEntry(DataLogManager.getLog(), "Hardware/Diagnostics");
 
         // Init lists
         devices = new ArrayList<CheckableDevice>();
+        deviceOkLogs = new ArrayList<BooleanLogEntry>();
 
         // Init timer
         timer = new Timer();
@@ -83,7 +86,9 @@ public class Diagnostics {
             if (errorThrown) { msg.append("Evaluated bad response, check logs.\n"); }
 
             // Check each device
-            for (CheckableDevice d : devices) {
+            for (int x = 0; x < devices.size(); x++) {
+                CheckableDevice d = devices.get(x);
+
                 boolean d_ok = d.getOK();
                 String d_id = d.getID();
                 String d_msg = (d_ok ? "OK" : d.getMessage());
@@ -105,6 +110,10 @@ public class Diagnostics {
                     DriverStation.reportWarning("Device update: " + warning, false);
                     logEntry.append(warning);
                 }
+
+                // Log this
+                deviceOkLogs.get(x).append(d_ok);
+                d.performLogging();
             }
 
             // Send to NT
@@ -119,7 +128,10 @@ public class Diagnostics {
      * Adds a device that will be periodically checked.
      * @param device
      */
-    public void addDevice(CheckableDevice device) { devices.add(device); }
+    public void addDevice(CheckableDevice device) {
+        deviceOkLogs.add(new BooleanLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/OK", device.getID())));
+        devices.add(device);
+    }
 
     /**
      * Logs a failed response (ie, from a motor controller) to the log and sets the

@@ -15,13 +15,30 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
  * Swerve Base
  */
 public class Constants {
+    /** Shooter Constants */
+    public static class ShooterConstants {
+        public static int kSHOOT_CURRENT_LIMIT = 60;
+        public static double kSHOOT_RATIO = 2.0; // step-up ratio
+        public static double kSHOOT_P = 0.1;
+        public static double kSHOOT_I = 0.0;
+        public static double kSHOOT_D = 0.0;
+
+        public static int kINDEXER_CURRENT_LIMIT = 15;
+        public static double kINDEXER_RATIO = 1.0 / 5.0;
+        public static double kINDEXER_P = 0.1;
+        public static double kINDEXER_I = 0.0;
+        public static double kINDEXER_D = 0.0;
+
+        public static double kINDEXER_SETPOINT = 5.0; // r/s, while moving
+    }
+
     /** Swerve drive constants */
     public static class DriveConstants {
         // Base size
         public static Translation2d kSIZE = new Translation2d(14.5, 7.0); // Track Width
 
         // CANCoder Offsets
-        public static double kFL_STEER_ZERO = 0.0;
+        public static double kFL_STEER_ZERO = -0.364502;
         public static double kFR_STEER_ZERO = 0.0;
         public static double kRL_STEER_ZERO = 0.0;
         public static double kRR_STEER_ZERO = 0.0;
@@ -42,15 +59,12 @@ public class Constants {
     /** Swerve module constants */
     public static class SwerveModuleConstants {
         public static final double kWHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI; // meters
+        public static final double kCOUPLING_RATIO = (27.0  /16.0) / 3.0;
 
         // Drive Motor
         public static final double kDRIVE_RATIO = 6.12; // motor to wheel ratio (L3)
-        public static final double kDRIVE_STAGE_1_RATIO = 50.0 / 14.0; // motor to base pulley ratio
-        public static final double kDRIVE_STAGE_2_RATIO = (16.0 / 28.0) * (45.0 / 15.0); // base pulley to wheel ratio
-        public static final double kDRIVE_PEAK_VOLTAGE = 16;
-        public static final double kDRIVE_STATOR_CURRENT_LIMIT = 60;
-        public static final double kDRIVE_SUPPLY_CURRENT_LIMIT = 60;
-        public static final double kDRIVE_P = 0.1;
+        public static final int kDRIVE_CURRENT_LIMIT = 60;
+        public static final double kDRIVE_P = 0.01;
         public static final double kDRIVE_I = 0.0;
         public static final double kDRIVE_D = 0.0;
         public static final double kDRIVE_S = 0.0;
@@ -62,9 +76,10 @@ public class Constants {
         // Spin Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;
         public static final int kSTEER_CURRENT_LIMIT = 30;
-        public static final double kSTEER_P = 0.1;
-        public static final double kSTEER_I = 0.0;
+        public static final double kSTEER_P = 0.3;
+        public static final double kSTEER_I = 0.00001;
         public static final double kSTEER_D = 0.0;
+        public static final double kSTEER_FF = 0.0;
     }
 
     /** CAN Hardware Constants */
@@ -82,15 +97,15 @@ public class Constants {
         public static int kINDEXER_CAN = 10;
         public static int kINTAKE_CAN = 11;
 
-        public static int kSHOOTER1_CAN = 12;
-        public static int kSHOOTER2_CAN = 13;
-
+        public static int kSHOOTER_UPPER_CAN = 12;
+        public static int kSHOOTER_LOWER_CAN = 13;
+ 
         public static int kFL_CANCODER = 14;
         public static int kFR_CANCODER = 15;
         public static int kRL_CANCODER = 16;
         public static int kRR_CANCODER = 17;
 
-        public static String kCANIVORE_BUS = "Canivore";
+        public static String kCANIVORE_BUS = "CANivore";
     }
 
     public static class LEDConstants {
@@ -102,7 +117,13 @@ public class Constants {
     }
 
     public static class IntakeConstants {
-        //public static int = ;
+        public static double kINTAKE_RATIO = 1.0 / 3.0;
+        public static double kINTAKE_SETPOiNT = 5.0; // r/s, while moving
+        public static int kINTAKE_CURRENt_LIMIT = 15;
+
+        public static double kINTAKE_P = 0.1;
+        public static double kINTAKE_I = 0.0;
+        public static double kINTAKE_D = 0.0;
     }
 }
 
