@@ -121,7 +121,7 @@ public class Constants {
         public static double kINTAKE_SETPOiNT = 5.0; // r/s, while moving
         public static int kINTAKE_CURRENt_LIMIT = 15;
 
-        public static double kINTAKE_P = 0.1;
+        public static double kINTAKE_P = 0.06;
         public static double kINTAKE_I = 0.0;
         public static double kINTAKE_D = 0.0;
     }
