@@ -103,7 +103,7 @@ public class Shooter implements Subsystem {
     /** Sets indexer enabled */
     public void setIndexerEnabled(boolean enabled) {
         if (enabled) {
-            indexerControl.setReference(ShooterConstants.kINDEXER_SETPOINT * ShooterConstants.kSHOOT_RATIO, ControlType.kVelocity, 0);
+            indexerControl.setReference(ShooterConstants.kINDEXER_SETPOINT, ControlType.kVelocity, 0);
         } else {
             indexerControl.setReference(0.0, ControlType.kVelocity, 0);
         }

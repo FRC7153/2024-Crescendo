@@ -35,26 +35,18 @@ public class Intake implements Subsystem {
         //intake.restoreFactoryDefaults();
     }
 
-    public void enableIntake(boolean enabled) {
-        if(enabled){
+    /** Runs the intake forward */
+    public void enableIntake() {
             intakeController.setReference(IntakeConstants.kINTAKE_SETPOiNT * IntakeConstants.kINTAKE_RATIO, ControlType.kVelocity, 0);
-        } else {
-            intakeController.setReference(0.0, ControlType.kVelocity,0);
-        }
         
-        //intake.set(kINTAKE_VELOCITY);
+        
     }
-
+    /**Runs the intake in reverse */
     public void reverseIntake(boolean enabled) {
-        if(enabled){
             intakeController.setReference(IntakeConstants.kINTAKE_SETPOiNT * IntakeConstants.kINTAKE_RATIO * -1, ControlType.kVelocity, 0);
-        } else {
-            intakeController.setReference(0.0, ControlType.kVelocity, 0);
-        }
 
-        //intake.set(kINTAKE_VELOCITY);
     }
-
+    /**Ends the intake function */
     public void end() {
         intakeController.setReference(0.0, ControlType.kVelocity, 0);
     }

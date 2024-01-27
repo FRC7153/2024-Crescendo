@@ -25,11 +25,11 @@ public class Constants {
 
         public static int kINDEXER_CURRENT_LIMIT = 15;
         public static double kINDEXER_RATIO = 1.0 / 5.0;
-        public static double kINDEXER_P = 0.1;
-        public static double kINDEXER_I = 0.0;
+        public static double kINDEXER_P = 0.000005;
+        public static double kINDEXER_I = 5e-7;
         public static double kINDEXER_D = 0.0;
 
-        public static double kINDEXER_SETPOINT = 5.0; // r/s, while moving
+        public static double kINDEXER_SETPOINT = 5000; // r/m, while moving
     }
 
     /** Swerve drive constants */
@@ -55,7 +55,16 @@ public class Constants {
 
         public static Path kAPRIL_TAG_LAYOUT_JSON = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2024Layout.json");
     }
+    /**Intake Constants */
+    public static class IntakeConstants {
+        public static double kINTAKE_RATIO = 1.0 / 3.0;
+        public static double kINTAKE_SETPOiNT = 5.0; // r/m, while moving
+        public static int kINTAKE_CURRENt_LIMIT = 15;
 
+        public static double kINTAKE_P = 0.06;
+        public static double kINTAKE_I = 0.0;
+        public static double kINTAKE_D = 0.0;
+    }
     /** Swerve module constants */
     public static class SwerveModuleConstants {
         public static final double kWHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI; // meters
@@ -64,8 +73,8 @@ public class Constants {
         // Drive Motor
         public static final double kDRIVE_RATIO = 6.12; // motor to wheel ratio (L3)
         public static final int kDRIVE_CURRENT_LIMIT = 60;
-        public static final double kDRIVE_P = 0.01;
-        public static final double kDRIVE_I = 0.0;
+        public static final double kDRIVE_P = 0.00005;
+        public static final double kDRIVE_I = 5e-7;
         public static final double kDRIVE_D = 0.0;
         public static final double kDRIVE_S = 0.0;
         public static final double kDRIVE_V = 0.0;
@@ -73,7 +82,7 @@ public class Constants {
         public static final double kDRIVE_MAX_VELO = 160; // r/s
         public static final double kDRIVE_MAX_ACCEL = 160; // r/s^2
 
-        // Spin Motor
+        // Steer Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;
         public static final int kSTEER_CURRENT_LIMIT = 30;
         public static final double kSTEER_P = 0.3;
@@ -116,15 +125,7 @@ public class Constants {
         public static double kYELLOW = 0.69;
     }
 
-    public static class IntakeConstants {
-        public static double kINTAKE_RATIO = 1.0 / 3.0;
-        public static double kINTAKE_SETPOiNT = 5.0; // r/s, while moving
-        public static int kINTAKE_CURRENt_LIMIT = 15;
-
-        public static double kINTAKE_P = 0.06;
-        public static double kINTAKE_I = 0.0;
-        public static double kINTAKE_D = 0.0;
-    }
+    
 }
 
 

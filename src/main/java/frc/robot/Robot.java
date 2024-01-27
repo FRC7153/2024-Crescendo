@@ -103,7 +103,7 @@ public class Robot extends TimedRobot {
     //System.out.println(joystick.getThrottle() * 5.0);
 
     if (joystick.getTrigger()) {
-      intake.enableIntake(true);
+      intake.enableIntake();
     } else {
       intake.end();
     }
