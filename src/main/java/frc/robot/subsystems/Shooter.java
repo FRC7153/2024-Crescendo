@@ -12,7 +12,6 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -35,15 +34,15 @@ public class Shooter implements Subsystem {
 
     // Logging
     private DoubleLogEntry shooterSetpointLog = 
-        new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Setpoint Velocity", "r/s");
+        new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Setpoint Velocity", "rps");
     private DoubleLogEntry upperShooterVeloLog = 
-        new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Upper Velocity", "r/s");
+        new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Upper Velocity", "rps");
     private DoubleLogEntry lowerShooterVeloLog = 
-        new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Lower Velocity", "r/s");
-    private BooleanLogEntry indexerEnabledLog = 
-        new BooleanLogEntry(DataLogManager.getLog(), "Indexer/Enabled");
+        new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Lower Velocity", "rps");
+    private DoubleLogEntry indexerSetpointLog = 
+        new DoubleLogEntry(DataLogManager.getLog(), "Indexer/Setpoint Velocity", "rps");
     private DoubleLogEntry indexerVeloLog = 
-        new DoubleLogEntry(DataLogManager.getLog(), "Indexer/Velocity", "r/s");
+        new DoubleLogEntry(DataLogManager.getLog(), "Indexer/Velocity", "rps");
 
     // Init
     public Shooter() {
@@ -85,7 +84,7 @@ public class Shooter implements Subsystem {
 
         // Initial log values
         shooterSetpointLog.append(0.0);
-        indexerEnabledLog.append(false);
+        indexerSetpointLog.append(0.0);
 
         // Register
         register();
@@ -103,11 +102,17 @@ public class Shooter implements Subsystem {
     public void setIndexerEnabled(boolean enabled) {
         if (enabled) {
             indexerControl.setReference(ShooterConstants.kINDEXER_SETPOINT / ShooterConstants.kINDEXER_RATIO, ControlType.kVelocity, 0);
+            indexerSetpointLog.append(ShooterConstants.kINDEXER_SETPOINT);
         } else {
             indexerControl.setReference(0.0, ControlType.kVelocity, 0);
+            indexerSetpointLog.append(0.0);
         }
+    }
 
-        indexerEnabledLog.append(enabled);
+    /** Eject piece out of indexer by running backwards slowly */
+    public void ejectPiece() {
+        indexerControl.setReference(ShooterConstants.kINDEXER_EJECT_SETPOINT / ShooterConstants.kINDEXER_RATIO, ControlType.kVelocity, 0);
+        indexerSetpointLog.append(ShooterConstants.kINDEXER_EJECT_SETPOINT);
     }
 
     // Perform logging

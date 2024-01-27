@@ -30,6 +30,7 @@ public class Constants {
         public static double kINDEXER_D = 0.0;
 
         public static double kINDEXER_SETPOINT = 5000; // rpm, while moving
+        public static double kINDEXER_EJECT_SETPOINT = -1000; // rpm, backwards
     }
 
     /**Intake Constants */
