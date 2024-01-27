@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -14,12 +13,11 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 public class Intake implements Subsystem {
     private CANSparkMax intake = new CANSparkMax(HardwareConstants.kINTAKE_CAN, MotorType.kBrushless);
     private SparkPIDController intakeController = intake.getPIDController();
+
+    private RelativeEncoder intakeEncoder = intake.getEncoder();
 
     public Intake() {
         intake.setIdleMode(IdleMode.kBrake);

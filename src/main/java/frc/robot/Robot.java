@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.util.CANLogger;
 import frc.robot.util.ConsoleLogger;
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
             HardwareConstants.kFL_CANCODER, DriveConstants.kFL_STEER_ZERO
         );
   private Joystick joystick = new Joystick(0);
+  private Intake intake = new Intake();
 
   private GenericEntry driveVeloOut = Shuffleboard.getTab("Swerve").add("Drive Velocity", 0.0).getEntry();
   private GenericEntry drivePosOut = Shuffleboard.getTab("Swerve").add("Drive Pos", 0.0).getEntry();
@@ -56,6 +58,11 @@ public class Robot extends TimedRobot {
 
     // Periodic logging methods
     CANLogger.periodic();
+
+    // Output swerve test
+    steerPoseOut.setDouble(module.getState().angle.getDegrees());
+    drivePosOut.setDouble(module.getPosition().distanceMeters);
+    driveVeloOut.setDouble(module.getState().speedMetersPerSecond);
   }
 
   @Override
@@ -91,14 +98,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    // Output swerve test
-    steerPoseOut.setDouble(module.getState().angle.getDegrees());
-    drivePosOut.setDouble(module.getPosition().distanceMeters);
-    driveVeloOut.setDouble(module.getState().speedMetersPerSecond);
-
     // Test swerve
-    module.setDriveWheelVelocity(joystick.getThrottle() * 5.0);
-    System.out.println(joystick.getThrottle() * 5.0);
+    //module.setDriveWheelVelocity(joystick.getThrottle() * 5.0);
+    //System.out.println(joystick.getThrottle() * 5.0);
+
+    if (joystick.getTrigger()) {
+      intake.enableIntake(true);
+    } else {
+      intake.end();
+    }
   }
 
   @Override

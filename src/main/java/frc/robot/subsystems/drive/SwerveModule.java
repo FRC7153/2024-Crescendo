@@ -206,7 +206,8 @@ public class SwerveModule {
             velocity, 
             ControlType.kSmartVelocity, 
             0, 
-            driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
+            //driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
+            velocity
         );
 
         // Compensate coupling ratio in odometry
