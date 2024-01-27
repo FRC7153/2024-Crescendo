@@ -32,6 +32,15 @@ public class Constants {
         public static double kINDEXER_SETPOINT = 5000; // r/m, while moving
     }
 
+    public static class ArmConstants {
+        public static int kARM_CURRENT_LIMIT = 60;
+        public static double kARM_RATIO = 1 / 80; 
+        public static double kARM_P = 0.5;
+        public static double kARM_I = 0.0;
+        public static double kARM_D = 0.2;
+
+
+    }
     /** Swerve drive constants */
     public static class DriveConstants {
         // Base size
@@ -106,8 +115,8 @@ public class Constants {
         public static int kINDEXER_CAN = 10;
         public static int kINTAKE_CAN = 11;
 
-        public static int kSHOOTER_UPPER_CAN = 12;
-        public static int kSHOOTER_LOWER_CAN = 13;
+        public static int kLOWER_PIVOT_CAN = 12;
+        public static int kUPPER_PIVOT_CAN = 13;
  
         public static int kFL_CANCODER = 14;
         public static int kFR_CANCODER = 15;
