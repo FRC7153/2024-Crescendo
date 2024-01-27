@@ -15,7 +15,6 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -94,8 +93,8 @@ public class Shooter implements Subsystem {
 
     /** Set shoot velocity (r/s) */
     public void setShootVelocity(double velocity) {
-        shooterUpper.setControl(shooterControl.withVelocity(velocity * ShooterConstants.kSHOOT_RATIO));
-        shooterLower.setControl(shooterControl.withVelocity(velocity * ShooterConstants.kSHOOT_RATIO));
+        shooterUpper.setControl(shooterControl.withVelocity(velocity / ShooterConstants.kSHOOT_RATIO));
+        shooterLower.setControl(shooterControl.withVelocity(velocity / ShooterConstants.kSHOOT_RATIO));
 
         shooterSetpointLog.append(velocity);
     }
@@ -103,7 +102,7 @@ public class Shooter implements Subsystem {
     /** Sets indexer enabled */
     public void setIndexerEnabled(boolean enabled) {
         if (enabled) {
-            indexerControl.setReference(ShooterConstants.kINDEXER_SETPOINT, ControlType.kVelocity, 0);
+            indexerControl.setReference(ShooterConstants.kINDEXER_SETPOINT / ShooterConstants.kINDEXER_RATIO, ControlType.kVelocity, 0);
         } else {
             indexerControl.setReference(0.0, ControlType.kVelocity, 0);
         }
@@ -114,10 +113,9 @@ public class Shooter implements Subsystem {
     // Perform logging
     @Override
     public void periodic() {
-        upperShooterVeloLog.append(shooterUpper.getVelocity().getValue() / ShooterConstants.kSHOOT_RATIO);
-        lowerShooterVeloLog.append(shooterLower.getVelocity().getValue() / ShooterConstants.kSHOOT_RATIO);
+        upperShooterVeloLog.append(shooterUpper.getVelocity().getValue() * ShooterConstants.kSHOOT_RATIO);
+        lowerShooterVeloLog.append(shooterLower.getVelocity().getValue() * ShooterConstants.kSHOOT_RATIO);
 
-        indexerVeloLog.append(indexerEncoder.getVelocity() / ShooterConstants.kINDEXER_RATIO);
-        System.out.println("loop " + Timer.getFPGATimestamp());
+        indexerVeloLog.append(indexerEncoder.getVelocity() * ShooterConstants.kINDEXER_RATIO);
     }
 }

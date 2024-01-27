@@ -27,10 +27,10 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   
   // TESTING
-  private SwerveModule module = new SwerveModule( // FL
+  /*private SwerveModule module = new SwerveModule( // FL
             HardwareConstants.kFL_DRIVE_CAN, HardwareConstants.kFL_STEER_CAN, 
             HardwareConstants.kFL_CANCODER, DriveConstants.kFL_STEER_ZERO
-        );
+        );*/
   private Joystick joystick = new Joystick(0);
   private Intake intake = new Intake();
 
@@ -60,9 +60,9 @@ public class Robot extends TimedRobot {
     CANLogger.periodic();
 
     // Output swerve test
-    steerPoseOut.setDouble(module.getState().angle.getDegrees());
-    drivePosOut.setDouble(module.getPosition().distanceMeters);
-    driveVeloOut.setDouble(module.getState().speedMetersPerSecond);
+    //steerPoseOut.setDouble(module.getState().angle.getDegrees());
+    //drivePosOut.setDouble(module.getPosition().distanceMeters);
+    //driveVeloOut.setDouble(module.getState().speedMetersPerSecond);
   }
 
   @Override

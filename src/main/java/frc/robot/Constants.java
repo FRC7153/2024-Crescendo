@@ -18,7 +18,7 @@ public class Constants {
     /** Shooter Constants */
     public static class ShooterConstants {
         public static int kSHOOT_CURRENT_LIMIT = 60;
-        public static double kSHOOT_RATIO = 2.0; // step-up ratio
+        public static double kSHOOT_RATIO = 30.0 / 18.0; // step-up ratio
         public static double kSHOOT_P = 0.1;
         public static double kSHOOT_I = 0.0;
         public static double kSHOOT_D = 0.0;
@@ -29,7 +29,18 @@ public class Constants {
         public static double kINDEXER_I = 5e-7;
         public static double kINDEXER_D = 0.0;
 
-        public static double kINDEXER_SETPOINT = 5000; // r/m, while moving
+        public static double kINDEXER_SETPOINT = 5000; // rpm, while moving
+    }
+
+    /**Intake Constants */
+    public static class IntakeConstants {
+        public static double kINTAKE_RATIO = 1.0 / 5.0;
+        public static double kINTAKE_SETPOINT = 1000.0; // rpm, while moving
+        public static int kINTAKE_CURRENt_LIMIT = 15;
+
+        public static double kINTAKE_P = 0.000005;
+        public static double kINTAKE_I = 5e-7;
+        public static double kINTAKE_D = 0.0;
     }
 
     /** Arm Constants */
@@ -64,16 +75,7 @@ public class Constants {
 
         public static Path kAPRIL_TAG_LAYOUT_JSON = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2024Layout.json");
     }
-    /**Intake Constants */
-    public static class IntakeConstants {
-        public static double kINTAKE_RATIO = 1.0 / 3.0;
-        public static double kINTAKE_SETPOiNT = 5.0; // r/m, while moving
-        public static int kINTAKE_CURRENt_LIMIT = 15;
 
-        public static double kINTAKE_P = 0.06;
-        public static double kINTAKE_I = 0.0;
-        public static double kINTAKE_D = 0.0;
-    }
     /** Swerve module constants */
     public static class SwerveModuleConstants {
         public static final double kWHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI; // meters
