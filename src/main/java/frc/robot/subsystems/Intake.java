@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.IntakeConstants;
 
+import com.frc7153.diagnostics.DiagUtil;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -38,6 +39,10 @@ public class Intake implements Subsystem {
         intakeController.setP(IntakeConstants.kINTAKE_P, 0);
         intakeController.setI(IntakeConstants.kINTAKE_I, 0);
         intakeController.setD(IntakeConstants.kINTAKE_D, 0);
+
+        // Config logging
+        DiagUtil.addDevice(intake);
+        intakeSetpointLog.append(0.0);
 
         register();
     }
