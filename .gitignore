@@ -175,3 +175,6 @@ out/
 ctre_sim/
 .DataLogTool/
 logs/
+
+# Include RaspberryPi PhotonVision config backups
+!RaspberryPi/*
