@@ -33,7 +33,7 @@ public class Intake implements Subsystem {
     public Intake() {
         intake.setIdleMode(IdleMode.kBrake);
         intake.setInverted(false);
-        intake.setSmartCurrentLimit(IntakeConstants.kINTAKE_CURRENt_LIMIT);
+        intake.setSmartCurrentLimit(IntakeConstants.kINTAKE_CURRENT_LIMIT);
 
         intakeController = intake.getPIDController();
         intakeController.setP(IntakeConstants.kINTAKE_P, 0);
