@@ -59,7 +59,7 @@ public class Constants {
         public static Translation2d kSIZE = new Translation2d(14.5, 7.0); // Track Width
 
         // CANCoder Offsets
-        public static double kFL_STEER_ZERO = -0.364502;
+        public static double kFL_STEER_ZERO = -0.134277;
         public static double kFR_STEER_ZERO = 0.0;
         public static double kRL_STEER_ZERO = 0.0;
         public static double kRR_STEER_ZERO = 0.0;
@@ -80,19 +80,17 @@ public class Constants {
     /** Swerve module constants */
     public static class SwerveModuleConstants {
         public static final double kWHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI; // meters
-        public static final double kCOUPLING_RATIO = (27.0  /16.0) / 3.0;
+        public static final double kCOUPLING_RATIO = (27.0 / 16.0) / 3.0;
 
         // Drive Motor
         public static final double kDRIVE_RATIO = 6.12; // motor to wheel ratio (L3)
-        public static final int kDRIVE_CURRENT_LIMIT = 60;
+        public static final int kDRIVE_CURRENT_LIMIT = 50;
         public static final double kDRIVE_P = 0.00005;
         public static final double kDRIVE_I = 5e-7;
         public static final double kDRIVE_D = 0.0;
         public static final double kDRIVE_S = 0.0;
         public static final double kDRIVE_V = 0.0;
         public static final double kDRIVE_A = 0.0;
-        public static final double kDRIVE_MAX_VELO = 160; // r/s
-        public static final double kDRIVE_MAX_ACCEL = 160; // r/s^2
 
         // Steer Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;

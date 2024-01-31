@@ -61,7 +61,7 @@ public class SwerveModule {
     ) {
         // Create and config DRIVE MOTOR
         driveMotor = new CANSparkMax(driveCan, MotorType.kBrushless);
-        driveMotor.setInverted(true); // Positive = CW rotation of motor, when observed from the top
+        driveMotor.setInverted(false); // Positive = CW rotation of motor, when observed from the top
         driveMotor.setIdleMode(IdleMode.kBrake);
 
         driveMotor.setSmartCurrentLimit(SwerveModuleConstants.kDRIVE_CURRENT_LIMIT);
@@ -71,8 +71,8 @@ public class SwerveModule {
         drivePIDController.setP(SwerveModuleConstants.kDRIVE_P, 0);
         drivePIDController.setI(SwerveModuleConstants.kDRIVE_I, 0);
         drivePIDController.setD(SwerveModuleConstants.kDRIVE_D, 0);
-        drivePIDController.setSmartMotionMaxAccel(SwerveModuleConstants.kDRIVE_MAX_ACCEL, 0);
-        drivePIDController.setSmartMotionMaxVelocity(SwerveModuleConstants.kDRIVE_MAX_ACCEL, 0);
+        //drivePIDController.setSmartMotionMaxAccel(SwerveModuleConstants.kDRIVE_MAX_ACCEL, 0);
+        //drivePIDController.setSmartMotionMaxVelocity(SwerveModuleConstants.kDRIVE_MAX_ACCEL, 0);
 
         driveEncoder = driveMotor.getEncoder();
         driveEncoder.setPosition(0.0);
@@ -141,17 +141,11 @@ public class SwerveModule {
     }
 
     /**
-     * Gets the steer angle velocity from the CANCoder, falling back to NEO built-in
-     * encoder if necessary
+     * Gets the steer angle velocity from NEO built-in
      * @return Rotations per second (CCW+)
      */
     private double getSteerAngleVelocity() {
-        steerCANCoderVelocity.refresh();
-        if (steerCANCoderVelocity.getTimestamp().getLatency() < 2.0) { // CANCoder good
-            return steerCANCoderVelocity.getValue();
-        } else { // CANCoder bad
-            return steerRelEncoder.getVelocity() / SwerveModuleConstants.kSTEER_RATIO / 60.0;
-        }
+        return steerRelEncoder.getVelocity() / SwerveModuleConstants.kSTEER_RATIO / 60.0;
     }
 
     /**
@@ -194,25 +188,29 @@ public class SwerveModule {
         double steerErr = Math.abs(getSteerAnglePosRots() - setpoint.angle.getRotations()) * Math.PI * 2.0; // rads
         double velocity = setpoint.speedMetersPerSecond * Math.cos(steerErr);
 
-        // Convert to wheel velocity (r/s)
+        // Convert from wheel translational velocity (mps) to wheel angular velocity (rps)
         velocity /= SwerveModuleConstants.kWHEEL_CIRCUMFERENCE;
 
         // Compensate for coupling ratio
         double couplingEffect = getSteerAngleVelocity() * SwerveModuleConstants.kCOUPLING_RATIO;
         velocity -= couplingEffect;
 
+        // Convert from wheel angular velocity (rps) to motor angular velocity (rpm)
+        velocity *= SwerveModuleConstants.kDRIVE_RATIO * 60.0;
+
+        System.out.printf("Err: %f, Coupling: %f\n", steerErr, couplingEffect);
+
         // Set drive motor
         drivePIDController.setReference(
             velocity, 
-            ControlType.kSmartVelocity, 
-            0, 
+            ControlType.kVelocity, 
+            0
             //driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
-            velocity
         );
 
         // Compensate coupling ratio in odometry
-        drivePosOffset += ((getSteerAnglePosRots() - lastSteerAngle) * SwerveModuleConstants.kCOUPLING_RATIO);
-        lastSteerAngle = getSteerAnglePosRots(); // rots
+        //drivePosOffset += ((getSteerAnglePosRots() - lastSteerAngle) * SwerveModuleConstants.kCOUPLING_RATIO);
+        //lastSteerAngle = getSteerAnglePosRots(); // rots
     }
 
     /**
@@ -228,7 +226,7 @@ public class SwerveModule {
     public SwerveModuleState getState() {
         double coupling = getSteerAngleVelocity() * SwerveModuleConstants.kCOUPLING_RATIO;    
         return new SwerveModuleState(
-            ((driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) - coupling) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE,
+            ((driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) - coupling) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE / 60.0,
             Rotation2d.fromRotations(getSteerAnglePosRots())
         );
     }
