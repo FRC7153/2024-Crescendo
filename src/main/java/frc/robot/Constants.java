@@ -37,13 +37,25 @@ public class Constants {
     public static class IntakeConstants {
         public static double kINTAKE_RATIO = 1.0 / 5.0;
         public static double kINTAKE_SETPOINT = 1000.0; // rpm, while moving
-        public static int kINTAKE_CURRENt_LIMIT = 15;
+        
+        public static int kINTAKE_CURRENT_LIMIT = 15;
 
         public static double kINTAKE_P = 0.000005;
         public static double kINTAKE_I = 5e-7;
         public static double kINTAKE_D = 0.0;
     }
+    /** Climber Constants */
+    public static class ClimberConstants {
+        public static double kCLIMBER_RATIO = 1.0 / 20.0;
+        public static double kCLIMBER_POSITION = 0.0; //rotations
+        public static int kCLIMBER_CURRENT_LIMIT = 60; 
 
+        public static double kcLIMBER_P = 0.0;
+        public static double kcLIMBER_I = 0.0;
+        public static double kcLIMBER_D = 0.0;
+
+
+    }
     /** Arm Constants */
     public static class ArmConstants {
         public static int kARM_CURRENT_LIMIT = 60;
@@ -126,6 +138,9 @@ public class Constants {
 
         public static int kSHOOTER_UPPER_CAN = 18;
         public static int kSHOOTER_LOWER_CAN = 19;
+
+        public static int kCLIMBER_LEFT_CAN = 20;
+        public static int kCLIMBER_RIGHT_CAN = 21; 
 
         public static String kCANIVORE_BUS = "CANivore";
     }
