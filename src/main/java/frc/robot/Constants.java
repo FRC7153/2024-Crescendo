@@ -67,6 +67,10 @@ public class Constants {
 
     /** Swerve drive constants */
     public static class DriveConstants {
+        // Max Speeds
+        public static double kMAX_TELEOP_TRANSLATIONAL_SPEED = 3.5;
+        public static double kMAX_TELEOP_ROTATIONAL_SPEED = 60.0;
+
         // Base size
         public static Translation2d kSIZE = new Translation2d(14.5, 7.0); // Track Width
 
@@ -127,8 +131,8 @@ public class Constants {
         public static int kINDEXER_CAN = 10;
         public static int kINTAKE_CAN = 11;
 
-        public static int kLOWER_PIVOT_CAN = 12;
-        public static int kUPPER_PIVOT_CAN = 13;
+        public static int kLOWER_LEFT_PIVOT_CAN = 12;
+        public static int kLOWER_RIGHT_PIVOT_CAN = 13;
  
         public static int kFL_CANCODER = 14;
         public static int kFR_CANCODER = 15;
@@ -140,6 +144,8 @@ public class Constants {
 
         public static int kCLIMBER_LEFT_CAN = 20;
         public static int kCLIMBER_RIGHT_CAN = 21; 
+
+        public static int kUPPER_PIVOT_CAN = 22;
 
         public static String kCANIVORE_BUS = "CANivore";
     }

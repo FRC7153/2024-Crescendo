@@ -119,14 +119,14 @@ public class SwerveBase implements Subsystem {
 
     /**
      * Drives the robot, field oriented
-     * @param x Forward/backward (m/s)
-     * @param y Left/Right (m/s)
+     * @param y Forward/backward (m/s)
+     * @param x Left/Right (m/s)
      * @param theta Rotation (degrees/second, CCW+)
      */
-    public void driveFieldOriented(double x, double y, double theta) {
+    public void driveFieldOriented(double y, double x, double theta) {
         ChassisSpeeds chassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(
-            x, 
             y, 
+            x, 
             Units.degreesToRadians(theta), 
             estimator.getEstimatedPosition().getRotation()
         );
