@@ -50,9 +50,9 @@ public class Constants {
         public static double kCLIMBER_POSITION = 0.0; //rotations
         public static int kCLIMBER_CURRENT_LIMIT = 60; 
 
-        public static double kcLIMBER_P = 0.0;
-        public static double kcLIMBER_I = 0.0;
-        public static double kcLIMBER_D = 0.0;
+        public static double kCLIMBER_P = 0.0;
+        public static double kCLIMBER_I = 0.0;
+        public static double kCLIMBER_D = 0.0;
 
 
     }

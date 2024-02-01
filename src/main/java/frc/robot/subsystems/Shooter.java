@@ -30,7 +30,7 @@ public class Shooter implements Subsystem {
 
     // Control
     private VelocityVoltage shooterControl = new VelocityVoltage(0.0).withSlot(0);
-    private SparkPIDController indexerControl = indexer.getPIDController();
+    private SparkPIDController indexerControl;
 
     // Logging
     private DoubleLogEntry shooterSetpointLog = 

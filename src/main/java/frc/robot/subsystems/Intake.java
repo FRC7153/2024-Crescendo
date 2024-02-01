@@ -20,7 +20,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 public class Intake implements Subsystem {
     // Hardware
     private CANSparkMax intake = new CANSparkMax(HardwareConstants.kINTAKE_CAN, MotorType.kBrushless);
-    private SparkPIDController intakeController = intake.getPIDController();
+    private SparkPIDController intakeController;
     private RelativeEncoder intakeEncoder = intake.getEncoder();
 
     // Logging
