@@ -37,11 +37,6 @@ public class SwerveModule {
     private SparkPIDController steerPIDControl;
     private RelativeEncoder steerRelEncoder;
     private StatusSignal<Double> steerCANCoderPos;
-    private StatusSignal<Double> steerCANCoderVelocity;
-
-    // Coupling ratio integration
-    private double drivePosOffset = 0.0;
-    private double lastSteerAngle = 0.0;
 
     // State
     private SwerveModuleState setpoint = new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0));
@@ -93,14 +88,12 @@ public class SwerveModule {
         steerCANCoderConfigs.MagnetSensor.MagnetOffset = steerZeroPos;
         steerCANCoder.getConfigurator().apply(steerCANCoderConfigs);
 
-        steerCANCoderVelocity = steerCANCoder.getVelocity();
-
         steerCANCoderPos = steerCANCoder.getAbsolutePosition();
         steerCANCoderPos.waitForUpdate(1.5); // this is BLOCKING
 
         // Create and configure STEER MOTOR
         steerMotor = new CANSparkMax(steerCan, MotorType.kBrushless);
-        steerMotor.setInverted(false); // Positive = CW rotation of motor, when observed from top
+        steerMotor.setInverted(true); // Positive = CW rotation of motor, when observed from top
         steerRelEncoder = steerMotor.getEncoder();
 
         steerRelEncoder.setPosition(
@@ -141,14 +134,6 @@ public class SwerveModule {
     }
 
     /**
-     * Gets the steer angle velocity from NEO built-in
-     * @return Rotations per second (CCW+)
-     */
-    private double getSteerAngleVelocity() {
-        return steerRelEncoder.getVelocity() / SwerveModuleConstants.kSTEER_RATIO / 60.0;
-    }
-
-    /**
      * Sets the heading of the steer motor
      * @param angle degrees (0 is forward, CCW positive)
      */
@@ -183,22 +168,16 @@ public class SwerveModule {
      * error and steer velocity.
      */
     public void periodic() {
+        steerCANCoderPos.refresh();
+
         /* Multiply velocity setpoint by cosine of steer error to tune down the 
          * velocity when its pointing in the wrong direction */
         double steerErr = Math.abs(getSteerAnglePosRots() - setpoint.angle.getRotations()) * Math.PI * 2.0; // rads
         double velocity = setpoint.speedMetersPerSecond * Math.cos(steerErr);
 
-        // Convert from wheel translational velocity (mps) to wheel angular velocity (rps)
+        // Convert from wheel translational velocity (mps) to wheel rotor velocity (rpm)
         velocity /= SwerveModuleConstants.kWHEEL_CIRCUMFERENCE;
-
-        // Compensate for coupling ratio
-        double couplingEffect = getSteerAngleVelocity() * SwerveModuleConstants.kCOUPLING_RATIO;
-        velocity -= couplingEffect;
-
-        // Convert from wheel angular velocity (rps) to motor angular velocity (rpm)
         velocity *= SwerveModuleConstants.kDRIVE_RATIO * 60.0;
-
-        System.out.printf("Err: %f, Coupling: %f\n", steerErr, couplingEffect);
 
         // Set drive motor
         drivePIDController.setReference(
@@ -207,10 +186,6 @@ public class SwerveModule {
             0
             //driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
         );
-
-        // Compensate coupling ratio in odometry
-        //drivePosOffset += ((getSteerAnglePosRots() - lastSteerAngle) * SwerveModuleConstants.kCOUPLING_RATIO);
-        //lastSteerAngle = getSteerAnglePosRots(); // rots
     }
 
     /**
@@ -224,9 +199,8 @@ public class SwerveModule {
      * @return  The current actual state
      */
     public SwerveModuleState getState() {
-        double coupling = getSteerAngleVelocity() * SwerveModuleConstants.kCOUPLING_RATIO;    
         return new SwerveModuleState(
-            ((driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) - coupling) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE / 60.0,
+            (driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE / 60.0,
             Rotation2d.fromRotations(getSteerAnglePosRots())
         );
     }
@@ -237,7 +211,7 @@ public class SwerveModule {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            (driveEncoder.getPosition() / SwerveModuleConstants.kDRIVE_RATIO * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE) - drivePosOffset,
+            driveEncoder.getPosition() / SwerveModuleConstants.kDRIVE_RATIO * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE,
             Rotation2d.fromRotations(getSteerAnglePosRots())
         );
     }

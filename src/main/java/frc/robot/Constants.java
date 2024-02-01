@@ -92,7 +92,6 @@ public class Constants {
     /** Swerve module constants */
     public static class SwerveModuleConstants {
         public static final double kWHEEL_CIRCUMFERENCE = Units.inchesToMeters(4.0) * Math.PI; // meters
-        public static final double kCOUPLING_RATIO = (27.0 / 16.0) / 3.0;
 
         // Drive Motor
         public static final double kDRIVE_RATIO = 6.12; // motor to wheel ratio (L3)
@@ -107,7 +106,7 @@ public class Constants {
         // Steer Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;
         public static final int kSTEER_CURRENT_LIMIT = 30;
-        public static final double kSTEER_P = 0.3;
+        public static final double kSTEER_P = 0.45;
         public static final double kSTEER_I = 0.00001;
         public static final double kSTEER_D = 0.0;
         public static final double kSTEER_FF = 0.0;
