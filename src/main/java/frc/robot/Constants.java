@@ -128,8 +128,8 @@ public class Constants {
         public static int kRL_DRIVE_CAN = 8;
         public static int kRR_DRIVE_CAN = 9;
 
-        public static int kINDEXER_CAN = 10;
-        public static int kINTAKE_CAN = 11;
+        public static int kINTAKE_CAN = 10;
+        public static int kINDEXER_CAN = 11;
 
         public static int kLOWER_LEFT_PIVOT_CAN = 12;
         public static int kLOWER_RIGHT_PIVOT_CAN = 13;
