@@ -18,7 +18,7 @@ import frc.robot.Constants.ClimberConstants;
 
 
 /**Extends the climber */
-public class Climber {
+public class Climber implements Subsystem {
     //hardware
     private CANSparkMax climberLeft = new CANSparkMax(HardwareConstants.kCLIMBER_LEFT_CAN, MotorType.kBrushless);
     private CANSparkMax climberRight = new CANSparkMax(HardwareConstants.kCLIMBER_RIGHT_CAN, MotorType.kBrushless);
@@ -28,8 +28,16 @@ public class Climber {
 
     private SparkPIDController climberLeftController;
     private SparkPIDController climberRightController;
-        
-    
+
+    private DoubleLogEntry climberLeftPositionLog = 
+        new DoubleLogEntry(DataLogManager.getLog(), "Climber/LeftPosition", "rotations");
+    private DoubleLogEntry climberRightPositionLog = 
+        new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightPosition", "rotations");
+    private DoubleLogEntry climberLeftSetPointLog = 
+        new DoubleLogEntry(DataLogManager.getLog(), "Climber/LeftSetPoint", "rotations");
+    private DoubleLogEntry climberRightSetPointLog = 
+        new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightSetPoint", "rotations");
+
 
     //init
     public Climber() {
@@ -51,10 +59,14 @@ public class Climber {
         climberRightController.setP(ClimberConstants.kCLIMBER_I, 0);
         climberRightController.setP(ClimberConstants.kCLIMBER_D, 0);
 
+        //config logging
+        DiagUtil.addDevice(climberLeft);
+        DiagUtil.addDevice(climberRight);
+    
+        climberLeftSetPointLog.append(0.0);
+        climberRightSetPointLog.append(0.0);
 
-
-
-
+        register();
     }
     /**Runs the intake forward */
     public void ClimberUp() {
@@ -62,18 +74,23 @@ public class Climber {
         climberLeftController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
         climberRightController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
 
-
-
+        climberLeftSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);
+        climberRightSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);
     }
 
     public void ClimberDown() {
         climberLeftController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
         climberRightController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
 
+        climberRightSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);//to be changed
+        climberLeftSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);//to be changed
         
     }
-
+    @Override
     public void periodic() {
+
+        climberRightPositionLog.append(climberRightEncoder.getPosition());
+        climberLeftPositionLog.append(climberLeftEncoder.getPosition());
 
     }
 
