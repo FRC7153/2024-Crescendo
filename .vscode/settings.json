@@ -32,6 +32,8 @@
     "CANIVORE",
     "datalogentry",
     "devs",
+    "ntcore",
+    "pigpio",
     "revrobotics",
     "swervedrive",
     "WPILOG"

@@ -6,11 +6,14 @@ package frc.robot;
 
 import com.frc7153.logging.LoggingUtil;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Arm;
 import frc.robot.util.CANLogger;
 import frc.robot.util.ConsoleLogger;
 
@@ -19,6 +22,9 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
   
+  private Arm arm = new Arm();
+  private BooleanPublisher lspub = NetworkTableInstance.getDefault().getTable("LS2").getBooleanTopic("LS val").publish();
+
   @Override
   public void robotInit() {
     // Start logging
@@ -39,6 +45,8 @@ public class Robot extends TimedRobot {
 
     // Periodic logging methods
     CANLogger.periodic();
+
+    lspub.set(arm.getLS());
   }
 
   @Override
