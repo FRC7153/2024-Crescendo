@@ -99,15 +99,21 @@ public class Arm implements Subsystem {
      */
     public void setLowerPivotAngle(double angle) {
         lowerLeftPivotController.setReference((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO, ControlType.kPosition);
+
+        lowerLeftPivotSetpointLog.append((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO);
+        lowerRightPivotSetpointLog.append((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO);
     }
 
     public void setUpperPivotAngle(double angle) {
         upperPivotController.setReference((angle / 360.0) / ArmConstants.kUPPER_PIVOT_RATIO, ControlType.kPosition);
 
+        upperPivotSetpointLog.append((angle / 360.0) / ArmConstants.kUPPER_PIVOT_RATIO);
     }
 
     public void setExtension(double inches) {
         elevatorExtController.setReference((inches * 360) * ArmConstants.kELEVATOR_EXT_RATIO , ControlType.kPosition);
+
+        elevatorExtSetpointLog.append((inches * 360) * ArmConstants.kELEVATOR_EXT_RATIO);
     }
 
     public boolean lowerPivotAtSetpoint(){
@@ -124,6 +130,10 @@ public class Arm implements Subsystem {
 
     @Override
     public void periodic(){
+        lowerLeftPivotPositionLog.append(lowerLeftPivotEncoder.getPosition());
+        lowerRightPivotPositionLog.append(lowerLeftPivotEncoder.getPosition());
+
+        upperPivotPositionLog.append(upperPivotEncoder.getPosition());
 
     }
 }
