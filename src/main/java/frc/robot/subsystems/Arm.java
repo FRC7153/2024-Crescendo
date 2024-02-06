@@ -101,7 +101,6 @@ public class Arm implements Subsystem {
         lowerLeftPivotController.setReference((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO, ControlType.kPosition);
 
         lowerLeftPivotSetpointLog.append((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO);
-        lowerRightPivotSetpointLog.append((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO);
     }
 
     public void setUpperPivotAngle(double angle) {
