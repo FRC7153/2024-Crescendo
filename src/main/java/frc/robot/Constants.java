@@ -58,11 +58,26 @@ public class Constants {
     }
     /** Arm Constants */
     public static class ArmConstants {
-        public static int kARM_CURRENT_LIMIT = 60;
-        public static double kARM_RATIO = 1.0 / 80.0; 
-        public static double kARM_P = 0.5;
-        public static double kARM_I = 0.0;
-        public static double kARM_D = 0.2;
+        public static int kLOWER_RIGHT_PIVOT_CURRENT_LIMIT = 60;
+        public static int kLOWER_LEFT_PIVOT_CURRENT_LIMIT = 60;
+        public static int kUPPER_PIVOT_CURRENT_LIMIT = 60;
+        public static int kELEVATOR_EXT_CURRENT_LIMIT = 60;
+
+        public static double kLOWER_PIVOT_RATIO = 1.0 / 80.0;
+        public static double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
+        public static double kELEVATOR_EXT_RATIO = 1.0 / 25.0;
+
+        public static double kLOWER_PIVOT_P = 0.5;
+        public static double kLOWER_PIVOT_I = 0.0;
+        public static double kLOWER_PIVOT_D = 0.2;
+
+        public static double kUPPER_PIVOT_P = 0.0; 
+        public static double kUPPER_PIVOT_I = 0.0; 
+        public static double kUPPER_PIVOT_D = 0.0; 
+
+        public static double kELEVATOR_EXT_P = 0.0;
+        public static double kELEVATOR_EXT_I = 0.0;
+        public static double kELEVATOR_EXT_D = 0.0;
     }
 
     /** Swerve drive constants */
@@ -146,6 +161,8 @@ public class Constants {
         public static int kCLIMBER_RIGHT_CAN = 21; 
 
         public static int kUPPER_PIVOT_CAN = 22;
+
+        public static int kELEVATOR_EXT_CAN = 23;
 
         public static String kCANIVORE_BUS = "CANivore";
     }

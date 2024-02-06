@@ -37,14 +37,12 @@ public class Climber implements Subsystem {
         new DoubleLogEntry(DataLogManager.getLog(), "Climber/LeftSetPoint", "rotations");
     private DoubleLogEntry climberRightSetPointLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightSetPoint", "rotations");
-
-
     //init
     public Climber() {
         climberLeft.setIdleMode(IdleMode.kBrake);
         climberRight.setIdleMode(IdleMode.kBrake);
-        climberLeft.setInverted(false);
-        climberRight.setInverted(false);
+        climberLeft.setInverted(false);//TBD
+        climberRight.setInverted(false);//TBD
         climberLeft.setSmartCurrentLimit(ClimberConstants.kCLIMBER_CURRENT_LIMIT);
         climberRight.setSmartCurrentLimit(ClimberConstants.kCLIMBER_CURRENT_LIMIT);
 
@@ -68,9 +66,9 @@ public class Climber implements Subsystem {
 
         register();
     }
-    /**Runs the intake forward */
-    public void ClimberUp() {
 
+    /**Puts the climber up */
+    public void climberUp() {
         climberLeftController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
         climberRightController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
 
@@ -78,21 +76,18 @@ public class Climber implements Subsystem {
         climberRightSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);
     }
 
-    public void ClimberDown() {
-        climberLeftController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
-        climberRightController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
+    /**Puts the climber down */
+    public void climberDown() {
+        climberLeftController.setReference(0.0, ControlType.kPosition, 0);
+        climberRightController.setReference(0.0, ControlType.kPosition, 0);
 
-        climberRightSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);//to be changed
-        climberLeftSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);//to be changed
-        
+        climberRightSetPointLog.append(0);//to be changed
+        climberLeftSetPointLog.append(0);//to be changed
     }
+
     @Override
     public void periodic() {
-
         climberRightPositionLog.append(climberRightEncoder.getPosition());
         climberLeftPositionLog.append(climberLeftEncoder.getPosition());
-
     }
-
-
 }
