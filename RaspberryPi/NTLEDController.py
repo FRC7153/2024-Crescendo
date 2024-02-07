@@ -1,7 +1,10 @@
 ## Runs in the background, controlling a REV Blinkin controller
 
+# Default off value
+kOFF = 0.99;
+
 # Imports
 import ntcore
+import pigpio
 
-
-kOFF = 0.99 # default off value
+# Init PWM generator
