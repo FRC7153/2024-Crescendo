@@ -78,6 +78,10 @@ public class Constants {
         public static double kELEVATOR_EXT_P = 0.0;
         public static double kELEVATOR_EXT_I = 0.0;
         public static double kELEVATOR_EXT_D = 0.0;
+
+        public static double kLOWER_ANGLE_TOLERANCE = 0.0; //deg
+        public static double kUPPER_ANGLE_TOLERANCE = 0.0; //deg
+        public static double kEXT_TOLERANCE = 0.0; //rots
     }
 
     /** Swerve drive constants */
