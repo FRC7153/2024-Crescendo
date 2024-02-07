@@ -21,9 +21,9 @@ import frc.robot.Constants.ArmConstants;
 public class Arm implements Subsystem {
     /** Class for representing a state of the arm */
     public static class ArmState {
-        public final double lowerAngle; // deg
-        public final double upperAngle; // deg
-        public final double ext; // rots
+        public double lowerAngle; // deg
+        public double upperAngle; // deg
+        public double ext; // rots
 
         public ArmState(double lowerAngle, double upperAngle, double ext) {
             this.lowerAngle = lowerAngle;
@@ -111,6 +111,8 @@ public class Arm implements Subsystem {
     public void setLowerPivotAngle(double angle) {
         lowerLeftPivotController.setReference((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO, ControlType.kPosition);
 
+        setpoint.lowerAngle = angle;
+
         lowerLeftPivotSetpointLog.append(angle);
     }
 
@@ -120,6 +122,8 @@ public class Arm implements Subsystem {
      */
     public void setUpperPivotAngle(double angle) {
         upperPivotController.setReference((angle / 360.0) / ArmConstants.kUPPER_PIVOT_RATIO, ControlType.kPosition);
+
+        setpoint.upperAngle = angle;
 
         upperPivotSetpointLog.append(angle);
     }
@@ -131,19 +135,21 @@ public class Arm implements Subsystem {
     public void setExtension(double rots) {
         elevatorExtController.setReference(rots / ArmConstants.kELEVATOR_EXT_RATIO , ControlType.kPosition);
 
+        setpoint.ext = rots;
+
         elevatorExtSetpointLog.append(rots);
     }
 
     public boolean lowerPivotAtSetpoint(){
-        return false;
+        return Math.abs((lowerLeftPivotEncoder.getPosition() * 360.0) - setpoint.lowerAngle) <= ArmConstants.kLOWER_ANGLE_TOLERANCE;
     }
 
     public boolean upperPivotAtSetpoint(){
-        return false;
+        return Math.abs((upperPivotEncoder.getPosition() * 360.0) - setpoint.upperAngle) <= ArmConstants.kUPPER_ANGLE_TOLERANCE;
     }
 
     public boolean extensionAtSetpoint(){
-        return false;
+        return Math.abs((elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO) - setpoint.ext) <= ArmConstants.kEXT_TOLERANCE;
     }
 
     @Override
