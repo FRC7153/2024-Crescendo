@@ -140,6 +140,12 @@ public class Arm implements Subsystem {
         elevatorExtSetpointLog.append(rots);
     }
 
+    public void setState(ArmState state){
+        setUpperPivotAngle(state.upperAngle);
+        setLowerPivotAngle(state.lowerAngle);
+        setExtension(state.ext);
+    }
+
     public boolean lowerPivotAtSetpoint(){
         return Math.abs((lowerLeftPivotEncoder.getPosition() * 360.0) - setpoint.lowerAngle) <= ArmConstants.kLOWER_ANGLE_TOLERANCE;
     }
