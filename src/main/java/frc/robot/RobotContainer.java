@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.frc7153.commands.TeleopCommand;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,17 +15,24 @@ import frc.robot.commands.led.DriverStationLEDCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveBase;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 
 public class RobotContainer {
   // Subsystems
   private SwerveBase driveBase = new SwerveBase();
-  //private Shooter shooter = new Shooter();
-  //private Intake intake = new Intake();
+  private Shooter shooter = new Shooter();
+  private Intake intake = new Intake();
+  private Arm arm = new Arm();
+  private Climber climber = new Climber();
   private LED led = new LED();
+
+  
 
   // Controls
   private XboxController driverXboxController = new XboxController(0);
+  private Joystick operatorController = new Joystick(1);
 
   public RobotContainer() {
     configureBindings();
