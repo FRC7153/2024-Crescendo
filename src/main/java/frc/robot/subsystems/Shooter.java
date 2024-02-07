@@ -61,7 +61,7 @@ public class Shooter implements Subsystem {
         shooterUpper.getConfigurator().apply(shooterConfig);
         shooterLower.getConfigurator().apply(shooterConfig);
 
-        shooterUpper.setInverted(false);
+        shooterUpper.setInverted(true);
         shooterLower.setInverted(true);
 
         shooterUpper.setControl(shooterControl);

@@ -3,6 +3,7 @@
 # NOTE params
 kNOTE_MIN_HSV = [0.0, 0.79, 0.05]
 kNOTE_MAX_HSV = [0.07, 1.0, 0.35]
+kNOTE_MIN_PROX = 0.05
 
 # Imports
 from ntcore import NetworkTableInstance
@@ -113,19 +114,28 @@ ntTableInst.setServerTeam(7153)
 ntTableInst.startClient4("SecondaryPiSensors")
 ntTable = ntTableInst.getTable("SecondaryPiSensors")
 
-#leftSensorHOut = ntTable.getIntegerArrayTopic("Left Sensor HSV").publish()
+leftSensorHSVOut = ntTable.getDoubleArrayTopic("Left Sensor HSV").publish()
 leftSensorProxOut = ntTable.getDoubleTopic("Left Sensor Prox").publish()
+leftSensorTargetOut = ntTable.getBooleanTopic("Left Target OK").publish()
+
+# Check if sees note
+def seesNote(hsv, prox):
+    return (hsv[0] >= kNOTE_MIN_HSV[0] and  hsv[0] <= kNOTE_MAX_HSV[0] and
+            hsv[1] >= kNOTE_MIN_HSV[1] and hsv[1] <= kNOTE_MAX_HSV[1] and
+            hsv[2] >= kNOTE_MIN_HSV[2] and hsv[2] <= kNOTE_MAX_HSV[2] and
+            prox >= kNOTE_MIN_PROX)
 
 # Main loop
-print("Running main loop... (v0.1.16)")
-
-import os
+print("Running main loop... (v0.9.1)")
 
 while True:
-    # Left sensor out
-    os.system("clear")
-    print(leftColorSensor.getHSV())
-    #leftSensorHSVOut.set(leftColorSensor.getHSV())
-    leftSensorProxOut.set(leftColorSensor.getProximity())
+    # Left sensor
+    hsv = leftColorSensor.getHSV()
+    prox = leftColorSensor.getProximity()
 
-    time.sleep(0.1)
+    leftSensorTargetOut.set(seesNote(hsv, prox))
+    leftSensorHSVOut.set(hsv)
+    leftSensorProxOut.set(prox)
+
+    # Pause
+    time.sleep(0.05)
