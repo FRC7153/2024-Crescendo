@@ -1,5 +1,9 @@
 ## Runs in the background, publishing the inputs from two REV Color Sensors
 
+# NOTE params
+kNOTE_MIN_HSV = [0.0, 0.79, 0.05]
+kNOTE_MAX_HSV = [0.07, 1.0, 0.35]
+
 # Imports
 from ntcore import NetworkTableInstance
 import pigpio

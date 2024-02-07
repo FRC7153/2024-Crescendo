@@ -19,19 +19,34 @@ import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ArmConstants;
 
 public class Arm implements Subsystem {
+    /** Class for representing a state of the arm */
+    public static class ArmState {
+        public final double lowerAngle; // deg
+        public final double upperAngle; // deg
+        public final double ext; // rots
+
+        public ArmState(double lowerAngle, double upperAngle, double ext) {
+            this.lowerAngle = lowerAngle;
+            this.upperAngle = upperAngle;
+            this.ext = ext;
+        }
+    }
+
     private CANSparkMax lowerLeftPivot = new CANSparkMax(HardwareConstants.kLOWER_LEFT_PIVOT_CAN, MotorType.kBrushless);//has relative encoder
     private CANSparkMax lowerRightPivot = new CANSparkMax(HardwareConstants.kLOWER_RIGHT_PIVOT_CAN, MotorType.kBrushless);
     private CANSparkMax elevatorExt = new CANSparkMax(HardwareConstants.kELEVATOR_EXT_CAN, MotorType.kBrushless);
     private CANSparkMax upperPivot = new CANSparkMax(HardwareConstants.kUPPER_PIVOT_CAN, MotorType.kBrushless);//has relative encoder
 
     private SparkAbsoluteEncoder lowerLeftPivotEncoder = lowerLeftPivot.getAbsoluteEncoder(Type.kDutyCycle);
-    private RelativeEncoder elevaterExtEncoder = elevatorExt.getEncoder();
+    private RelativeEncoder elevatorExtEncoder = elevatorExt.getEncoder();
     private SparkLimitSwitch elevatorLimitSwitch = elevatorExt.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
     private AbsoluteEncoder upperPivotEncoder = upperPivot.getAbsoluteEncoder(Type.kDutyCycle);
 
     private SparkPIDController elevatorExtController;
     private SparkPIDController lowerLeftPivotController;
     private SparkPIDController upperPivotController; 
+
+    private ArmState setpoint = new ArmState(0.0, 0.0, 0.0);
 
     private DoubleLogEntry lowerLeftPivotPositionLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Arm/lowerLeftPivotPosition", "deg");
@@ -99,12 +114,20 @@ public class Arm implements Subsystem {
         lowerLeftPivotSetpointLog.append(angle);
     }
 
+    /**
+     * Sets the upper pivot's setpoint
+     * @param angle degrees. 0 is forward, positive is up
+     */
     public void setUpperPivotAngle(double angle) {
         upperPivotController.setReference((angle / 360.0) / ArmConstants.kUPPER_PIVOT_RATIO, ControlType.kPosition);
 
         upperPivotSetpointLog.append(angle);
     }
 
+    /**
+     * Sets the elevator's extension
+     * @param rots rotations. 0 is inward
+     */
     public void setExtension(double rots) {
         elevatorExtController.setReference(rots / ArmConstants.kELEVATOR_EXT_RATIO , ControlType.kPosition);
 
@@ -130,6 +153,6 @@ public class Arm implements Subsystem {
 
         upperPivotPositionLog.append(upperPivotEncoder.getPosition() * 360.0 * ArmConstants.kUPPER_PIVOT_RATIO);
         
-        elevatorExtPositionLog.append(elevaterExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO);
+        elevatorExtPositionLog.append(elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO);
     }
 }
