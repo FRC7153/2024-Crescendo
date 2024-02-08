@@ -13,7 +13,7 @@ public class ArmShooterCommand extends ConditionalCommand {
         super(
             new SequentialCommandGroup(null), 
             new InstantCommand(), 
-            () -> {return overrideSensor || StateController.getState().equals(NoteState.LOADED)}
+            () -> { return overrideSensor || StateController.getState().equals(NoteState.LOADED); }
         );
     }
     
