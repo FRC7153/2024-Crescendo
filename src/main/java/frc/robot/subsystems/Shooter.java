@@ -12,6 +12,9 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -31,6 +34,10 @@ public class Shooter implements Subsystem {
     // Control
     private VelocityVoltage shooterControl = new VelocityVoltage(0.0).withSlot(0);
     private SparkPIDController indexerControl;
+
+    // Sensors
+    private BooleanSubscriber leftColorSensorTarget;
+    private BooleanSubscriber rightColorSensorTarget;
 
     // Logging
     private DoubleLogEntry shooterSetpointLog = 
@@ -76,6 +83,11 @@ public class Shooter implements Subsystem {
         indexerControl.setP(ShooterConstants.kINDEXER_P, 0);
         indexerControl.setI(ShooterConstants.kINDEXER_I, 0);
         indexerControl.setD(ShooterConstants.kINDEXER_D, 0);
+
+        // Init sensors
+        NetworkTable sensorTable = NetworkTableInstance.getDefault().getTable("SecondaryPiSensors");
+        leftColorSensorTarget = sensorTable.getBooleanTopic("LeftTarget").subscribe(false);
+        rightColorSensorTarget = sensorTable.getBooleanTopic("RightTarget").subscribe(false);
 
         // Begin running diagnostics on these motors
         DiagUtil.addDevice(shooterUpper);

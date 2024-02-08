@@ -114,9 +114,9 @@ ntTableInst.setServerTeam(7153)
 ntTableInst.startClient4("SecondaryPiSensors")
 ntTable = ntTableInst.getTable("SecondaryPiSensors")
 
-leftSensorHSVOut = ntTable.getDoubleArrayTopic("Left Sensor HSV").publish()
-leftSensorProxOut = ntTable.getDoubleTopic("Left Sensor Prox").publish()
-leftSensorTargetOut = ntTable.getBooleanTopic("Left Target OK").publish()
+leftSensorHSVOut = ntTable.getDoubleArrayTopic("LeftSensorHSV").publish()
+leftSensorProxOut = ntTable.getDoubleTopic("LeftSensorProx").publish()
+leftSensorTargetOut = ntTable.getBooleanTopic("LeftTarget").publish()
 
 # Check if sees note
 def seesNote(hsv, prox):
