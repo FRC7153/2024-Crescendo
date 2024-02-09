@@ -56,7 +56,8 @@ public class RobotContainer {
         driverXboxController::getLeftY, 
         driverXboxController::getLeftX,
         driverXboxController::getRightX
-      )
+      ),
+      new TeleopDriveCommand(driveBase, () -> 0.0, () -> 0.0, () -> 0.0)
     ));
     
     // Operator Arm Button (2)
