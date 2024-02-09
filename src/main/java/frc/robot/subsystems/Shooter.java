@@ -27,7 +27,8 @@ import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
 
 import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Degrees;
 
 /**
  * Shooter and indexer of robot
@@ -167,7 +168,8 @@ public class Shooter implements Subsystem {
             (SysIdRoutineLog log) -> {
                 log.motor("Shooter Upper")
                     .voltage(Volts.of(shooterUpper.getMotorVoltage().getValue()))
-                    .linearVelocity(MetersPerSecond.of(0));
+                    .angularPosition(Degrees.of(shooterUpper.getPosition().getValue()*360.0))
+                    .angularVelocity(DegreesPerSecond.of(shooterUpper.getVelocity().getValue()*360.0));
             }, 
             this, 
             "Shooter"
