@@ -22,6 +22,7 @@ public class Constants {
         public static double kSHOOT_P = 0.1;
         public static double kSHOOT_I = 0.0;
         public static double kSHOOT_D = 0.0;
+        public static double kSHOOT_TOLERANCE = 5.0;
 
         public static int kINDEXER_CURRENT_LIMIT = 15;
         public static double kINDEXER_RATIO = 1.0 / 5.0;
@@ -158,8 +159,8 @@ public class Constants {
         public static int kRL_CANCODER = 16;
         public static int kRR_CANCODER = 17;
 
-        public static int kSHOOTER_UPPER_CAN = 18;
-        public static int kSHOOTER_LOWER_CAN = 19;
+        public static int kSHOOTER_UPPER_CAN = 19;
+        public static int kSHOOTER_LOWER_CAN = 18;
 
         public static int kCLIMBER_LEFT_CAN = 20;
         public static int kCLIMBER_RIGHT_CAN = 21; 

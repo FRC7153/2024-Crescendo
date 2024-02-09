@@ -10,6 +10,10 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.Autonomous;
+import frc.robot.commands.ArmShooterCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.led.DriverStationLEDCommand;
 import frc.robot.subsystems.LED;
@@ -23,16 +27,17 @@ public class RobotContainer {
   // Subsystems
   private SwerveBase driveBase = new SwerveBase();
   private Shooter shooter = new Shooter();
-  private Intake intake = new Intake();
-  private Arm arm = new Arm();
-  private Climber climber = new Climber();
-  private LED led = new LED();
+  //private Intake intake = new Intake();
+  //private Arm arm = new Arm();
+  //private Climber climber = new Climber();
+  //private LED led = new LED();
 
-  
+  // Auto
+  private Autonomous auto = new Autonomous(shooter);
 
   // Controls
-  private XboxController driverXboxController = new XboxController(0);
-  private Joystick operatorController = new Joystick(1);
+  private CommandXboxController driverXboxController = new CommandXboxController(0);
+  private CommandJoystick operatorController = new CommandJoystick(1);
 
   public RobotContainer() {
     configureBindings();
@@ -48,12 +53,13 @@ public class RobotContainer {
       )
     ));
     
-    
+    // Operator Arm Button (2)
+    operatorController.button(2).whileTrue(new ArmShooterCommand(shooter, false));
     
     //led.setDefaultCommand(new DriverStationLEDCommand(led));
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return auto.getSelected();
   }
 }
