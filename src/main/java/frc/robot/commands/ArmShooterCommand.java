@@ -18,12 +18,14 @@ public class ArmShooterCommand extends ConditionalCommand {
                 new WaitUntilCommand(() -> StateController.getState().equals(NoteState.LOADED)),
                 // TODO move arm
                 // Set setpoints
-                new InstantCommand(() -> shooter.setShootVelocity(25), shooter),
+                new InstantCommand(() -> shooter.setShootVelocity(30)),
                 // Wait until setpoints reached
                 new WaitUntilCommand(shooter::atShootSetpoint)
             ),
             new PrintCommand("OPERATOR tried to ARM shooter without NOTE loaded!"), 
             () -> { return overrideSensor || !StateController.getState().equals(NoteState.EMPTY); }
         );
+
+        addRequirements(shooter);
     }
 }

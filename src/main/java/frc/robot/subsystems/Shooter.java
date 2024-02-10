@@ -15,19 +15,11 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
-
-import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 
 /**
  * Shooter and indexer of robot
@@ -113,10 +105,11 @@ public class Shooter implements Subsystem {
 
     /** Set default command (not moving) */
     public void setDefaultCommand() {
-        setDefaultCommand(new InstantCommand(() -> {
+        // Alex: ignore this for now, remind me about it Saturday :)
+        /*setDefaultCommand(new InstantCommand(() -> {
             setShootVelocity(0.0);
-            setIndexerEnabled(false);
-        }, this));
+            setIndexerVelocity(0.0);
+        }, this));*/
     }
 
     /** Set shoot velocity (r/s) */
@@ -134,21 +127,10 @@ public class Shooter implements Subsystem {
         velocitySetpoint = velocity;
     }
 
-    /** Sets indexer enabled */
-    public void setIndexerEnabled(boolean enabled) {
-        if (enabled) {
-            indexerControl.setReference(ShooterConstants.kINDEXER_SETPOINT / ShooterConstants.kINDEXER_RATIO, ControlType.kVelocity, 0);
-            indexerSetpointLog.append(ShooterConstants.kINDEXER_SETPOINT);
-        } else {
-            indexerControl.setReference(0.0, ControlType.kVelocity, 0);
-            indexerSetpointLog.append(0.0);
-        }
-    }
-
-    /** Eject piece out of indexer by running backwards slowly */
-    public void ejectPiece() {
-        indexerControl.setReference(ShooterConstants.kINDEXER_EJECT_SETPOINT / ShooterConstants.kINDEXER_RATIO, ControlType.kVelocity, 0);
-        indexerSetpointLog.append(ShooterConstants.kINDEXER_EJECT_SETPOINT);
+    /** Sets indexer enabled (r/m) */
+    public void setIndexerVelocity(double velocity) {
+        indexerControl.setReference(velocity / ShooterConstants.kINDEXER_RATIO, ControlType.kVelocity, 0);
+        indexerSetpointLog.append(ShooterConstants.kINDEXER_SETPOINT);
     }
 
     /** Is the shooter velocity at the setpoint? */
@@ -156,23 +138,6 @@ public class Shooter implements Subsystem {
         return Math.abs(shooterUpper.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE &&
             Math.abs(shooterLower.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE;
     }
-
-    /** Creates a Sys Id Routine */
-    public SysIdRoutine sysIdRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(),
-        new SysIdRoutine.Mechanism(
-            (Measure<Voltage> volts) -> {
-                shooterUpper.setVoltage(volts.magnitude());
-            },
-            (SysIdRoutineLog log) -> {
-                log.motor("Shooter Upper")
-                    .voltage(Volts.of(shooterUpper.getMotorVoltage().getValue()))
-                    .linearVelocity(MetersPerSecond.of(0));
-            }, 
-            this, 
-            "Shooter"
-        )
-    );
 
     // Perform logging
     @Override

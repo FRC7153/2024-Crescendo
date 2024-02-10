@@ -19,10 +19,10 @@ public class Constants {
     public static class ShooterConstants {
         public static int kSHOOT_CURRENT_LIMIT = 60;
         public static double kSHOOT_RATIO = 30.0 / 18.0; // step-up ratio
-        public static double kSHOOT_P = 0.1;
+        public static double kSHOOT_P = 0.5; //2.347e-7;
         public static double kSHOOT_I = 0.0;
         public static double kSHOOT_D = 0.0;
-        public static double kSHOOT_TOLERANCE = 5.0;
+        public static double kSHOOT_TOLERANCE = 5.0; // Sys ID gives max velo error 26.7 deg/s
 
         public static int kINDEXER_CURRENT_LIMIT = 15;
         public static double kINDEXER_RATIO = 1.0 / 5.0;
