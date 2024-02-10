@@ -26,5 +26,4 @@ public class ArmShooterCommand extends ConditionalCommand {
             () -> { return overrideSensor || !StateController.getState().equals(NoteState.EMPTY); }
         );
     }
-    
 }
