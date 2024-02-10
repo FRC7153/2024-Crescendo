@@ -9,9 +9,9 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
 
-public class ArmShooterCommand extends ConditionalCommand {
+public class ArmSpeakerCommand extends ConditionalCommand {
 
-    public ArmShooterCommand(Shooter shooter, boolean overrideSensor) {
+    public ArmSpeakerCommand(Shooter shooter, boolean overrideSensor) {
         super(
             new SequentialCommandGroup(
                 // Wait until NOTE LOADED

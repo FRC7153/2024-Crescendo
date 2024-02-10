@@ -5,12 +5,6 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.frc7153.diagnostics.DiagUtil;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
@@ -28,12 +22,9 @@ public class Shooter implements Subsystem {
     // Devices
     private TalonFX shooterUpper = new TalonFX(HardwareConstants.kSHOOTER_UPPER_CAN, HardwareConstants.kCANIVORE_BUS);
     private TalonFX shooterLower = new TalonFX(HardwareConstants.kSHOOTER_LOWER_CAN, HardwareConstants.kCANIVORE_BUS);
-    private CANSparkMax indexer = new CANSparkMax(HardwareConstants.kINDEXER_CAN, MotorType.kBrushless);
-    private RelativeEncoder indexerEncoder = indexer.getEncoder();
 
     // Control
     private VelocityVoltage shooterControl = new VelocityVoltage(0.0).withSlot(0);
-    private SparkPIDController indexerControl;
     private double velocitySetpoint = 0.0;
 
     // Sensors
@@ -47,10 +38,6 @@ public class Shooter implements Subsystem {
         new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Upper Velocity", "rps");
     private DoubleLogEntry lowerShooterVeloLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Lower Velocity", "rps");
-    private DoubleLogEntry indexerSetpointLog = 
-        new DoubleLogEntry(DataLogManager.getLog(), "Indexer/Setpoint Velocity", "rps");
-    private DoubleLogEntry indexerVeloLog = 
-        new DoubleLogEntry(DataLogManager.getLog(), "Indexer/Velocity", "rps");
 
     // Init
     public Shooter() {
@@ -75,16 +62,6 @@ public class Shooter implements Subsystem {
         shooterUpper.setControl(shooterControl);
         shooterLower.setControl(shooterControl);
 
-        // Config indexer motor
-        indexer.setIdleMode(IdleMode.kBrake);
-        indexer.setInverted(false);
-        indexer.setSmartCurrentLimit(ShooterConstants.kINDEXER_CURRENT_LIMIT);
-
-        indexerControl = indexer.getPIDController();
-        indexerControl.setP(ShooterConstants.kINDEXER_P, 0);
-        indexerControl.setI(ShooterConstants.kINDEXER_I, 0);
-        indexerControl.setD(ShooterConstants.kINDEXER_D, 0);
-
         // Init sensors
         NetworkTable sensorTable = NetworkTableInstance.getDefault().getTable("SecondaryPiSensors");
         leftColorSensorTarget = sensorTable.getBooleanTopic("LeftTarget").subscribe(false);
@@ -93,11 +70,9 @@ public class Shooter implements Subsystem {
         // Begin running diagnostics on these motors
         DiagUtil.addDevice(shooterUpper);
         DiagUtil.addDevice(shooterLower);
-        DiagUtil.addDevice(indexer);
 
-        // Initial log values
+        // Initial log value
         shooterSetpointLog.append(0.0);
-        indexerSetpointLog.append(0.0);
 
         // Register
         register();
@@ -127,12 +102,6 @@ public class Shooter implements Subsystem {
         velocitySetpoint = velocity;
     }
 
-    /** Sets indexer enabled (r/m) */
-    public void setIndexerVelocity(double velocity) {
-        indexerControl.setReference(velocity / ShooterConstants.kINDEXER_RATIO, ControlType.kVelocity, 0);
-        indexerSetpointLog.append(ShooterConstants.kINDEXER_SETPOINT);
-    }
-
     /** Is the shooter velocity at the setpoint? */
     public boolean atShootSetpoint() {
         return Math.abs(shooterUpper.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE &&
@@ -145,6 +114,5 @@ public class Shooter implements Subsystem {
         upperShooterVeloLog.append(shooterUpper.getVelocity().getValue() * ShooterConstants.kSHOOT_RATIO);
         lowerShooterVeloLog.append(shooterLower.getVelocity().getValue() * ShooterConstants.kSHOOT_RATIO);
 
-        indexerVeloLog.append(indexerEncoder.getVelocity() * ShooterConstants.kINDEXER_RATIO);
     }
 }

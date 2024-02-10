@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.Autonomous;
-import frc.robot.commands.ArmShooterCommand;
+import frc.robot.commands.ArmSpeakerCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.led.DriverStationLEDCommand;
 import frc.robot.subsystems.LED;
@@ -61,7 +61,7 @@ public class RobotContainer {
     ));
     
     // Operator Arm Button (2)
-    operatorController.button(2).whileTrue(new ArmShooterCommand(shooter, false));
+    operatorController.button(2).whileTrue(new ArmSpeakerCommand(shooter, false));
     
     //led.setDefaultCommand(new DriverStationLEDCommand(led));
   }

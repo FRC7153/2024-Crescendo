@@ -47,15 +47,13 @@ public class Constants {
     }
     /** Climber Constants */
     public static class ClimberConstants {
-        public static double kCLIMBER_RATIO = 1.0 / 20.0;
+        public static double kCLIMBER_RATIO = 1.0 / 25.0;
         public static double kCLIMBER_POSITION = 0.0; //rotations
         public static int kCLIMBER_CURRENT_LIMIT = 60; 
 
         public static double kCLIMBER_P = 0.0;
         public static double kCLIMBER_I = 0.0;
         public static double kCLIMBER_D = 0.0;
-
-
     }
     /** Arm Constants */
     public static class ArmConstants {
@@ -72,11 +70,11 @@ public class Constants {
         public static double kLOWER_PIVOT_I = 0.0;
         public static double kLOWER_PIVOT_D = 0.2;
 
-        public static double kUPPER_PIVOT_P = 0.0; 
+        public static double kUPPER_PIVOT_P = 0.11;// could possibly be temporary
         public static double kUPPER_PIVOT_I = 0.0; 
         public static double kUPPER_PIVOT_D = 0.0; 
 
-        public static double kELEVATOR_EXT_P = 0.0;
+        public static double kELEVATOR_EXT_P = 0.11;// could possibly be temporary
         public static double kELEVATOR_EXT_I = 0.0;
         public static double kELEVATOR_EXT_D = 0.0;
 
