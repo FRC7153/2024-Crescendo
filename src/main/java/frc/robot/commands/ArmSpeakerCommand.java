@@ -18,7 +18,7 @@ public class ArmSpeakerCommand extends ConditionalCommand {
                 new WaitUntilCommand(() -> StateController.getState().equals(NoteState.LOADED)),
                 // TODO move arm
                 // Set setpoints
-                new InstantCommand(() -> shooter.setShootVelocity(30)),
+                new InstantCommand(() -> shooter.setShootVelocity(40)),
                 // Wait until setpoints reached
                 new WaitUntilCommand(shooter::atShootSetpoint)
             ),

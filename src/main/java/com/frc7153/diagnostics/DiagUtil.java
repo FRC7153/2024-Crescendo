@@ -9,12 +9,14 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.frc7153.diagnostics.devices.ADIS16470Device;
 import com.frc7153.diagnostics.devices.CANCoderDevice;
 import com.frc7153.diagnostics.devices.CANSparkMaxDevice;
+import com.frc7153.diagnostics.devices.NTEntryDevice;
 import com.frc7153.diagnostics.devices.PhotonCameraDevice;
 import com.frc7153.diagnostics.devices.TalonFXDevice;
 import com.frc7153.logging.LoggingUtil;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -59,6 +61,12 @@ public class DiagUtil {
      * @param camera
      */
     public static void addDevice(PhotonCamera camera) { Diagnostics.getInstance().addDevice(new PhotonCameraDevice(camera)); }
+
+    /**
+     * Adds a new NT entry to be checked, with a default timeout of 3.0s
+     * @param entry
+     */
+    public static void addDevice(NetworkTableEntry entry) { Diagnostics.getInstance().addDevice(new NTEntryDevice(entry)); }
 
     // EVALUATIONS
 

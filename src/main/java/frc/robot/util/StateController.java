@@ -26,7 +26,6 @@ public class StateController {
     static {
         // Initialize
         setState(NoteState.EMPTY);
-        setState(NoteState.LOADED);
     }
 
     /**

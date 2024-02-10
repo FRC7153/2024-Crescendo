@@ -45,13 +45,11 @@ public class NTEntryDevice extends CheckableDevice {
 
     @Override
     public void performLogging() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'performLogging'");
+        ageLog.append(Timer.getFPGATimestamp() - entry.getLastChange());
     }
 
     @Override
     public String getID() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getID'");
+        return String.format("NT - %s", entry.getName());
     }
 }

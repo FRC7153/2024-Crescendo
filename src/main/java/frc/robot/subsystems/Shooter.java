@@ -6,11 +6,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.frc7153.diagnostics.DiagUtil;
 
-import edu.wpi.first.networktables.BooleanSubscriber;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -26,10 +24,6 @@ public class Shooter implements Subsystem {
     // Control
     private VelocityVoltage shooterControl = new VelocityVoltage(0.0).withSlot(0);
     private double velocitySetpoint = 0.0;
-
-    // Sensors
-    private BooleanSubscriber leftColorSensorTarget;
-    private BooleanSubscriber rightColorSensorTarget;
 
     // Logging
     private DoubleLogEntry shooterSetpointLog = 
@@ -62,11 +56,6 @@ public class Shooter implements Subsystem {
         shooterUpper.setControl(shooterControl);
         shooterLower.setControl(shooterControl);
 
-        // Init sensors
-        NetworkTable sensorTable = NetworkTableInstance.getDefault().getTable("SecondaryPiSensors");
-        leftColorSensorTarget = sensorTable.getBooleanTopic("LeftTarget").subscribe(false);
-        rightColorSensorTarget = sensorTable.getBooleanTopic("RightTarget").subscribe(false);
-
         // Begin running diagnostics on these motors
         DiagUtil.addDevice(shooterUpper);
         DiagUtil.addDevice(shooterLower);
@@ -80,11 +69,9 @@ public class Shooter implements Subsystem {
 
     /** Set default command (not moving) */
     public void setDefaultCommand() {
-        // Alex: ignore this for now, remind me about it Saturday :)
-        /*setDefaultCommand(new InstantCommand(() -> {
+        setDefaultCommand(new InstantCommand(() -> {
             setShootVelocity(0.0);
-            setIndexerVelocity(0.0);
-        }, this));*/
+        }, this));
     }
 
     /** Set shoot velocity (r/s) */
@@ -104,6 +91,7 @@ public class Shooter implements Subsystem {
 
     /** Is the shooter velocity at the setpoint? */
     public boolean atShootSetpoint() {
+        System.out.println(Math.abs(shooterUpper.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE);
         return Math.abs(shooterUpper.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE &&
             Math.abs(shooterLower.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE;
     }
