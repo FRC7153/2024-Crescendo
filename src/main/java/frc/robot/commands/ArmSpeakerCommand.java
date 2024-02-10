@@ -25,7 +25,7 @@ public class ArmSpeakerCommand extends ConditionalCommand {
             new PrintCommand("OPERATOR tried to ARM shooter without NOTE loaded!"), 
             () -> { return overrideSensor || !StateController.getState().equals(NoteState.EMPTY); }
         );
-
+        
         addRequirements(shooter);
     }
 }

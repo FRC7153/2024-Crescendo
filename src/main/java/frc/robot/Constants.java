@@ -176,9 +176,7 @@ public class Constants {
         public static double kBLUE = 0.87;
         public static double kGREEN = 0.77;
         public static double kYELLOW = 0.69;
-    }
-
-    
+    }    
 }
 
 
