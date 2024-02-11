@@ -53,8 +53,8 @@ public class Indexer implements Subsystem {
         rightColorSensorTarget = sensorTable.getBooleanTopic("RightTarget").subscribe(false);
 
         DiagUtil.addDevice(indexer);
-        //DiagUtil.addDevice(leftColorSensorTarget);
-        //DiagUtil.addDevice(rightColorSensorTarget);
+        DiagUtil.addDevice(leftColorSensorTarget.getTopic());
+        DiagUtil.addDevice(rightColorSensorTarget.getTopic());
 
         indexerSetpointLog.append(0.0);
 
