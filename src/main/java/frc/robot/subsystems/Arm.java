@@ -70,53 +70,53 @@ public class Arm implements Subsystem {
 
 
     public Arm() {
-			lowerLeftPivot.setIdleMode(IdleMode.kBrake);
-			lowerRightPivot.setIdleMode(IdleMode.kBrake);
-			upperPivot.setIdleMode(IdleMode.kBrake);
-			elevatorExt.setIdleMode(IdleMode.kBrake);
+        lowerLeftPivot.setIdleMode(IdleMode.kBrake);
+        lowerRightPivot.setIdleMode(IdleMode.kBrake);
+        upperPivot.setIdleMode(IdleMode.kBrake);
+        elevatorExt.setIdleMode(IdleMode.kBrake);
 
-			lowerLeftPivot.setInverted(false);
-			lowerRightPivot.setInverted(false);
-			upperPivot.setInverted(false);
-			elevatorExt.setInverted(false);
+        lowerLeftPivot.setInverted(false);
+        lowerRightPivot.setInverted(false);
+        upperPivot.setInverted(false);
+        elevatorExt.setInverted(false);
 
-			elevatorExtController = elevatorExt.getPIDController();
-			lowerLeftPivotController = lowerLeftPivot.getPIDController();
-			upperPivotController = upperPivot.getPIDController();
+        elevatorExtController = elevatorExt.getPIDController();
+        lowerLeftPivotController = lowerLeftPivot.getPIDController();
+        upperPivotController = upperPivot.getPIDController();
 
-			elevatorExtController.setP(ArmConstants.kELEVATOR_EXT_P, 0);
-			elevatorExtController.setI(ArmConstants.kELEVATOR_EXT_I, 0);
-			elevatorExtController.setD(ArmConstants.kELEVATOR_EXT_D, 0);
+        elevatorExtController.setP(ArmConstants.kELEVATOR_EXT_P, 0);
+        elevatorExtController.setI(ArmConstants.kELEVATOR_EXT_I, 0);
+        elevatorExtController.setD(ArmConstants.kELEVATOR_EXT_D, 0);
 
-			lowerLeftPivotController.setP(ArmConstants.kLOWER_PIVOT_P, 0);
-			lowerLeftPivotController.setI(ArmConstants.kLOWER_PIVOT_I, 0);
-			lowerLeftPivotController.setD(ArmConstants.kLOWER_PIVOT_D, 0);
+        lowerLeftPivotController.setP(ArmConstants.kLOWER_PIVOT_P, 0);
+        lowerLeftPivotController.setI(ArmConstants.kLOWER_PIVOT_I, 0);
+        lowerLeftPivotController.setD(ArmConstants.kLOWER_PIVOT_D, 0);
 
-			upperPivotController.setP(ArmConstants.kUPPER_PIVOT_P, 0);
-			upperPivotController.setI(ArmConstants.kUPPER_PIVOT_I, 0);
-			upperPivotController.setD(ArmConstants.kUPPER_PIVOT_D, 0);
+        upperPivotController.setP(ArmConstants.kUPPER_PIVOT_P, 0);
+        upperPivotController.setI(ArmConstants.kUPPER_PIVOT_I, 0);
+        upperPivotController.setD(ArmConstants.kUPPER_PIVOT_D, 0);
 
-			elevatorLimitSwitch.enableLimitSwitch(true);
+        elevatorLimitSwitch.enableLimitSwitch(true);
 
-			lowerRightPivot.follow(lowerLeftPivot, true);
+        lowerRightPivot.follow(lowerLeftPivot, true);
 
-			//config logging 
-			DiagUtil.addDevice(lowerLeftPivot);
-			DiagUtil.addDevice(lowerRightPivot);
-			DiagUtil.addDevice(upperPivot);
-			DiagUtil.addDevice(elevatorExt);
+        //config logging 
+        DiagUtil.addDevice(lowerLeftPivot);
+        DiagUtil.addDevice(lowerRightPivot);
+        DiagUtil.addDevice(upperPivot);
+        DiagUtil.addDevice(elevatorExt);
 
-			register();
+        register();
     }
 
-		/** Sets Arm's default command (laying flat) */
-		public void setDefaultCommand() {
-			setDefaultCommand(
-				new InstantCommand(() -> setState(
-					new ArmState(0.0, 0.0, 0.0)
-				), this)
-			);
-		}
+    /** Sets Arm's default command (laying flat) */
+    public void initDefaultCommand() {
+        setDefaultCommand(
+            new InstantCommand(() -> setState(
+                new ArmState(0.0, 0.0, 0.0)
+            ), this)
+        );
+    }
 
     /**
      * Sets the lower pivot's setpoint

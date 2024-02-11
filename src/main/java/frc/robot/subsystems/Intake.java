@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import frc.robot.Constants.HardwareConstants;
@@ -45,6 +46,13 @@ public class Intake implements Subsystem {
         intakeSetpointLog.append(0.0);
 
         register();
+    }
+
+    /** Sets the intake's default command (not moving) */
+    public void initDefaultCommand() {
+        setDefaultCommand(new InstantCommand(
+            this::end, this
+        ));
     }
 
     /** Runs the intake forward */

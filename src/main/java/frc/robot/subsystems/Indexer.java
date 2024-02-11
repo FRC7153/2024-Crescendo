@@ -69,7 +69,7 @@ public class Indexer implements Subsystem {
         indexerSetpointLog.append(ShooterConstants.kINDEXER_SETPOINT);
     }
 
-    public void setDefaultCommand(){
+    public void initDefaultCommand() {
         setDefaultCommand(new InstantCommand(() -> setIndexerVelocity(0.0), this));
     }
 

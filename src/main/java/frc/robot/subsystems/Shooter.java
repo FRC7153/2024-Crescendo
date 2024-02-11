@@ -68,7 +68,7 @@ public class Shooter implements Subsystem {
     }
 
     /** Set default command (not moving) */
-    public void setDefaultCommand() {
+    public void initDefaultCommand() {
         setDefaultCommand(new InstantCommand(() -> {
             setShootVelocity(0.0);
         }, this));
