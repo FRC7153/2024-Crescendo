@@ -53,6 +53,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     // Default
+    driveBase.initDefaultCommand(driverXboxController);
     arm.initDefaultCommand();
     shooter.initDefaultCommand();
     indexer.initDefaultCommand();
@@ -61,16 +62,6 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    // Teleop Drive Command
-    driveBase.setDefaultCommand(new TeleopCommand(
-      new TeleopDriveCommand(driveBase, 
-        driverXboxController::getLeftY, 
-        driverXboxController::getLeftX,
-        driverXboxController::getRightX
-      ),
-      new TeleopDriveCommand(driveBase, () -> 0.0, () -> 0.0, () -> 0.0)
-    ));
-    
     // Operator Arm Button (2)
     operatorController.button(2).whileTrue(new ConditionalCommand(
       new ArmSpeakerCommand(shooter, false), // Throttle up, speaker
