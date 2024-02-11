@@ -10,8 +10,16 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
 
+/**
+ * Runs the indexer to push a NOTE into the shooter wheels, or out the back.
+ * Requires a NOTE to be LOADED.
+ */
 public class ShootCommand extends ConditionalCommand{
-
+    /**
+     * @param indexer
+     * @param direction true = indexer runs forward, false = indexer reverse
+     * @param overrideSensor
+     */
     public ShootCommand(Indexer indexer, boolean direction, boolean overrideSensor){
         super(
             new SequentialCommandGroup(

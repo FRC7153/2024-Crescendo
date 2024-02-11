@@ -7,6 +7,10 @@ import frc.robot.subsystems.Intake;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
 
+/**
+ * Arms the robot to shoot into the AMP.
+ * Requires a NOTE to be LOADED or PROCESSING.
+ */
 public class ArmAmpCommand extends ConditionalCommand {
     public ArmAmpCommand(Intake intake, boolean overrideSensor) {
         super(
@@ -14,7 +18,7 @@ public class ArmAmpCommand extends ConditionalCommand {
 
             ),
             new PrintCommand("The operator tried to ARM the intake with the Note Loaded"),
-            () -> { return overrideSensor || !StateController.getState().equals(NoteState.LOADED); }
+            () -> { return overrideSensor || !StateController.getState().equals(NoteState.EMPTY); }
         );
 
         addRequirements(intake);

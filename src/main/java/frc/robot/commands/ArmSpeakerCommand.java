@@ -9,6 +9,10 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
 
+/**
+ * Arms the robot to shoot into the SPEAKER.
+ * Requires a NOTE to be LOADED or PROCESSING.
+ */
 public class ArmSpeakerCommand extends ConditionalCommand {
 
     public ArmSpeakerCommand(Shooter shooter, boolean overrideSensor) {
