@@ -33,7 +33,5 @@ public class ShootCommand extends ConditionalCommand{
         );
 
         addRequirements(indexer);
-
     }
-    
 }

@@ -1,8 +1,6 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Shooter;
@@ -13,23 +11,22 @@ import frc.robot.util.StateController.NoteState;
  * Arms the robot to shoot into the SPEAKER.
  * Requires a NOTE to be LOADED or PROCESSING.
  */
-public class ArmSpeakerCommand extends ConditionalCommand {
+public class ArmSpeakerCommand extends SequentialCommandGroup {
 
     public ArmSpeakerCommand(Shooter shooter, boolean overrideSensor) {
         super(
+            // Wait until NOTE LOADED
+            new WaitUntilCommand(() -> overrideSensor || StateController.getState().equals(NoteState.LOADED)),
+            // Repeatedly set setpoints and output if ready until interrupted
             new SequentialCommandGroup(
-                // Wait until NOTE LOADED
-                new WaitUntilCommand(() -> StateController.getState().equals(NoteState.LOADED)),
-                // TODO move arm
-                // Set setpoints
-                new InstantCommand(() -> shooter.setShootVelocity(40)),
-                // Wait until setpoints reached
-                new WaitUntilCommand(shooter::atShootSetpoint)
-            ),
-            new PrintCommand("OPERATOR tried to ARM shooter without NOTE loaded!"), 
-            () -> { return overrideSensor || !StateController.getState().equals(NoteState.EMPTY); }
+                new InstantCommand(() -> shooter.setShootVelocity(40), shooter) // Set shoot velocity
+                // TODO set arm (with requirement)
+                // TODO check setpoints, set LEDs (with requirement)
+            ).repeatedly()
         );
-        
-        addRequirements(shooter);
+    }
+
+    public InterruptionBehavior getInterruptionBehavior() {
+        return InterruptionBehavior.kCancelSelf;
     }
 }

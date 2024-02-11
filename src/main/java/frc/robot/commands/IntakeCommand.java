@@ -37,4 +37,10 @@ public class IntakeCommand extends Command {
     // Never finishes
     @Override
     public boolean isFinished() { return false; }
+
+    // Cancels itself
+    @Override
+    public InterruptionBehavior getInterruptionBehavior() {
+        return InterruptionBehavior.kCancelSelf;
+    }
 }

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.frc7153.commands.TeleopCommand;
+import com.frc7153.commands.UnrequiredConditionalCommand;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.auto.Autonomous;
+import frc.robot.commands.ArmAmpCommand;
 import frc.robot.commands.ArmSpeakerCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
@@ -63,24 +65,34 @@ public class RobotContainer {
 
   private void configureBindings() {
     // Operator Arm Button (2)
-    operatorController.button(2).whileTrue(new ConditionalCommand(
-      new ArmSpeakerCommand(shooter, false), // Throttle up, speaker
-      new InstantCommand(), // Throttle down, amp
-      () -> operatorController.getThrottle() < 0.0
-    ));
+    // TODO should not be allowed to arm while processing
+    operatorController.button(2)
+      .whileTrue(new UnrequiredConditionalCommand(
+        // Robot is EMPTY
+        new InstantCommand(), // TODO Go to SOURCE 
+        // Robot is LOADED or PROCESSING
+        new ConditionalCommand(
+          new ArmSpeakerCommand(shooter, false), // Throttle up, speaker
+          new ArmAmpCommand(shooter, false), // Throttle down, amp
+          () -> operatorController.getThrottle() < 0.0
+        ),
+        () -> StateController.getState().equals(NoteState.EMPTY)
+      ));
+
+    // TODO Operator Arm Button (2) is released while state is EMPTY OR PROCESSING
+    operatorController.button(2).negate().and(() -> { return !StateController.getState().equals(NoteState.LOADED); })
+      .whileTrue(new InstantCommand());
 
     // Operator Shoot Button Trigger
     operatorController.trigger().onTrue(new ShootCommand(indexer, true, false));
     
-    // Piece is in shooter
-    new Trigger(indexer::detectingNote).onTrue(
-      new InstantCommand( () -> StateController.setState(NoteState.LOADED) )
-    );
-
     // Handle piece intaking
     new Trigger(() -> !StateController.getState().equals(NoteState.LOADED))
+      // Robot is EMPTY or PROCESSING
       .whileTrue(new IntakeCommand(intake, true))
-      .whileTrue(new LoadShooterCommand(arm, shooter, intake))
+      .whileTrue(new LoadShooterCommand(shooter, indexer))
+      // TODO self canceling arm to ground command, button 2 needs whileFalse to reinit if SOURCE is cancelled
+      // Robot is LOADED
       .whileFalse(new IntakeCommand(intake, false));
     
     //led.setDefaultCommand(new DriverStationLEDCommand(led));

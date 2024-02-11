@@ -1,9 +1,8 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.Intake;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.subsystems.Shooter;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
 
@@ -11,16 +10,19 @@ import frc.robot.util.StateController.NoteState;
  * Arms the robot to shoot into the AMP.
  * Requires a NOTE to be LOADED or PROCESSING.
  */
-public class ArmAmpCommand extends ConditionalCommand {
-    public ArmAmpCommand(Intake intake, boolean overrideSensor) {
+public class ArmAmpCommand extends SequentialCommandGroup {
+    public ArmAmpCommand(Shooter shooter, boolean overrideSensor) {
         super(
+            // Wait until NOTE LOADED
+            new WaitUntilCommand(() -> overrideSensor || StateController.getState().equals(NoteState.LOADED)),
+            // Repeatedly set setpoints until interrupted
             new SequentialCommandGroup(
-
-            ),
-            new PrintCommand("The operator tried to ARM the intake with the Note Loaded"),
-            () -> { return overrideSensor || !StateController.getState().equals(NoteState.EMPTY); }
+                // TODO set shooter, arm, LEDs
+            ).repeatedly()
         );
+    }
 
-        addRequirements(intake);
+    public InterruptionBehavior getInterruptionBehavior() {
+        return InterruptionBehavior.kCancelSelf;
     }
 }
