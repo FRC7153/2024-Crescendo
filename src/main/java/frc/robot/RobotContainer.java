@@ -64,34 +64,31 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    // Operator Arm Button (2)
-    // TODO should not be allowed to arm while processing
-    operatorController.button(2)
-      .whileTrue(new UnrequiredConditionalCommand(
-        // Robot is EMPTY
-        new InstantCommand(), // TODO Go to SOURCE 
-        // Robot is LOADED or PROCESSING
-        new ConditionalCommand(
-          new ArmSpeakerCommand(shooter, false), // Throttle up, speaker
-          new ArmAmpCommand(shooter, false), // Throttle down, amp
-          () -> operatorController.getThrottle() < 0.0
-        ),
-        () -> StateController.getState().equals(NoteState.EMPTY)
+    // Operator Arm Button (2) pressed while robot is LOADED
+    operatorController.button(2).and(StateController.getLoadedTrigger())
+      .whileTrue(new ConditionalCommand(
+        new ArmSpeakerCommand(shooter), // Throttle up, speaker
+        new ArmAmpCommand(shooter), // Throttle down, amp
+        () -> operatorController.getThrottle() < 0.0
       ));
 
-    // TODO Operator Arm Button (2) is released while state is EMPTY OR PROCESSING
-    operatorController.button(2).negate().and(() -> { return !StateController.getState().equals(NoteState.LOADED); })
-      .whileTrue(new InstantCommand());
+    // Operator Arm Button (2) pressed while robot is NOT LOADED
+    operatorController.button(2).and(StateController.getLoadedTrigger().negate())
+      .whileTrue(new InstantCommand()); // TODO SOURCE PICKUP
 
-    // Operator Shoot Button Trigger
-    operatorController.trigger().onTrue(new ShootCommand(indexer, true, false));
+    // Operator Arm Button (2) released while robot is NOT LOADED
+    operatorController.button(2).negate().and(StateController.getLoadedTrigger().negate())
+      .whileTrue(new InstantCommand()); // TODO GROUND PICKUP
+
+    // Operator Shoot Button Trigger while robot is LOADED
+    operatorController.trigger().and(StateController.getLoadedTrigger())
+      .onTrue(new ShootCommand(indexer, true, false));
     
     // Handle piece intaking
     new Trigger(() -> !StateController.getState().equals(NoteState.LOADED))
       // Robot is EMPTY or PROCESSING
       .whileTrue(new IntakeCommand(intake, true))
       .whileTrue(new LoadShooterCommand(shooter, indexer))
-      // TODO self canceling arm to ground command, button 2 needs whileFalse to reinit if SOURCE is cancelled
       // Robot is LOADED
       .whileFalse(new IntakeCommand(intake, false));
     

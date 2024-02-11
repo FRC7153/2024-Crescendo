@@ -8,11 +8,12 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
 
-/**
- * Sets the indexer speed to intake a NOTE, while running the shooter backwards slowly.
- * Sets the robot state to LOADED
- */
 public class LoadShooterCommand extends SequentialCommandGroup {
+    /**
+     * Sets the indexer speed to intake a NOTE, while running the shooter backwards slowly.
+     * Does NOT move the arm.
+     * Sets the robot state to LOADED.
+     */
     public LoadShooterCommand(Shooter shooter, Indexer indexer) {
         super(
             new InstantCommand(() -> shooter.setShootVelocity(-1.0), shooter),

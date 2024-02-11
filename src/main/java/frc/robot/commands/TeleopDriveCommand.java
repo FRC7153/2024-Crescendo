@@ -6,9 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.SwerveBase;
 
-/**
- * Teleop driving command for the swerve base
- */
 public class TeleopDriveCommand extends Command {
     // Objects
     private SwerveBase base;
@@ -16,7 +13,9 @@ public class TeleopDriveCommand extends Command {
     // Inputs
     private Supplier<Double> ySupply, xSupply, thetaSupply;
 
-    // Constructor
+    /**
+     * Teleop driving command for the swerve base
+     */
     public TeleopDriveCommand(
         SwerveBase base, 
         Supplier<Double> ySupply, 

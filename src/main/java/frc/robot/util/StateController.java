@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * Handles the robot's state
@@ -19,6 +20,7 @@ public class StateController {
 
     // Current state
     private static NoteState state;
+    private static Trigger robotLoadedTrigger;
 
     // Logging
     private static StringLogEntry noteStateLog = new StringLogEntry(DataLogManager.getLog(), "Robot/NoteState");
@@ -26,6 +28,7 @@ public class StateController {
     static {
         // Initialize
         setState(NoteState.EMPTY);
+        robotLoadedTrigger = new Trigger(() -> getState() == NoteState.LOADED);
     }
 
     /**
@@ -42,4 +45,10 @@ public class StateController {
      * @return
      */
     public static NoteState getState() { return state; }
+
+    /**
+     * Gets a trigger for if the robot is LOADED
+     * @return
+     */
+    public static Trigger getLoadedTrigger() { return robotLoadedTrigger; }
 }
