@@ -16,7 +16,6 @@ import com.frc7153.logging.LoggingUtil;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DriverStation;

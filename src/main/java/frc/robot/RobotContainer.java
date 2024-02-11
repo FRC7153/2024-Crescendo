@@ -53,6 +53,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     // Default
+    arm.setDefaultCommand();
     shooter.setDefaultCommand();
     indexer.setDefaultCommand();
     
