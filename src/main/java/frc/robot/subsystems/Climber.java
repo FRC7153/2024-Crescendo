@@ -84,6 +84,11 @@ public class Climber implements Subsystem {
         climberRightSetPointLog.append(0);//to be changed
         climberLeftSetPointLog.append(0);//to be changed
     }
+    /**Is the climber at its setpoint? */
+    public boolean climberAtSetpoint(){
+        return Math.abs(climberLeftEncoder.getPosition() - ClimberConstants.kCLIMBER_POSITION) <= ClimberConstants.kCLIMBER_TOLERANCE && 
+            Math.abs(climberRightEncoder.getPosition() - ClimberConstants.kCLIMBER_POSITION) <= ClimberConstants.kCLIMBER_TOLERANCE;
+    }
 
     @Override
     public void periodic() {

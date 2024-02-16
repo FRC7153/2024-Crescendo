@@ -1,7 +1,24 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Climber;
 
-public class climberStageCommand extends Command{
-    
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
+public class ClimberStageCommand extends SequentialCommandGroup{
+
+    public ClimberStageCommand(Climber climber, boolean climberSet){
+        super(
+            //new WaitUntilCommand(() -> climberSet == true),
+            new InstantCommand(() -> {
+                if (climberSet) {climber.climberUp(); }
+                else { climber.climberDown(); }
+            }, climber),
+            new WaitUntilCommand(() -> climber.climberAtSetpoint())
+        );
+    }
 }
+
+
+
