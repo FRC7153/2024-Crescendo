@@ -12,7 +12,7 @@ public class ArmSpeakerCommand extends RepeatCommand {
      */
     public ArmSpeakerCommand(Shooter shooter) {
         super(new SequentialCommandGroup(
-            new InstantCommand(() -> shooter.setShootVelocity(40), shooter) // Set shoot velocity
+            new InstantCommand(() -> shooter.setShootVelocity(85), shooter) // Set shoot velocity
             // TODO set arm (with requirement)
             // TODO check setpoints, set LEDs (with requirement)
         ));

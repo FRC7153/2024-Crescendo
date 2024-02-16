@@ -1,5 +1,9 @@
 package frc.robot.util;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringEntry;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -21,6 +25,7 @@ public class StateController {
     // Current state
     private static NoteState state;
     private static Trigger robotLoadedTrigger;
+    private static StringPublisher noteStatePublisher = NetworkTableInstance.getDefault().getTable("State").getStringTopic("Note State").publish();
 
     // Logging
     private static StringLogEntry noteStateLog = new StringLogEntry(DataLogManager.getLog(), "Robot/NoteState");
@@ -38,6 +43,7 @@ public class StateController {
     public static void setState(NoteState state) {
         StateController.state = state;
         noteStateLog.append(state.name());
+        noteStatePublisher.set(state.name());
     }
 
     /**

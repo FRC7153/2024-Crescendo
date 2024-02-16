@@ -24,11 +24,15 @@ public class Constants {
         public static double kSHOOT_D = 0.0;
         public static double kSHOOT_TOLERANCE = 5.0; // Sys ID gives max velo error 26.7 deg/s
 
-        public static int kINDEXER_CURRENT_LIMIT = 15;
+        public static int kINDEXER_CURRENT_LIMIT = 25;
         public static double kINDEXER_RATIO = 1.0 / 5.0;
-        public static double kINDEXER_P = 0.000005;
-        public static double kINDEXER_I = 5e-7;
-        public static double kINDEXER_D = 0.0;
+        public static double kINDEXER_VELO_P = 0.000005;
+        public static double kINDEXER_VELO_I = 5e-7;
+        public static double kINDEXER_VELO_D = 0.0;
+
+        public static double kINDEXER_POS_P = 0.175;
+        public static double kINDEXER_POS_I = 0.0;
+        public static double kINDEXER_POS_D = 0.15;
 
         public static double kINDEXER_SETPOINT = 5000; // rpm, while moving
         public static double kINDEXER_EJECT_SETPOINT = -1000; // rpm, backwards

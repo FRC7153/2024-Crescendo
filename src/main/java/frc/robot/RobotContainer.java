@@ -7,6 +7,7 @@ package frc.robot;
 import com.frc7153.commands.TeleopCommand;
 import com.frc7153.commands.UnrequiredConditionalCommand;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -73,19 +74,19 @@ public class RobotContainer {
       ));
 
     // Operator Arm Button (2) pressed while robot is NOT LOADED
-    operatorController.button(2).and(StateController.getLoadedTrigger().negate())
+    /*operatorController.button(2).and(StateController.getLoadedTrigger().negate())
       .whileTrue(new InstantCommand()); // TODO SOURCE PICKUP
 
     // Operator Arm Button (2) released while robot is NOT LOADED
     operatorController.button(2).negate().and(StateController.getLoadedTrigger().negate())
-      .whileTrue(new InstantCommand()); // TODO GROUND PICKUP
+      .whileTrue(new InstantCommand()); // TODO GROUND PICKUP*/
 
     // Operator Shoot Button Trigger while robot is LOADED
     operatorController.trigger().and(StateController.getLoadedTrigger())
       .onTrue(new ShootCommand(indexer, true, false));
     
     // Handle piece intaking
-    new Trigger(() -> !StateController.getState().equals(NoteState.LOADED))
+    new Trigger(() -> (!StateController.getState().equals(NoteState.LOADED) && DriverStation.isTeleopEnabled()))
       // Robot is EMPTY or PROCESSING
       .whileTrue(new IntakeCommand(intake, true))
       .whileTrue(new LoadShooterCommand(shooter, indexer))

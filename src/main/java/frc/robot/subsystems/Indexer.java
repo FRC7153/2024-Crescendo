@@ -43,9 +43,15 @@ public class Indexer implements Subsystem {
         indexer.setSmartCurrentLimit(ShooterConstants.kINDEXER_CURRENT_LIMIT);
 
         indexerControl = indexer.getPIDController();
-        indexerControl.setP(ShooterConstants.kINDEXER_P, 0);
-        indexerControl.setI(ShooterConstants.kINDEXER_I, 0);
-        indexerControl.setD(ShooterConstants.kINDEXER_D, 0);
+        indexerControl.setP(ShooterConstants.kINDEXER_VELO_P, 0);
+        indexerControl.setI(ShooterConstants.kINDEXER_VELO_I, 0);
+        indexerControl.setD(ShooterConstants.kINDEXER_VELO_D, 0);
+
+        indexerControl.setP(ShooterConstants.kINDEXER_POS_P, 1);
+        indexerControl.setP(ShooterConstants.kINDEXER_POS_I, 1);
+        indexerControl.setP(ShooterConstants.kINDEXER_POS_D, 1);
+
+        indexer.burnFlash();
 
         // Init sensors
         NetworkTable sensorTable = NetworkTableInstance.getDefault().getTable("SecondaryPiSensors");
@@ -69,6 +75,29 @@ public class Indexer implements Subsystem {
         indexerSetpointLog.append(ShooterConstants.kINDEXER_SETPOINT);
     }
 
+    /**
+     * Set indexer position in rotations
+     */
+    public void setIndexerPos(double pos, boolean resetPosition) {
+        if (resetPosition) indexerEncoder.setPosition(0.0);
+        indexerControl.setReference(pos, ControlType.kPosition, 1); // 13
+    }
+
+    public double getIndexerPos() {
+        return indexerEncoder.getPosition();
+    }
+
+    /**
+     * Stops the motor
+     */
+    public void stop() {
+        indexer.disable();
+    }
+
+    public double getMotorCurrent() {
+        return indexer.getOutputCurrent();
+    }
+
     public void initDefaultCommand() {
         setDefaultCommand(new InstantCommand(() -> setIndexerVelocity(0.0), this));
     }
@@ -83,5 +112,6 @@ public class Indexer implements Subsystem {
     @Override
     public void periodic(){
         indexerVeloLog.append(indexerEncoder.getVelocity() * ShooterConstants.kINDEXER_RATIO);
+        System.out.println(indexerEncoder.getPosition());
     }
 }
