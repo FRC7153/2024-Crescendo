@@ -91,7 +91,6 @@ public class Shooter implements Subsystem {
 
     /** Is the shooter velocity at the setpoint? */
     public boolean atShootSetpoint() {
-        System.out.println(Math.abs(shooterUpper.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE);
         return Math.abs(shooterUpper.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE &&
             Math.abs(shooterLower.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE;
     }

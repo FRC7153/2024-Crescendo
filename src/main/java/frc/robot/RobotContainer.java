@@ -5,7 +5,7 @@
 package frc.robot;
 
 import com.frc7153.commands.TeleopCommand;
-import com.frc7153.commands.UnrequiredConditionalCommand;
+//import com.frc7153.commands.UnrequiredConditionalCommand;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.ArmAmpCommand;
 import frc.robot.commands.ArmSpeakerCommand;
+import frc.robot.commands.ClimberStageCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
 import frc.robot.commands.ShootCommand;
@@ -84,6 +85,12 @@ public class RobotContainer {
     // Operator Shoot Button Trigger while robot is LOADED
     operatorController.trigger().and(StateController.getLoadedTrigger())
       .onTrue(new ShootCommand(indexer, true, false));
+    
+    // Operator Climb Button (3) pressed
+    operatorController.button(3).onTrue(new ClimberStageCommand(climber, true));
+
+    // Operator CLimb Button (4) pressed
+    operatorController.button(4).onTrue(new ClimberStageCommand(climber, false));
     
     // Handle piece intaking
     new Trigger(() -> (!StateController.getState().equals(NoteState.LOADED) && DriverStation.isTeleopEnabled()))

@@ -55,9 +55,11 @@ public class Constants {
         public static double kCLIMBER_POSITION = 0.0; //rotations
         public static int kCLIMBER_CURRENT_LIMIT = 60; 
 
-        public static double kCLIMBER_P = 0.0;
+        public static double kCLIMBER_P = 0.2;
         public static double kCLIMBER_I = 0.0;
         public static double kCLIMBER_D = 0.0;
+
+        public static double kCLIMBER_TOLERANCE = 0.0;
     }
     /** Arm Constants */
     public static class ArmConstants {
