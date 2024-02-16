@@ -45,7 +45,7 @@ public class RobotContainer {
   private Indexer indexer = new Indexer();
   private Intake intake = new Intake();
   private Arm arm = new Arm();
-  //private Climber climber = new Climber();
+  private Climber climber = new Climber();
   //private LED led = new LED();
 
   // Auto
