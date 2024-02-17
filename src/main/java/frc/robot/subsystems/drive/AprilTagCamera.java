@@ -77,6 +77,8 @@ public class AprilTagCamera extends SubsystemBase {
         fpsLog = new DoubleLogEntry(DataLogManager.getLog(), logId + "FPS");
         latencyLog = new DoubleLogEntry(DataLogManager.getLog(), logId + "Latency");
         numTargetsLog = new DoubleLogEntry(DataLogManager.getLog(), logId + "Target Count");
+
+        register();
     }
 
     // Periodic
