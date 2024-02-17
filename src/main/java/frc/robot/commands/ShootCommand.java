@@ -14,14 +14,17 @@ public class ShootCommand extends SequentialCommandGroup {
      * Requires a NOTE to be LOADED.
      * @param indexer
      * @param direction true = indexer runs forward, false = indexer reverse
-     * @param overrideSensor
      */
-    public ShootCommand(Indexer indexer, boolean direction, boolean overrideSensor){
+    public ShootCommand(Indexer indexer, boolean direction){
         super(
+            // Run intake
             new InstantCommand(() -> indexer.setIndexerVelocity(direction ? 400.0 : -400.0), indexer),
+            // Wait until empty
+            new WaitCommand(0.5),
             new WaitUntilCommand(() -> !indexer.detectingNote()),
-            new WaitCommand(5.0),
-            new InstantCommand(() -> StateController.setState(NoteState.EMPTY))
+            // Stop and set state
+            new InstantCommand(indexer::stop, indexer),
+            new InstantCommand(() -> StateController.setNoteState(NoteState.EMPTY))
         );
     }
 }

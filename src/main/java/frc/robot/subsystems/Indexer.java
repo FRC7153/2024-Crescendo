@@ -112,6 +112,5 @@ public class Indexer implements Subsystem {
     @Override
     public void periodic(){
         indexerVeloLog.append(indexerEncoder.getVelocity() * ShooterConstants.kINDEXER_RATIO);
-        System.out.println(indexerEncoder.getPosition());
     }
 }

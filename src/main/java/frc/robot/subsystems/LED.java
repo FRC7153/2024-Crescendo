@@ -6,6 +6,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.LEDConstants;
+import frc.robot.commands.led.DriverStationLEDCommand;
 
 /**
  * Interfaces with the RaspberryPi controlling the LEDs
@@ -24,6 +25,13 @@ public class LED implements Subsystem {
         // Default to OFF
         ntPublisher.setDefault(LEDConstants.kOFF);
         setPulse(LEDConstants.kOFF);
+    }
+
+    /**
+     * Init default command (driver station color)
+     */
+    public void initDefaultCommand() {
+        setDefaultCommand(new DriverStationLEDCommand(this));
     }
 
     /**

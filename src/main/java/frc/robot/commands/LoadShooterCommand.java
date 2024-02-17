@@ -1,12 +1,15 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.Constants.LEDConstants;
+import frc.robot.commands.led.FlashLEDCommand;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
@@ -17,20 +20,27 @@ public class LoadShooterCommand extends SequentialCommandGroup {
      * Does NOT move the arm.
      * Sets the robot state to LOADED.
      */
-    public LoadShooterCommand(Shooter shooter, Indexer indexer) {
+    public LoadShooterCommand(Shooter shooter, Indexer indexer, LED led) {
         super(
+            // Start motors
             new InstantCommand(() -> shooter.setShootVelocity(0.0), shooter),
             new InstantCommand(() -> indexer.setIndexerVelocity(160.0), indexer),
-            //new WaitUntilCommand(indexer::detectingNote),
+            // Wait for piece
             new WaitCommand(0.75),
-            new WaitUntilCommand(() -> indexer.getMotorCurrent() >= 20),
-            //new InstantCommand(() -> indexer.setIndexerVelocity(0.0), indexer),
-            //new InstantCommand(() -> shooter.setShootVelocity(0.0), shooter),
-            new InstantCommand(() -> indexer.setIndexerPos(13.0, true), indexer),
-            new WaitCommand(0.3),
-            new WaitUntilCommand(() -> Math.abs(indexer.getIndexerPos() - 13.0) < 13.0),
+            new WaitUntilCommand(indexer::detectingNote),
+            // Stop motors
             new InstantCommand(indexer::stop, indexer),
-            new InstantCommand(() -> StateController.setState(NoteState.LOADED))
+            // Flash LEDs, if not done already
+            new ConditionalCommand(
+                // LEDs flash already
+                new InstantCommand(() -> StateController.setNoteState(NoteState.LOADED)), 
+                // LEDs haven't flashed
+                new ParallelCommandGroup(
+                    new FlashLEDCommand(led, LEDConstants.kYELLOW),
+                    new InstantCommand(() -> StateController.setNoteState(NoteState.LOADED))
+                ), 
+                () -> StateController.getNoteState().equals(NoteState.PROCESSING)
+            )
         );
     }
 

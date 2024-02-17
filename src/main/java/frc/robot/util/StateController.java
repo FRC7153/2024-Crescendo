@@ -2,7 +2,6 @@ package frc.robot.util;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -14,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class StateController {
     /** The robot's NOTE state */
     public static enum NoteState {
-        /** There is no NOTE in the robot */
+        /** There is no NOTE in the robot (default) */
         EMPTY,
         /** The robot is intaking a NOTE */
         PROCESSING,
@@ -22,26 +21,44 @@ public class StateController {
         LOADED
     }
 
+    /** The robot's OBJECTIVE state */
+    public static enum ObjectiveState {
+        /** Robot is scoring NOTES only */
+        SCORING,
+        /** Robot is DEFENDING only (default) */
+        DEFENDING,
+        /** Robot is CLIMBING only */
+        CLIMBING
+    }
+
     // Current state
-    private static NoteState state;
-    private static Trigger robotLoadedTrigger;
-    private static StringPublisher noteStatePublisher = NetworkTableInstance.getDefault().getTable("State").getStringTopic("Note State").publish();
+    private static NoteState noteState;
+    private static StringPublisher noteStatePublisher;
+
+    private static ObjectiveState objectiveState;
+    private static StringPublisher objectiveStatePublisher;
 
     // Logging
     private static StringLogEntry noteStateLog = new StringLogEntry(DataLogManager.getLog(), "Robot/NoteState");
+    private static StringLogEntry objectiveStateLog = new StringLogEntry(DataLogManager.getLog(), "Robot/ObjectiveState");
 
     static {
+        // Initialize NT
+        NetworkTable stateTable = NetworkTableInstance.getDefault().getTable("State");
+        noteStatePublisher = stateTable.getStringTopic("Note State").publish();
+        objectiveStatePublisher = stateTable.getStringTopic("Objective State").publish();
+
         // Initialize
-        setState(NoteState.EMPTY);
-        robotLoadedTrigger = new Trigger(() -> getState() == NoteState.LOADED);
+        setNoteState(NoteState.EMPTY);
+        setObjectiveState(ObjectiveState.DEFENDING);
     }
 
     /**
      * Sets the robot's note state
      * @param state
      */
-    public static void setState(NoteState state) {
-        StateController.state = state;
+    public static void setNoteState(NoteState state) {
+        StateController.noteState = state;
         noteStateLog.append(state.name());
         noteStatePublisher.set(state.name());
     }
@@ -50,11 +67,33 @@ public class StateController {
      * Gets the robot's note state
      * @return
      */
-    public static NoteState getState() { return state; }
+    public static NoteState getNoteState() { return noteState; }
 
     /**
-     * Gets a trigger for if the robot is LOADED
+     * Sets the robot's objective state
+     * @param state
+     */
+    public static void setObjectiveState(ObjectiveState state) {
+        StateController.objectiveState = state;
+        objectiveStateLog.append(state.name());
+        objectiveStatePublisher.set(state.name());
+    }
+
+    /**
+     * Gets the robot's objective state
+     */
+    public static ObjectiveState getObjectiveState() { return objectiveState; }
+
+    /**
+     * Creates a trigger with the states. Leave {@code null} if it's not required.
+     * @param targetNoteState
+     * @param targetObjectiveState
      * @return
      */
-    public static Trigger getLoadedTrigger() { return robotLoadedTrigger; }
+    public static Trigger buildTrigger(NoteState targetNoteState, ObjectiveState targetObjectiveState) {
+        return new Trigger(() -> {
+            return (targetNoteState.equals(null) || targetNoteState.equals(getNoteState())) &&
+                (targetObjectiveState.equals(null) || targetObjectiveState.equals(getObjectiveState()));
+        });
+    }
 }

@@ -22,6 +22,9 @@ public class DriverStationLEDCommand extends Command {
 
     // Set the LED colors
     @Override
+    public void initialize() { execute(); }
+
+    @Override
     public void execute() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
 
@@ -32,6 +35,11 @@ public class DriverStationLEDCommand extends Command {
         } else {
             led.setPulse(LEDConstants.kOFF);
         }
+    }
+
+    @Override
+    public void end(boolean terminated) {
+        led.setPulse(LEDConstants.kOFF);
     }
 
     // Cancel this command when a new one is called
