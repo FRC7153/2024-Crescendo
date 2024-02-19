@@ -4,10 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.ArmAmpCommand;
 import frc.robot.commands.ArmSpeakerCommand;
@@ -15,6 +17,7 @@ import frc.robot.commands.ClimberStageCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveBase;
@@ -45,7 +48,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     // Default
-    driveBase.initDefaultCommand(driverXboxController);
+    driveBase.initDefaultCommand();
     arm.initDefaultCommand();
     shooter.initDefaultCommand();
     indexer.initDefaultCommand();
@@ -55,6 +58,17 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    // Teleop trigger (reused multiple times)
+    Trigger isTeleop = new Trigger(DriverStation::isTeleopEnabled);
+
+    // Drive Control
+    isTeleop.whileTrue(new TeleopDriveCommand(
+        driveBase, 
+        driverXboxController::getLeftY, 
+        driverXboxController::getLeftX, 
+        driverXboxController::getRightX
+      ));
+      
     // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING
     operatorController.button(6).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
       .whileTrue(new ArmSpeakerCommand(arm, shooter));
@@ -81,13 +95,16 @@ public class RobotContainer {
     
     // Handle Objective State Control (Operator throttle)
     operatorController.axisLessThan(operatorController.getThrottleChannel(), -2.0/3.0)
+      .and(isTeleop)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.SCORING)));
 
     operatorController.axisGreaterThan(operatorController.getThrottleChannel(), -2.0/3.0)
       .and(operatorController.axisLessThan(operatorController.getThrottleChannel(), 1.0/3.0))
+      .and(isTeleop)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.CLIMBING)));
 
     operatorController.axisGreaterThan(operatorController.getThrottleChannel(), 1.0/3.0)
+      .and(isTeleop)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.DEFENDING)));
     
     // Don't intake when robot is LOADED and SCORING

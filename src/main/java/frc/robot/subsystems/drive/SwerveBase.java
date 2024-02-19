@@ -3,7 +3,6 @@ package frc.robot.subsystems.drive;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.frc7153.commands.TeleopCommand;
 import com.frc7153.diagnostics.DiagUtil;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -27,11 +26,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HardwareConstants;
-import frc.robot.commands.TeleopDriveCommand;
 
 public class SwerveBase implements Subsystem {
     // Shared SwerveModuleStateStruct
@@ -103,15 +101,10 @@ public class SwerveBase implements Subsystem {
     }
 
     /** Sets the default command (drives in teleop, nothing in auto) */
-    public void initDefaultCommand(CommandXboxController driveController) {
-        setDefaultCommand(new TeleopCommand(
-            new TeleopDriveCommand(
-                this,
-                driveController::getLeftY,
-                driveController::getLeftX,
-                driveController::getRightX
-            ), 
-            new TeleopDriveCommand(this, () -> 0.0, () -> 0.0, () -> 0.0)
+    public void initDefaultCommand() {
+        setDefaultCommand(new InstantCommand(
+            () -> driveFieldOriented(0.0, 0.0, 0.0),
+            this
         ));
     }
 
