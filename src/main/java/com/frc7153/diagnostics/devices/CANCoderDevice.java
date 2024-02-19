@@ -61,6 +61,6 @@ public class CANCoderDevice extends CheckableDevice {
     
     @Override
     public void performLogging() {
-        magnetHealthLog.append(cancoder.getMagnetHealth().getName());
+        magnetHealthLog.append(cancoder.getMagnetHealth().getValue().toString());
     }
 }

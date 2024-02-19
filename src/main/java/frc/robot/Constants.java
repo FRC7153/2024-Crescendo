@@ -19,23 +19,16 @@ public class Constants {
     public static class ShooterConstants {
         public static int kSHOOT_CURRENT_LIMIT = 60;
         public static double kSHOOT_RATIO = 30.0 / 18.0; // step-up ratio
-        public static double kSHOOT_P = 0.5; //2.347e-7;
+        public static double kSHOOT_P = 0.5;
         public static double kSHOOT_I = 0.0;
         public static double kSHOOT_D = 0.0;
-        public static double kSHOOT_TOLERANCE = 5.0; // Sys ID gives max velo error 26.7 deg/s
+        public static double kSHOOT_TOLERANCE = 5.0;
 
         public static int kINDEXER_CURRENT_LIMIT = 25;
         public static double kINDEXER_RATIO = 1.0 / 5.0;
         public static double kINDEXER_VELO_P = 0.000005;
         public static double kINDEXER_VELO_I = 5e-7;
         public static double kINDEXER_VELO_D = 0.0;
-
-        public static double kINDEXER_POS_P = 0.175;
-        public static double kINDEXER_POS_I = 0.0;
-        public static double kINDEXER_POS_D = 0.15;
-
-        public static double kINDEXER_SETPOINT = 5000; // rpm, while moving
-        public static double kINDEXER_EJECT_SETPOINT = -1000; // rpm, backwards
     }
 
     /**Intake Constants */
@@ -52,8 +45,8 @@ public class Constants {
     /** Climber Constants */
     public static class ClimberConstants {
         public static double kCLIMBER_RATIO = 1.0 / 25.0;
-        public static double kCLIMBER_POSITION = 0.0; //rotations
-        public static int kCLIMBER_CURRENT_LIMIT = 60; 
+        public static double kCLIMBER_UP_POSITION = 0.0; //rotations
+        public static int kCLIMBER_CURRENT_LIMIT = 50; 
 
         public static double kCLIMBER_P = 0.2;
         public static double kCLIMBER_I = 0.0;
@@ -110,9 +103,9 @@ public class Constants {
         public static IMUAxis kGYRO_ROLL = IMUAxis.kZ;
         
         public static Vector<N3> kSTATE_STD_DEV = 
-            VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(2.0)); // meters, meters, rads
+            VecBuilder.fill(0.8, 0.8, Units.degreesToRadians(2.0)); // meters, meters, rads
         public static Vector<N3> kVISION_STD_DEV =
-            VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(5.0));
+            VecBuilder.fill(0.09, 0.09, Units.degreesToRadians(4.0));
 
         public static Path kAPRIL_TAG_LAYOUT_JSON = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2024Layout.json");
     }
@@ -176,6 +169,7 @@ public class Constants {
         public static String kCANIVORE_BUS = "CANivore";
     }
 
+    /** LED Constants */
     public static class LEDConstants {
         public static double kOFF = 0.99;
         public static double kRED = 0.61;

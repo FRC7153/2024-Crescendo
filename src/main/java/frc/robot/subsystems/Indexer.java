@@ -24,8 +24,7 @@ public class Indexer implements Subsystem {
     private RelativeEncoder indexerEncoder = indexer.getEncoder();
 
     // Sensors
-    private BooleanSubscriber leftColorSensorTarget;
-    private BooleanSubscriber rightColorSensorTarget;
+    private BooleanSubscriber colorSensorTarget;
 
     // Control
     private SparkPIDController indexerControl;
@@ -47,20 +46,14 @@ public class Indexer implements Subsystem {
         indexerControl.setI(ShooterConstants.kINDEXER_VELO_I, 0);
         indexerControl.setD(ShooterConstants.kINDEXER_VELO_D, 0);
 
-        indexerControl.setP(ShooterConstants.kINDEXER_POS_P, 1);
-        indexerControl.setP(ShooterConstants.kINDEXER_POS_I, 1);
-        indexerControl.setP(ShooterConstants.kINDEXER_POS_D, 1);
-
         indexer.burnFlash();
 
         // Init sensors
         NetworkTable sensorTable = NetworkTableInstance.getDefault().getTable("SecondaryPiSensors");
-        leftColorSensorTarget = sensorTable.getBooleanTopic("LeftTarget").subscribe(false);
-        rightColorSensorTarget = sensorTable.getBooleanTopic("RightTarget").subscribe(false);
+        colorSensorTarget = sensorTable.getBooleanTopic("Target").subscribe(false);
 
         DiagUtil.addDevice(indexer);
-        DiagUtil.addDevice(leftColorSensorTarget.getTopic());
-        DiagUtil.addDevice(rightColorSensorTarget.getTopic());
+        DiagUtil.addDevice(colorSensorTarget.getTopic());
 
         indexerSetpointLog.append(0.0);
 
@@ -72,19 +65,7 @@ public class Indexer implements Subsystem {
      */
     public void setIndexerVelocity(double velocity) {
         indexerControl.setReference(velocity / ShooterConstants.kINDEXER_RATIO, ControlType.kVelocity, 0);
-        indexerSetpointLog.append(ShooterConstants.kINDEXER_SETPOINT);
-    }
-
-    /**
-     * Set indexer position in rotations
-     */
-    public void setIndexerPos(double pos, boolean resetPosition) {
-        if (resetPosition) indexerEncoder.setPosition(0.0);
-        indexerControl.setReference(pos, ControlType.kPosition, 1); // 13
-    }
-
-    public double getIndexerPos() {
-        return indexerEncoder.getPosition();
+        indexerSetpointLog.append(velocity);
     }
 
     /**
@@ -92,10 +73,6 @@ public class Indexer implements Subsystem {
      */
     public void stop() {
         indexer.disable();
-    }
-
-    public double getMotorCurrent() {
-        return indexer.getOutputCurrent();
     }
 
     public void initDefaultCommand() {
@@ -106,7 +83,7 @@ public class Indexer implements Subsystem {
      * @return If either the left or right sensor sees the piece
      */
     public boolean detectingNote() {
-        return leftColorSensorTarget.get() || rightColorSensorTarget.get();
+        return colorSensorTarget.get();
     }
 
     @Override

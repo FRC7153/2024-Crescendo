@@ -37,6 +37,9 @@ public class Climber implements Subsystem {
         new DoubleLogEntry(DataLogManager.getLog(), "Climber/LeftSetPoint", "rotations");
     private DoubleLogEntry climberRightSetPointLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightSetPoint", "rotations");
+
+    private double setpoint = 0.0;
+
     //init
     public Climber() {
         climberLeft.setIdleMode(IdleMode.kBrake);
@@ -69,11 +72,12 @@ public class Climber implements Subsystem {
 
     /**Puts the climber up */
     public void climberUp() {
-        climberLeftController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
-        climberRightController.setReference(ClimberConstants.kCLIMBER_POSITION, ControlType.kPosition, 0);
+        climberLeftController.setReference(ClimberConstants.kCLIMBER_UP_POSITION / ClimberConstants.kCLIMBER_RATIO, ControlType.kPosition, 0);
+        climberRightController.setReference(ClimberConstants.kCLIMBER_UP_POSITION / ClimberConstants.kCLIMBER_RATIO, ControlType.kPosition, 0);
 
-        climberLeftSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);
-        climberRightSetPointLog.append(ClimberConstants.kCLIMBER_POSITION);
+        climberLeftSetPointLog.append(ClimberConstants.kCLIMBER_UP_POSITION);
+        climberRightSetPointLog.append(ClimberConstants.kCLIMBER_UP_POSITION);
+        setpoint = ClimberConstants.kCLIMBER_UP_POSITION;
     }
 
     /**Puts the climber down */
@@ -81,18 +85,20 @@ public class Climber implements Subsystem {
         climberLeftController.setReference(0.0, ControlType.kPosition, 0);
         climberRightController.setReference(0.0, ControlType.kPosition, 0);
 
-        climberRightSetPointLog.append(0);//to be changed
-        climberLeftSetPointLog.append(0);//to be changed
+        climberRightSetPointLog.append(0);
+        climberLeftSetPointLog.append(0);
+        setpoint = 0.0;
     }
+
     /**Is the climber at its setpoint? */
     public boolean climberAtSetpoint(){
-        return Math.abs(climberLeftEncoder.getPosition() - ClimberConstants.kCLIMBER_POSITION) <= ClimberConstants.kCLIMBER_TOLERANCE && 
-            Math.abs(climberRightEncoder.getPosition() - ClimberConstants.kCLIMBER_POSITION) <= ClimberConstants.kCLIMBER_TOLERANCE;
+        return Math.abs(climberLeftEncoder.getPosition() - setpoint) <= ClimberConstants.kCLIMBER_TOLERANCE && 
+            Math.abs(climberRightEncoder.getPosition() - setpoint) <= ClimberConstants.kCLIMBER_TOLERANCE;
     }
 
     @Override
     public void periodic() {
-        climberRightPositionLog.append(climberRightEncoder.getPosition());
-        climberLeftPositionLog.append(climberLeftEncoder.getPosition());
+        climberRightPositionLog.append(climberRightEncoder.getPosition() * ClimberConstants.kCLIMBER_RATIO);
+        climberLeftPositionLog.append(climberLeftEncoder.getPosition() * ClimberConstants.kCLIMBER_RATIO);
     }
 }

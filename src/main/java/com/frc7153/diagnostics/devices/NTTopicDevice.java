@@ -28,6 +28,6 @@ public class NTTopicDevice extends CheckableDevice {
 
     @Override
     public String getID() {
-        return String.format("NT - %s", topic.getName());
+        return String.format("NT - %s", topic.getName().replaceAll("/", " "));
     }
 }
