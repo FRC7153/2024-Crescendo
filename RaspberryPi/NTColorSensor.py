@@ -9,7 +9,6 @@ kNOTE_MIN_PROX = 0.05
 from ntcore import NetworkTableInstance
 import pigpio
 import time
-import math
 import colorsys
 
 # Init Pi
@@ -106,7 +105,7 @@ class RevColorSensor:
         pi.i2c_write_byte_data(self._i2c, reg, data)
 
 # Init color sensors
-leftColorSensor = RevColorSensor(1)
+colorSensor = RevColorSensor(1)
 
 # Init network tables
 ntTableInst = NetworkTableInstance.create()
@@ -114,9 +113,9 @@ ntTableInst.setServerTeam(7153)
 ntTableInst.startClient4("SecondaryPiSensors")
 ntTable = ntTableInst.getTable("SecondaryPiSensors")
 
-leftSensorHSVOut = ntTable.getDoubleArrayTopic("LeftSensorHSV").publish()
-leftSensorProxOut = ntTable.getDoubleTopic("LeftSensorProx").publish()
-leftSensorTargetOut = ntTable.getBooleanTopic("LeftTarget").publish()
+sensorHSVOut = ntTable.getDoubleArrayTopic("SensorHSV").publish()
+sensorProxOut = ntTable.getDoubleTopic("SensorProx").publish()
+sensorTargetOut = ntTable.getBooleanTopic("Target").publish()
 
 # Check if sees note
 def seesNote(hsv, prox):
@@ -126,16 +125,16 @@ def seesNote(hsv, prox):
             prox >= kNOTE_MIN_PROX)
 
 # Main loop
-print("Running main loop... (v0.9.1)")
+print("Running main loop... (v1.0.0)")
 
 while True:
     # Left sensor
-    hsv = leftColorSensor.getHSV()
-    prox = leftColorSensor.getProximity()
+    hsv = colorSensor.getHSV()
+    prox = colorSensor.getProximity()
 
-    leftSensorTargetOut.set(seesNote(hsv, prox))
-    leftSensorHSVOut.set(hsv)
-    leftSensorProxOut.set(prox)
+    sensorTargetOut.set(seesNote(hsv, prox))
+    sensorHSVOut.set(hsv)
+    sensorProxOut.set(prox)
 
     # Pause
     time.sleep(0.05)
