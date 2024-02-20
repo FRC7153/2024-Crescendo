@@ -69,7 +69,7 @@ public class RobotContainer {
         driverXboxController::getLeftY, 
         driverXboxController::getLeftX, 
         driverXboxController::getRightX
-      ));
+      ).repeatedly());
       
     // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING
     operatorController.button(6).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))

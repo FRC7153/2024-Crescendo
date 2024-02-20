@@ -58,4 +58,10 @@ public class TeleopDriveHeadingLockCommand extends Command {
   public void end(boolean terminated) {
     base.driveFieldOriented(0.0, 0.0, 0.0);
   }
+
+  // Interruption
+  @Override
+  public InterruptionBehavior getInterruptionBehavior() {
+    return InterruptionBehavior.kCancelIncoming;
+  }
 }
