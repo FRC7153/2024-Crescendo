@@ -4,11 +4,14 @@ import java.nio.file.Path;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
+import frc.robot.subsystems.Arm.ArmState;
 
 /**
  * Robot constants. See SwerveConstants.java for constants relating to the
@@ -54,12 +57,30 @@ public class Constants {
 
         public static double kCLIMBER_TOLERANCE = 0.0;
     }
+
+    /** Arm Preset Positions */
+    public static class ArmPositions {
+        public static ArmState kFRONT_AMP = new ArmState(45.0, 45.0, 2.0);
+        public static ArmState kREAR_AMP = new ArmState(90.0, -10.0, 2.0);
+    }
+
+    /** Shooting Calculations */
+    public static class ShootingRegressions {
+        /** Determine shoot velocity from distance (m) */
+        public static double SHOOT_VELOCITY_FROM_DISTANCE(double distance) {
+            return 100.0; // TODO regression
+        }
+    }
+
     /** Arm Constants */
     public static class ArmConstants {
         public static int kLOWER_RIGHT_PIVOT_CURRENT_LIMIT = 60;
         public static int kLOWER_LEFT_PIVOT_CURRENT_LIMIT = 60;
         public static int kUPPER_PIVOT_CURRENT_LIMIT = 60;
         public static int kELEVATOR_EXT_CURRENT_LIMIT = 60;
+
+        public static double kLOWER_ANGLE_OFFSET = 0.0; // rots
+        public static double kUPPER_ANGLE_OFFSET = 0.0; // rots
 
         public static double kLOWER_PIVOT_RATIO = 1.0 / 80.0;
         public static double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
@@ -88,8 +109,9 @@ public class Constants {
         public static double kMAX_TELEOP_TRANSLATIONAL_SPEED = 3.5;
         public static double kMAX_TELEOP_ROTATIONAL_SPEED = 60.0;
 
-        // Base size
+        // Base sizes
         public static Translation2d kSIZE = new Translation2d(14.5, 7.0); // Track Width
+        public static double kARM_LOWER_PIVOT_HEIGHT = Units.inchesToMeters(13.233 + 0.62); // Pivot to ground
 
         // CANCoder Offsets
         public static double kFL_STEER_ZERO = -0.134277;
@@ -108,6 +130,11 @@ public class Constants {
             VecBuilder.fill(0.09, 0.09, Units.degreesToRadians(4.0));
 
         public static Path kAPRIL_TAG_LAYOUT_JSON = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2024Layout.json");
+
+        // Heading Correction PID
+        public static double kHEADING_CORRECTION_P = 0.5;
+        public static double kHEADING_CORRECTION_I = 0.0;
+        public static double kHEADING_CORRECTION_D = 0.0;                
     }
 
     /** Swerve module constants */
@@ -176,7 +203,32 @@ public class Constants {
         public static double kBLUE = 0.87;
         public static double kGREEN = 0.77;
         public static double kYELLOW = 0.69;
-    }    
+    }
+
+    /** Field Constants */
+    public static class FieldConstants {
+        public static final Translation2d kFIELD_SIZE = new Translation2d(
+            Units.inchesToMeters((54.0 * 12.0) + 3.25), 
+            Units.inchesToMeters((26.0 * 12.0) + 11.25)
+        );
+
+        public static final Translation2d kSPEAKER_POS = new Translation2d(0.0, 5.547867999999999);
+
+        // Average of lowest and highest point (meters):
+        public static final double kSPEAKER_HEIGHT = Units.inchesToMeters((((6.0 * 12.0) + 6.0) + ((6.0 * 12.0) * 10.875))/2.0);
+
+        /** Inverts the alliance of alliance-relative Pose2d */
+        public static Pose2d INVERT_ALLIANCE(Pose2d original) {
+            return new Pose2d(
+                (kFIELD_SIZE.getX()) - original.getX(), // X inverted around midline
+                original.getY(), // Same Y
+                new Rotation2d( // Invert angle around midline
+                    -original.getRotation().getCos(), 
+                    original.getRotation().getSin()
+                )
+            );
+        }
+    }
 }
 
 

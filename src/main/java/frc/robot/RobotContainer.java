@@ -19,6 +19,7 @@ import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.commands.TeleopDriveHeadingLockCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveBase;
@@ -72,11 +73,16 @@ public class RobotContainer {
       
     // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING
     operatorController.button(6).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
-      .whileTrue(new ArmSpeakerCommand(arm, shooter));
+      .whileTrue(new ArmSpeakerCommand(arm, shooter, led, driveBase::getPosition))
+      .whileTrue(new TeleopDriveHeadingLockCommand(
+        driveBase, 
+        driverXboxController::getLeftY, 
+        driverXboxController::getRightX
+      ));
 
     // Operator Arm Amp Button (4) pressed while robot is LOADED and SCORING
     operatorController.button(4).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
-      .whileTrue(new ArmAmpCommand(arm, shooter));
+      .whileTrue(new ArmAmpCommand(arm, led, driveBase::getPosition));
 
     // Operator Source Button (2) pressed while robot is NOT LOADED and SCORING
     operatorController.button(2).and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))

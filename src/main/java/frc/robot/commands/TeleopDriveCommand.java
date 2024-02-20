@@ -44,4 +44,10 @@ public class TeleopDriveCommand extends Command {
     public void end(boolean terminated) {
         base.driveFieldOriented(0.0, 0.0, 0.0);
     }
+
+    // Cancel self
+    @Override
+    public InterruptionBehavior getInterruptionBehavior() {
+        return InterruptionBehavior.kCancelSelf;
+    }
 }

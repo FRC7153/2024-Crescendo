@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -25,15 +27,20 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HardwareConstants;
 
 public class SwerveBase implements Subsystem {
     // Shared SwerveModuleStateStruct
     private static SwerveModuleStateStruct kSwerveModuleState = new SwerveModuleStateStruct();
+
+    // Preallocated Alliance Optional
+    private Optional<Alliance> alliance;
 
     // Modules
     private SwerveModule[] modules = {
@@ -144,7 +151,24 @@ public class SwerveBase implements Subsystem {
     }
 
     /**
-     * Resets the pose estimator's position. 
+     * Drives the robot, field oriented. Positive theta will always rotate the robot towards the AMPs
+     * @param y
+     * @param x
+     * @param theta
+     */
+    public void driveFullFieldOriented(double y, double x, double theta) {
+        alliance = DriverStation.getAlliance();
+
+        if (alliance.isPresent() && alliance.get().equals(Alliance.Red)) {
+            Rotation2d rot = new Rotation2d(theta);
+            theta = (new Rotation2d(-rot.getCos(), rot.getSin())).getDegrees();
+        }
+
+        driveFieldOriented(y, x, theta);
+    }
+
+    /**
+     * Resets the pose estimator's position. Will account for alliance. 
      * (Call this at the beginning of autonomous)
      * @param pos
      */
@@ -152,6 +176,15 @@ public class SwerveBase implements Subsystem {
         // Repopulate module positions array
         for (int m = 0; m < 4; m++) {
             modulePositions[m] = modules[m].getPosition();
+        }
+
+        // Account for red alliance
+        alliance = DriverStation.getAlliance();
+
+        if (!alliance.isPresent()) {
+            DriverStation.reportWarning("Attempted to reset position with no known alliance!", false);
+        } else if (alliance.get().equals(Alliance.Red)) {
+            pos = FieldConstants.INVERT_ALLIANCE(pos);
         }
 
         estimator.resetPosition(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions, pos);
@@ -193,7 +226,17 @@ public class SwerveBase implements Subsystem {
      * Returns the estimator's current position
      * @return
      */
-    public Pose2d getPosition() { return estimator.getEstimatedPosition(); }
+    public Pose2d getPosition() {
+        Pose2d estimation = estimator.getEstimatedPosition();
+        alliance = DriverStation.getAlliance();
+
+        // Invert if red
+        if (alliance.isPresent() && alliance.get().equals(Alliance.Red)) {
+            return FieldConstants.INVERT_ALLIANCE(estimation);
+        }
+
+        return estimation;
+    }
 
     // Periodic method
     @Override
