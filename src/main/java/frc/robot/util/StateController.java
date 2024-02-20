@@ -92,8 +92,8 @@ public class StateController {
      */
     public static Trigger buildTrigger(NoteState targetNoteState, ObjectiveState targetObjectiveState) {
         return new Trigger(() -> {
-            return (targetNoteState.equals(null) || targetNoteState.equals(getNoteState())) &&
-                (targetObjectiveState.equals(null) || targetObjectiveState.equals(getObjectiveState()));
+            return (targetNoteState == null || targetNoteState.equals(getNoteState())) &&
+                (targetObjectiveState == null || targetObjectiveState.equals(getObjectiveState()));
         });
     }
 }

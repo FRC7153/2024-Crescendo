@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -94,16 +95,16 @@ public class RobotContainer {
       .onTrue(new ClimberStageCommand(climber, false));
     
     // Handle Objective State Control (Operator throttle)
-    operatorController.axisLessThan(operatorController.getThrottleChannel(), -2.0/3.0)
+    operatorController.axisLessThan(Joystick.AxisType.kThrottle.value, -2.0/3.0)
       .and(isTeleop)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.SCORING)));
 
-    operatorController.axisGreaterThan(operatorController.getThrottleChannel(), -2.0/3.0)
-      .and(operatorController.axisLessThan(operatorController.getThrottleChannel(), 1.0/3.0))
+    operatorController.axisGreaterThan(Joystick.AxisType.kThrottle.value, -2.0/3.0)
+      .and(operatorController.axisLessThan(Joystick.AxisType.kThrottle.value, 1.0/3.0))
       .and(isTeleop)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.CLIMBING)));
 
-    operatorController.axisGreaterThan(operatorController.getThrottleChannel(), 1.0/3.0)
+    operatorController.axisGreaterThan(Joystick.AxisType.kThrottle.value, 1.0/3.0)
       .and(isTeleop)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.DEFENDING)));
     
