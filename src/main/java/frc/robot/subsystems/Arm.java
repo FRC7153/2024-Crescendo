@@ -42,7 +42,7 @@ public class Arm implements Subsystem {
     private CANSparkMax elevatorExt = new CANSparkMax(HardwareConstants.kELEVATOR_EXT_CAN, MotorType.kBrushless);
     private CANSparkMax upperPivot = new CANSparkMax(HardwareConstants.kUPPER_PIVOT_CAN, MotorType.kBrushless);//has absolute encoder
 
-    private SparkAbsoluteEncoder lowerPivotEncoder = lowerLeftPivot.getAbsoluteEncoder(Type.kDutyCycle);
+    private SparkAbsoluteEncoder lowerPivotEncoder = lowerLeftPivot.getAbsoluteEncoder(Type.kDutyCycle); // TODO switched?
     private RelativeEncoder elevatorExtEncoder = elevatorExt.getEncoder();
     private SparkLimitSwitch elevatorLimitSwitch = elevatorExt.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
     private SparkAbsoluteEncoder upperPivotEncoder = upperPivot.getAbsoluteEncoder(Type.kDutyCycle);
@@ -104,11 +104,15 @@ public class Arm implements Subsystem {
         // Config sensors
         elevatorLimitSwitch.enableLimitSwitch(true);
 
+        // TODO verify polarity
         lowerPivotEncoder.setInverted(false);
         lowerPivotEncoder.setZeroOffset(ArmConstants.kLOWER_ANGLE_OFFSET);
 
         upperPivotEncoder.setInverted(false);
         upperPivotEncoder.setZeroOffset(ArmConstants.kUPPER_ANGLE_OFFSET);
+
+        lowerLeftPivotController.setFeedbackDevice(lowerPivotEncoder);
+        upperPivotController.setFeedbackDevice(upperPivotEncoder);
 
         //config logging 
         DiagUtil.addDevice(lowerLeftPivot);

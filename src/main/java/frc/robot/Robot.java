@@ -39,6 +39,7 @@ public class Robot extends TimedRobot {
 
     // Periodic logging methods
     CANLogger.periodic();
+    m_robotContainer.periodic();
   }
 
   @Override

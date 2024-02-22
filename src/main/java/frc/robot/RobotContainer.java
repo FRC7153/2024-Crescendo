@@ -131,6 +131,11 @@ public class RobotContainer {
     return auto.getSelected();
   }
 
+  // Periodically update dashboard
+  public void periodic() {
+    dashboard.periodic();
+  }
+
   // Test modes
   public void testInit() { arm.initTestMode(); }
   public void testExec() { arm.execTestMode(); }
