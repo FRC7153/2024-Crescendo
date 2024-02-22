@@ -224,14 +224,16 @@ public class SwerveBase implements Subsystem {
 
     /**
      * Returns the estimator's current position
+     * @param global if true, position will always be relative to blue alliance. If false, it will
+     * be relative to the robot's alliance
      * @return
      */
-    public Pose2d getPosition() {
+    public Pose2d getPosition(boolean global) {
         Pose2d estimation = estimator.getEstimatedPosition();
         alliance = DriverStation.getAlliance();
 
         // Invert if red
-        if (alliance.isPresent() && alliance.get().equals(Alliance.Red)) {
+        if (!global && alliance.isPresent() && alliance.get().equals(Alliance.Red)) {
             return FieldConstants.INVERT_ALLIANCE(estimation);
         }
 

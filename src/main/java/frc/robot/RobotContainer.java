@@ -73,7 +73,7 @@ public class RobotContainer {
       
     // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING
     operatorController.button(6).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
-      .whileTrue(new ArmSpeakerCommand(arm, shooter, led, driveBase::getPosition))
+      .whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)))
       .whileTrue(new TeleopDriveHeadingLockCommand(
         driveBase, 
         driverXboxController::getLeftY, 
@@ -82,7 +82,7 @@ public class RobotContainer {
 
     // Operator Arm Amp Button (4) pressed while robot is LOADED and SCORING
     operatorController.button(4).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
-      .whileTrue(new ArmAmpCommand(arm, led, driveBase::getPosition));
+      .whileTrue(new ArmAmpCommand(arm, led, () -> driveBase.getPosition(false)));
 
     // Operator Source Button (2) pressed while robot is NOT LOADED and SCORING
     operatorController.button(2).and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))

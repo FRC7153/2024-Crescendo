@@ -37,7 +37,7 @@ public class TeleopDriveHeadingLockCommand extends Command {
   @Override
   public void execute() {
     // Get position
-    Pose2d pose = base.getPosition();
+    Pose2d pose = base.getPosition(false);
 
     // Drive
     base.driveFullFieldOriented(
