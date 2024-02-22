@@ -14,6 +14,9 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
@@ -193,5 +196,44 @@ public class Arm implements Subsystem {
         
         elevatorExtPositionLog.append(elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO);
 				elevatorLimitSwitchLog.append(elevatorLimitSwitch.isPressed());
+    }
+
+    // TEST MODE //
+    private SimpleWidget testLowerPivot;
+    private SimpleWidget testUpperPivot;
+    private SimpleWidget testExt;
+
+    /** Initializes shuffleboard values */
+    public void initTestMode() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
+        
+        testLowerPivot = tab.add("Lower Pivot", 0.0)
+            .withPosition(0, 0);
+
+        testUpperPivot = tab.add("Upper Pivot", 0.0)
+            .withPosition(1, 0);
+
+        testExt = tab.add("Ext", 0.0)
+            .withPosition(2, 0);
+    }
+
+    /** Runs test mode */
+    public void execTestMode() {
+        setUpperPivotAngle(testUpperPivot.getEntry().getDouble(0.0));
+        setLowerPivotAngle(testLowerPivot.getEntry().getDouble(0.0));
+        setExtension(testExt.getEntry().getDouble(0.0));
+
+        periodic();
+    }
+
+    /** Stops test mode */
+    public void endTestMode() {
+        testUpperPivot.close();
+        testLowerPivot.close();
+        testExt.close();
+
+        testUpperPivot = null;
+        testLowerPivot = null;
+        testExt = null;
     }
 }

@@ -23,6 +23,7 @@ import frc.robot.commands.TeleopDriveHeadingLockCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveBase;
+import frc.robot.util.Dashboard;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
 import frc.robot.util.StateController.ObjectiveState;
@@ -47,6 +48,7 @@ public class RobotContainer {
   // Controls
   private CommandXboxController driverXboxController = new CommandXboxController(0);
   private CommandJoystick operatorController = new CommandJoystick(1);
+  private Dashboard dashboard = new Dashboard(driveBase);
 
   public RobotContainer() {
     // Default
@@ -128,4 +130,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return auto.getSelected();
   }
+
+  // Test modes
+  public void testInit() { arm.initTestMode(); }
+  public void testExec() { arm.execTestMode(); }
+  public void testEnd() { arm.endTestMode(); }
 }

@@ -10,7 +10,6 @@ import com.frc7153.diagnostics.DiagUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.struct.Pose2dStruct;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -61,10 +60,10 @@ public class SwerveBase implements Subsystem {
 
     // Kinematics
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-        new Translation2d(DriveConstants.kSIZE.getX()/2.0, DriveConstants.kSIZE.getY()/2.0),  // FL
-        new Translation2d(DriveConstants.kSIZE.getX()/2.0, DriveConstants.kSIZE.getY()/-2.0), // FR
-        new Translation2d(DriveConstants.kSIZE.getX()/-2.0, DriveConstants.kSIZE.getY()/2.0), // RL
-        new Translation2d(DriveConstants.kSIZE.getX()/-2.0, DriveConstants.kSIZE.getY()/-2.0) // RR
+        DriveConstants.kFL_SWERVE_POS,  // FL
+        DriveConstants.kFR_SWERVE_POS, // FR
+        DriveConstants.kRL_SWERVE_POS, // RL
+        DriveConstants.kRR_SWERVE_POS // RR
     );
 
     // Pose estimation
@@ -107,7 +106,7 @@ public class SwerveBase implements Subsystem {
         register();
     }
 
-    /** Sets the default command (drives in teleop, nothing in auto) */
+    /** Sets the default command (doesn't move) */
     public void initDefaultCommand() {
         setDefaultCommand(new InstantCommand(
             () -> driveFieldOriented(0.0, 0.0, 0.0),
@@ -144,7 +143,7 @@ public class SwerveBase implements Subsystem {
             y, 
             x, 
             Units.degreesToRadians(theta), 
-            estimator.getEstimatedPosition().getRotation()
+            getPosition(false).getRotation() // TODO verify both alliances work here
         );
 
         drive(kinematics.toSwerveModuleStates(chassisSpeed));
@@ -168,7 +167,7 @@ public class SwerveBase implements Subsystem {
     }
 
     /**
-     * Resets the pose estimator's position. Will account for alliance. 
+     * Resets the pose estimator and gyro's position. Will account for alliance. 
      * (Call this at the beginning of autonomous)
      * @param pos
      */
@@ -187,6 +186,7 @@ public class SwerveBase implements Subsystem {
             pos = FieldConstants.INVERT_ALLIANCE(pos);
         }
 
+        gyro.setGyroAngle(DriveConstants.kGYRO_YAW, pos.getRotation().getDegrees());
         estimator.resetPosition(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions, pos);
     }
 
