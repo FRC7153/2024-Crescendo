@@ -68,17 +68,21 @@ public class RobotContainer {
     // Drive Control
     isTeleop.whileTrue(new TeleopDriveCommand(
         driveBase, 
-        driverXboxController::getLeftY, 
+        () -> -driverXboxController.getLeftY(), 
         driverXboxController::getLeftX, 
-        driverXboxController::getRightX
+        () -> driverXboxController.getRightX() * -1.0
       ).repeatedly());
+
+    // Driver manual intake button
+    driverXboxController.y()
+      .whileTrue(new IntakeCommand(intake, true));
       
     // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING
     operatorController.button(6).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
       .whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)))
       .whileTrue(new TeleopDriveHeadingLockCommand(
         driveBase, 
-        driverXboxController::getLeftY, 
+        () -> -driverXboxController.getLeftY(), 
         driverXboxController::getRightX
       ));
 
@@ -117,14 +121,14 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.DEFENDING)));
     
     // Don't intake when robot is LOADED and SCORING
-    StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING)
+    /*StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING)
       .whileTrue(new IntakeCommand(intake, false));
 
     // Intake when robot is EMPTY/PROCESSING and SCORING
     StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING)
       .or(StateController.buildTrigger(NoteState.PROCESSING, ObjectiveState.SCORING))
       .whileTrue(new IntakeCommand(intake, true)) // Will change NoteState to PROCESSING
-      .whileTrue(new LoadShooterCommand(shooter, indexer, led)); // Will change NoteState to LOADED
+      .whileTrue(new LoadShooterCommand(shooter, indexer, led)); // Will change NoteState to LOADED*/
   }
 
   public Command getAutonomousCommand() {

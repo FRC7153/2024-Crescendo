@@ -36,8 +36,7 @@ public class Constants {
 
     /**Intake Constants */
     public static class IntakeConstants {
-        public static double kINTAKE_RATIO = 1.0 / 5.0;
-        public static double kINTAKE_SETPOINT = 1000.0; // rpm, while moving
+        public static double kINTAKE_RATIO = 1.0 / 25.0;
         
         public static int kINTAKE_CURRENT_LIMIT = 15;
 
@@ -106,26 +105,35 @@ public class Constants {
     /** Swerve drive constants */
     public static class DriveConstants {
         // Max Speeds
-        public static double kMAX_TELEOP_TRANSLATIONAL_SPEED = 3.5;
-        public static double kMAX_TELEOP_ROTATIONAL_SPEED = 60.0;
+        public static double kMAX_TELEOP_TRANSLATIONAL_SPEED = 15;
+        public static double kMAX_TELEOP_ROTATIONAL_SPEED = 800.0;
 
         // Base sizes
-        public static Translation2d kFL_SWERVE_POS = new Translation2d(-12.375, 5.875);
-        public static Translation2d kFR_SWERVE_POS = new Translation2d(12.375, 5.875);
-        public static Translation2d kRL_SWERVE_POS = new Translation2d(-12.375, -11.875);
-        public static Translation2d kRR_SWERVE_POS = new Translation2d(12.375, -11.875);
+        /*
+         * The X and Y values are implemented in WPI's library oddly:
+         * "Positive x values represent moving toward the front of the robot whereas positive 
+         * y values represent moving toward the left of the robot."
+         * It is changed below to make it easier to understand.
+         * 
+         * See https://docs.wpilib.org/en/stable/docs/software/kinematics-and-odometry/swerve-drive-kinematics.html 
+         */
+        public static Translation2d kFL_SWERVE_POS = new Translation2d(Units.inchesToMeters(5.875), Units.inchesToMeters(12.375));
+        public static Translation2d kFR_SWERVE_POS = new Translation2d(Units.inchesToMeters(5.875), Units.inchesToMeters(-12.375));
+        public static Translation2d kRL_SWERVE_POS = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(12.375));
+        public static Translation2d kRR_SWERVE_POS = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(-12.375));
+
         public static double kARM_LOWER_PIVOT_HEIGHT = Units.inchesToMeters(13.233 + 0.62); // Pivot to ground
 
         // CANCoder Offsets
-        public static double kFL_STEER_ZERO = -0.134277; // TODO
-        public static double kFR_STEER_ZERO = 0.0; // TODO
-        public static double kRL_STEER_ZERO = 0.0; // TODO
-        public static double kRR_STEER_ZERO = 0.0; // TODO
+        public static double kFL_STEER_ZERO = 0.35969 - 0.5; // 0.497314
+        public static double kFR_STEER_ZERO = 0.11376; // -0.386719
+        public static double kRL_STEER_ZERO = -0.1297; // 0.2769 - 0.5
+        public static double kRR_STEER_ZERO = -0.332275 + 0.5; // -0.332275
 
         // Pose Estimation
-        public static IMUAxis kGYRO_YAW = IMUAxis.kX; // TODO
-        public static IMUAxis kGYRO_PITCH = IMUAxis.kY; // TODO
-        public static IMUAxis kGYRO_ROLL = IMUAxis.kZ; // TODO
+        public static IMUAxis kGYRO_YAW = IMUAxis.kZ; 
+        public static IMUAxis kGYRO_PITCH = IMUAxis.kX;
+        public static IMUAxis kGYRO_ROLL = IMUAxis.kY; 
         
         public static Vector<N3> kSTATE_STD_DEV = 
             VecBuilder.fill(0.8, 0.8, Units.degreesToRadians(2.0)); // meters, meters, rads
@@ -148,8 +156,8 @@ public class Constants {
         public static final double kDRIVE_RATIO = 6.75; // SDS Mk4i L2 modules
         public static final int kDRIVE_CURRENT_LIMIT = 50;
         public static final double kDRIVE_P = 0.00005;
-        public static final double kDRIVE_I = 5e-7;
-        public static final double kDRIVE_D = 0.0;
+        public static final double kDRIVE_I = 0.0;
+        public static final double kDRIVE_D = 0.0; // 5e-7
         public static final double kDRIVE_S = 0.0; // TODO
         public static final double kDRIVE_V = 0.0; // TODO
         public static final double kDRIVE_A = 0.0; // TODO
@@ -178,19 +186,19 @@ public class Constants {
         public static int kINTAKE_CAN = 10;
         public static int kINDEXER_CAN = 11;
 
-        public static int kLOWER_LEFT_PIVOT_CAN = 12;
-        public static int kLOWER_RIGHT_PIVOT_CAN = 13;
+        public static int kLOWER_LEFT_PIVOT_CAN = 13;
+        public static int kLOWER_RIGHT_PIVOT_CAN = 12;
  
         public static int kFL_CANCODER = 14;
-        public static int kFR_CANCODER = 15;
-        public static int kRL_CANCODER = 16;
-        public static int kRR_CANCODER = 17;
+        public static int kFR_CANCODER = 17;
+        public static int kRL_CANCODER = 15;
+        public static int kRR_CANCODER = 16;
 
         public static int kSHOOTER_UPPER_CAN = 19;
         public static int kSHOOTER_LOWER_CAN = 18;
 
-        public static int kCLIMBER_LEFT_CAN = 20;
-        public static int kCLIMBER_RIGHT_CAN = 21; 
+        public static int kCLIMBER_LEFT_CAN = 21;
+        public static int kCLIMBER_RIGHT_CAN = 20; 
 
         public static int kUPPER_PIVOT_CAN = 22;
 

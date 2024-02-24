@@ -93,7 +93,6 @@ public class SwerveModule {
 
         // Create and configure STEER MOTOR
         steerMotor = new CANSparkMax(steerCan, MotorType.kBrushless);
-        // TODO verify polarity, positive = clockwise rotation of wheel
         steerMotor.setInverted(true); // Positive = CW rotation of motor, when observed from top
         steerRelEncoder = steerMotor.getEncoder();
 

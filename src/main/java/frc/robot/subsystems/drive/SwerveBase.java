@@ -17,6 +17,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
@@ -24,6 +27,7 @@ import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -69,7 +73,7 @@ public class SwerveBase implements Subsystem {
     // Pose estimation
     private ADIS16470_IMU gyro = new ADIS16470_IMU(
         DriveConstants.kGYRO_YAW, DriveConstants.kGYRO_PITCH, 
-        DriveConstants.kGYRO_ROLL, Port.kMXP, CalibrationTime._4s
+        DriveConstants.kGYRO_ROLL, SPI.Port.kOnboardCS0, CalibrationTime._4s
     );
     private SwerveModulePosition[] modulePositions = {
         modules[0].getPosition(), modules[1].getPosition(), modules[2].getPosition(), modules[3].getPosition()
@@ -134,14 +138,14 @@ public class SwerveBase implements Subsystem {
 
     /**
      * Drives the robot, field oriented
-     * @param y Forward/backward (m/s)
-     * @param x Left/Right (m/s)
+     * @param y Forward + / backward - (m/s)
+     * @param x Left - /Right + (m/s)
      * @param theta Rotation (degrees/second, CCW+)
      */
     public void driveFieldOriented(double y, double x, double theta) {
         ChassisSpeeds chassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(
             y, 
-            x, 
+            -x, 
             Units.degreesToRadians(theta), 
             getPosition(false).getRotation() // TODO verify both alliances work here
         );
@@ -240,6 +244,10 @@ public class SwerveBase implements Subsystem {
         return estimation;
     }
 
+    // TEMP
+    private StructArrayPublisher<SwerveModuleState> statePub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("States", kSwerveModuleState).publish();
+    private StructArrayPublisher<SwerveModuleState> setpointPub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("Setpoints", kSwerveModuleState).publish();
+
     // Periodic method
     @Override
     public void periodic() {
@@ -256,9 +264,15 @@ public class SwerveBase implements Subsystem {
         // Update pose estimator
         estimator.update(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions);
 
+        //System.out.printf("X: %f, Y: %f, Z: %f\n", gyro.getAngle(IMUAxis.kX), gyro.getAngle(IMUAxis.kY), gyro.getAngle(IMUAxis.kZ));
+
         // Log
         setpointLog.append(setpointArray);
         stateLog.append(stateArray);
         poseLog.append(estimator.getEstimatedPosition());
+
+        // Temp
+        statePub.set(stateArray);
+        setpointPub.set(setpointArray);
     }
 }
