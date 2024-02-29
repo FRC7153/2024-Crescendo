@@ -113,7 +113,6 @@ public class Constants {
          * The X and Y values are implemented in WPI's library oddly:
          * "Positive x values represent moving toward the front of the robot whereas positive 
          * y values represent moving toward the left of the robot."
-         * It is changed below to make it easier to understand.
          * 
          * See https://docs.wpilib.org/en/stable/docs/software/kinematics-and-odometry/swerve-drive-kinematics.html 
          */
