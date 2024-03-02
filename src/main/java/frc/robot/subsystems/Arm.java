@@ -227,7 +227,7 @@ public class Arm implements Subsystem {
 
         ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
         
-        testLowerPivot = tab.add("Lower Pivot", 0.0)
+        testLowerPivot = tab.add("Lower Pivot", 90.0)
             .withPosition(0, 0);
 
         testUpperPivot = tab.add("Upper Pivot", 0.0)
@@ -240,7 +240,7 @@ public class Arm implements Subsystem {
     /** Runs test mode */
     public void execTestMode() {
         setUpperPivotAngle(testUpperPivot.getEntry().getDouble(0.0));
-        setLowerPivotAngle(testLowerPivot.getEntry().getDouble(0.0));
+        setLowerPivotAngle(testLowerPivot.getEntry().getDouble(90.0));
         setExtension(testExt.getEntry().getDouble(0.0));
 
         periodic();
