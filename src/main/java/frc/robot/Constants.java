@@ -81,6 +81,9 @@ public class Constants {
         public static double kLOWER_ANGLE_OFFSET = 0.0; // rots
         public static double kUPPER_ANGLE_OFFSET = 0.0; // rots
 
+        /** deg, minimum angle of lower pivot for upper pivot to safely spin */
+        public static double kUPPER_PIVOT_MIN_ARM_ANGLE = 15.0;
+
         public static double kLOWER_PIVOT_RATIO = 1.0 / 80.0;
         public static double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
         public static double kELEVATOR_EXT_RATIO = 1.0 / 25.0;

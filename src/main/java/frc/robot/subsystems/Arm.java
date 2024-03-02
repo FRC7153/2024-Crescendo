@@ -55,19 +55,21 @@ public class Arm implements Subsystem {
     private ArmState setpoint = new ArmState(0.0, 0.0, 0.0);
 
     private DoubleLogEntry lowerPivotPositionLog = 
-			new DoubleLogEntry(DataLogManager.getLog(), "Arm/lowerPivotPosition", "deg");
+		new DoubleLogEntry(DataLogManager.getLog(), "Arm/lowerPivotPosition", "deg");
     private DoubleLogEntry elevatorExtPositionLog = 
-			new DoubleLogEntry(DataLogManager.getLog(), "Arm/ElevatorExtPosition", "rotations");
+		new DoubleLogEntry(DataLogManager.getLog(), "Arm/ElevatorExtPosition", "rotations");
     private DoubleLogEntry upperPivotPositionLog = 
-			new DoubleLogEntry(DataLogManager.getLog(), "Arm/upperPivotPosition", "deg");
-		private BooleanLogEntry elevatorLimitSwitchLog = 
-			new BooleanLogEntry(DataLogManager.getLog(), "Arm/elevatorLimitSwitch", "pressed?");
+		new DoubleLogEntry(DataLogManager.getLog(), "Arm/upperPivotPosition", "deg");
+    private BooleanLogEntry upperPivotSafeToMoveLog = 
+        new BooleanLogEntry(DataLogManager.getLog(), "Arm/upperPivotSafeToMove");
+	private BooleanLogEntry elevatorLimitSwitchLog = 
+		new BooleanLogEntry(DataLogManager.getLog(), "Arm/elevatorLimitSwitch", "pressed?");
     private DoubleLogEntry lowerPivotSetpointLog = 
-			new DoubleLogEntry(DataLogManager.getLog(), "Arm/lowerPivotSetpoint", "deg");
+		new DoubleLogEntry(DataLogManager.getLog(), "Arm/lowerPivotSetpoint", "deg");
     private DoubleLogEntry upperPivotSetpointLog = 
-			new DoubleLogEntry(DataLogManager.getLog(), "Arm/upperPivotSetpoint", "deg");
+		new DoubleLogEntry(DataLogManager.getLog(), "Arm/upperPivotSetpoint", "deg");
     private DoubleLogEntry elevatorExtSetpointLog = 
-			new DoubleLogEntry(DataLogManager.getLog(), "Arm/elevatorExtSetpoint", "rotations");
+		new DoubleLogEntry(DataLogManager.getLog(), "Arm/elevatorExtSetpoint", "rotations");
 
 
     public Arm() {
@@ -148,15 +150,15 @@ public class Arm implements Subsystem {
     }
 
     /**
-     * Sets the upper pivot's setpoint
+     * Sets the upper pivot's setpoint.
+     * The lower pivot must be at a safe angle before the upper pivot will move.
      * @param angle degrees. 0 is forward, positive is up
      */
     public void setUpperPivotAngle(double angle) {
         // Safety
         angle = Math.max(-180.0, Math.min(angle, 180.0));
 
-        upperPivotController.setReference((angle / 360.0) / ArmConstants.kUPPER_PIVOT_RATIO, ControlType.kPosition);
-
+        // Upper pivot motor set in periodic()
         setpoint.upperAngle = angle;
 
         upperPivotSetpointLog.append(angle);
@@ -194,12 +196,24 @@ public class Arm implements Subsystem {
 
     @Override
     public void periodic(){
+        // Check if upper pivot safe to move
+        if (lowerPivotEncoder.getPosition() * 360.0 >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
+            // Safe to spin
+            upperPivotController.setReference(setpoint.upperAngle / 360.0 / ArmConstants.kUPPER_PIVOT_RATIO, ControlType.kPosition, 0);
+            upperPivotSafeToMoveLog.append(true);
+        } else {
+            // Unsafe to spin
+            upperPivotController.setReference(0.0, ControlType.kPosition, 0);
+            upperPivotSafeToMoveLog.append(false);
+        }
+
+        // Log
         lowerPivotPositionLog.append(lowerPivotEncoder.getPosition() * 360.0 * ArmConstants.kLOWER_PIVOT_RATIO);
 
         upperPivotPositionLog.append(upperPivotEncoder.getPosition() * 360.0 * ArmConstants.kUPPER_PIVOT_RATIO);
         
         elevatorExtPositionLog.append(elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO);
-				elevatorLimitSwitchLog.append(elevatorLimitSwitch.isPressed());
+			elevatorLimitSwitchLog.append(elevatorLimitSwitch.isPressed());
     }
 
     // TEST MODE //
