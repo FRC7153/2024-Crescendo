@@ -65,8 +65,8 @@ public class RobotContainer {
     configureBindings();
 
     // Config Auto
-    AutoBuilder.configureRamsete(null, null, null, null, null, null, driveBase);
-    Shuffleboard.getTab("AutoTest").add("Auto Chooser", AutoBuilder.buildAutoChooser());
+    //AutoBuilder.configureRamsete(null, null, null, null, null, null, driveBase);
+    //Shuffleboard.getTab("AutoTest").add("Auto Chooser", AutoBuilder.buildAutoChooser());
   }
 
   private void configureBindings() {
