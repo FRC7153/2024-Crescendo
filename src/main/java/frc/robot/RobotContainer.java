@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -58,7 +61,12 @@ public class RobotContainer {
     indexer.initDefaultCommand();
     led.initDefaultCommand();
     
+    // Config bindings
     configureBindings();
+
+    // Config Auto
+    AutoBuilder.configureRamsete(null, null, null, null, null, null, driveBase);
+    Shuffleboard.getTab("AutoTest").add("Auto Chooser", AutoBuilder.buildAutoChooser());
   }
 
   private void configureBindings() {

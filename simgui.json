@@ -2,7 +2,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/Shuffleboard/Drive/Autonomous": "String Chooser"
+      "/Shuffleboard/Drive/Autonomous": "String Chooser",
+      "/Shuffleboard/Drive/Reset Odometry": "Command"
     }
   },
   "NetworkTables": {
