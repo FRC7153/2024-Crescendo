@@ -4,11 +4,8 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -65,8 +62,6 @@ public class RobotContainer {
     configureBindings();
 
     // Config Auto
-    //AutoBuilder.configureRamsete(null, null, null, null, null, null, driveBase);
-    //Shuffleboard.getTab("AutoTest").add("Auto Chooser", AutoBuilder.buildAutoChooser());
   }
 
   private void configureBindings() {
@@ -81,8 +76,11 @@ public class RobotContainer {
         () -> driverXboxController.getRightX() * -1.0
       ).repeatedly());
 
-    // Driver manual intake button
-    driverXboxController.y()
+    // Driver manual intake button (only for testing, probably)
+    driverXboxController.y().and(
+      StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING).or(StateController.buildTrigger(NoteState.PROCESSING, ObjectiveState.SCORING))
+    )
+      .whileTrue(new LoadShooterCommand(shooter, indexer, led))
       .whileTrue(new IntakeCommand(intake, true));
       
     // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING

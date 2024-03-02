@@ -52,7 +52,7 @@ public class Arm implements Subsystem {
     private SparkPIDController lowerLeftPivotController;
     private SparkPIDController upperPivotController; 
 
-    private ArmState setpoint = new ArmState(0.0, 0.0, 0.0);
+    private ArmState setpoint = new ArmState(90.0, 0.0, 0.0);
 
     private DoubleLogEntry lowerPivotPositionLog = 
 		new DoubleLogEntry(DataLogManager.getLog(), "Arm/lowerPivotPosition", "deg");
@@ -223,6 +223,8 @@ public class Arm implements Subsystem {
 
     /** Initializes shuffleboard values */
     public void initTestMode() {
+        if (testLowerPivot != null) return; // Already initialized
+
         ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
         
         testLowerPivot = tab.add("Lower Pivot", 0.0)
@@ -246,12 +248,10 @@ public class Arm implements Subsystem {
 
     /** Stops test mode */
     public void endTestMode() {
-        testUpperPivot.close();
-        testLowerPivot.close();
-        testExt.close();
+        setUpperPivotAngle(0.0);
+        setLowerPivotAngle(90.0);
+        setExtension(0.0);
 
-        testUpperPivot = null;
-        testLowerPivot = null;
-        testExt = null;
+        periodic();
     }
 }

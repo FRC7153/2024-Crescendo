@@ -20,7 +20,8 @@ public class Autonomous {
        
 
         // Add to Shuffleboard
-        Shuffleboard.getTab("Drive").add("Autonomous", chooser);
+        Shuffleboard.getTab("Drive").add("Autonomous", chooser)
+            .withPosition(3, 1);
     }
 
     // Get selected
