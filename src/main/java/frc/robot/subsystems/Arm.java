@@ -8,6 +8,7 @@ import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
@@ -42,17 +43,17 @@ public class Arm implements Subsystem {
     private CANSparkMax elevatorExt = new CANSparkMax(HardwareConstants.kELEVATOR_EXT_CAN, MotorType.kBrushless);
     private CANSparkMax upperPivot = new CANSparkMax(HardwareConstants.kUPPER_PIVOT_CAN, MotorType.kBrushless);//has absolute encoder
 
-    private SparkAbsoluteEncoder lowerPivotEncoder = lowerLeftPivot.getAbsoluteEncoder(Type.kDutyCycle); // TODO switched?
+    private SparkAbsoluteEncoder lowerPivotEncoder = lowerRightPivot.getAbsoluteEncoder(Type.kDutyCycle);
     private RelativeEncoder elevatorExtEncoder = elevatorExt.getEncoder();
     private SparkLimitSwitch elevatorLimitSwitch = elevatorExt.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
     private SparkAbsoluteEncoder upperPivotEncoder = upperPivot.getAbsoluteEncoder(Type.kDutyCycle);
 
     // Control
     private SparkPIDController elevatorExtController;
-    private SparkPIDController lowerLeftPivotController;
+    private SparkPIDController lowerRightPivotController;
     private SparkPIDController upperPivotController; 
 
-    private ArmState setpoint = new ArmState(90.0, 0.0, 0.0);
+    private ArmState setpoint;
 
     private DoubleLogEntry lowerPivotPositionLog = 
 		new DoubleLogEntry(DataLogManager.getLog(), "Arm/lowerPivotPosition", "deg");
@@ -79,43 +80,57 @@ public class Arm implements Subsystem {
         upperPivot.setIdleMode(IdleMode.kBrake);
         elevatorExt.setIdleMode(IdleMode.kBrake);
 
-        lowerLeftPivot.setInverted(false);
+        lowerLeftPivot.setInverted(true);
         lowerRightPivot.setInverted(false);
         upperPivot.setInverted(false);
-        elevatorExt.setInverted(false);
+        elevatorExt.setInverted(true);
 
-        lowerRightPivot.follow(lowerLeftPivot, true);
+        lowerLeftPivot.follow(lowerRightPivot, true);
 
         // Config PID
         elevatorExtController = elevatorExt.getPIDController();
-        lowerLeftPivotController = lowerLeftPivot.getPIDController();
+        lowerRightPivotController = lowerRightPivot.getPIDController();
         upperPivotController = upperPivot.getPIDController();
 
         elevatorExtController.setP(ArmConstants.kELEVATOR_EXT_P, 0);
         elevatorExtController.setI(ArmConstants.kELEVATOR_EXT_I, 0);
         elevatorExtController.setD(ArmConstants.kELEVATOR_EXT_D, 0);
 
-        lowerLeftPivotController.setP(ArmConstants.kLOWER_PIVOT_P, 0);
-        lowerLeftPivotController.setI(ArmConstants.kLOWER_PIVOT_I, 0);
-        lowerLeftPivotController.setD(ArmConstants.kLOWER_PIVOT_D, 0);
+        lowerRightPivotController.setP(ArmConstants.kLOWER_PIVOT_P, 0);
+        lowerRightPivotController.setI(ArmConstants.kLOWER_PIVOT_I, 0);
+        lowerRightPivotController.setD(ArmConstants.kLOWER_PIVOT_D, 0);
 
         upperPivotController.setP(ArmConstants.kUPPER_PIVOT_P, 0);
         upperPivotController.setI(ArmConstants.kUPPER_PIVOT_I, 0);
         upperPivotController.setD(ArmConstants.kUPPER_PIVOT_D, 0);
 
         // Config sensors
-        elevatorLimitSwitch.enableLimitSwitch(true);
+        //elevatorLimitSwitch.enableLimitSwitch(true);
 
-        // TODO verify polarity
         lowerPivotEncoder.setInverted(false);
         lowerPivotEncoder.setZeroOffset(ArmConstants.kLOWER_ANGLE_OFFSET);
 
         upperPivotEncoder.setInverted(false);
         upperPivotEncoder.setZeroOffset(ArmConstants.kUPPER_ANGLE_OFFSET);
 
-        lowerLeftPivotController.setFeedbackDevice(lowerPivotEncoder);
+        lowerRightPivotController.setFeedbackDevice(lowerPivotEncoder);
         upperPivotController.setFeedbackDevice(upperPivotEncoder);
 
+        // Soft Limits
+        RelativeEncoder relativeUpperLowerEncoder = upperPivot.getEncoder();
+
+        relativeUpperLowerEncoder.setPosition(upperPivotEncoder.getPosition() * ArmConstants.kUPPER_PIVOT_RATIO);
+
+        upperPivot.setSoftLimit(SoftLimitDirection.kForward, 16);
+        upperPivot.setSoftLimit(SoftLimitDirection.kReverse, 0);
+
+        upperPivot.enableSoftLimit(SoftLimitDirection.kForward, true);
+        upperPivot.enableSoftLimit(SoftLimitDirection.kReverse, true);
+
+        // Default
+        setpoint = new ArmState(90.0, 180.0, 0.0);
+        setState(setpoint);
+        
         //config logging 
         DiagUtil.addDevice(lowerLeftPivot);
         DiagUtil.addDevice(lowerRightPivot);
@@ -129,7 +144,7 @@ public class Arm implements Subsystem {
     public void initDefaultCommand() {
         setDefaultCommand(
             new InstantCommand(() -> setState(
-                new ArmState(0.0, 0.0, 0.0)
+                new ArmState(90.0, 180.0, 0.0)
             ), this)
         );
     }
@@ -142,7 +157,7 @@ public class Arm implements Subsystem {
         // Safety
         angle = Math.max(0.0, Math.min(angle, 100.0));
 
-        lowerLeftPivotController.setReference((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO, ControlType.kPosition);
+        lowerRightPivotController.setReference((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO, ControlType.kPosition);
 
         setpoint.lowerAngle = angle;
 
@@ -152,11 +167,11 @@ public class Arm implements Subsystem {
     /**
      * Sets the upper pivot's setpoint.
      * The lower pivot must be at a safe angle before the upper pivot will move.
-     * @param angle degrees. 0 is forward, positive is up
+     * @param angle degrees. 90 is downward, 180 is forward
      */
     public void setUpperPivotAngle(double angle) {
         // Safety
-        angle = Math.max(-180.0, Math.min(angle, 180.0));
+        angle = Math.max(5.0, Math.min(angle, 355.0));
 
         // Upper pivot motor set in periodic()
         setpoint.upperAngle = angle;
@@ -170,9 +185,9 @@ public class Arm implements Subsystem {
      */
     public void setExtension(double rots) {
         // Safety
-        rots = Math.max(0.0, Math.min(rots, 20.0)); // TODO max rots
+        rots = Math.max(0.0, Math.min(rots, 68.0));
 
-        elevatorExtController.setReference(rots / ArmConstants.kELEVATOR_EXT_RATIO , ControlType.kPosition);
+        elevatorExtController.setReference(rots / ArmConstants.kELEVATOR_EXT_RATIO , ControlType.kPosition, 0);
 
         setpoint.ext = rots;
 
@@ -197,9 +212,9 @@ public class Arm implements Subsystem {
     @Override
     public void periodic(){
         // Check if upper pivot safe to move
-        if (lowerPivotEncoder.getPosition() * 360.0 >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
+        if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
             // Safe to spin
-            upperPivotController.setReference(setpoint.upperAngle / 360.0 / ArmConstants.kUPPER_PIVOT_RATIO, ControlType.kPosition, 0);
+            upperPivotController.setReference(setpoint.upperAngle / 360.0, ControlType.kPosition, 0);
             upperPivotSafeToMoveLog.append(true);
         } else {
             // Unsafe to spin
@@ -208,12 +223,12 @@ public class Arm implements Subsystem {
         }
 
         // Log
-        lowerPivotPositionLog.append(lowerPivotEncoder.getPosition() * 360.0 * ArmConstants.kLOWER_PIVOT_RATIO);
+        lowerPivotPositionLog.append(lowerPivotEncoder.getPosition() * 360.0);
 
-        upperPivotPositionLog.append(upperPivotEncoder.getPosition() * 360.0 * ArmConstants.kUPPER_PIVOT_RATIO);
+        upperPivotPositionLog.append(upperPivotEncoder.getPosition() * 360.0);
         
-        elevatorExtPositionLog.append(elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO);
-			elevatorLimitSwitchLog.append(elevatorLimitSwitch.isPressed());
+        elevatorExtPositionLog.append(elevatorExtEncoder.getPosition());
+		elevatorLimitSwitchLog.append(elevatorLimitSwitch.isPressed());
     }
 
     // TEST MODE //
@@ -239,7 +254,7 @@ public class Arm implements Subsystem {
 
     /** Runs test mode */
     public void execTestMode() {
-        setUpperPivotAngle(testUpperPivot.getEntry().getDouble(0.0));
+        setUpperPivotAngle(testUpperPivot.getEntry().getDouble(180.0));
         setLowerPivotAngle(testLowerPivot.getEntry().getDouble(90.0));
         setExtension(testExt.getEntry().getDouble(0.0));
 
@@ -248,7 +263,7 @@ public class Arm implements Subsystem {
 
     /** Stops test mode */
     public void endTestMode() {
-        setUpperPivotAngle(0.0);
+        setUpperPivotAngle(180.0);
         setLowerPivotAngle(90.0);
         setExtension(0.0);
 

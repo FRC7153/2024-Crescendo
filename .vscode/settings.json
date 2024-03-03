@@ -37,6 +37,7 @@
     "pigpio",
     "revrobotics",
     "swervedrive",
+    "VELO",
     "WPILOG"
   ]
 }

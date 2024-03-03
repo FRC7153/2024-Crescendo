@@ -47,14 +47,13 @@ public class Constants {
     /** Climber Constants */
     public static class ClimberConstants {
         public static double kCLIMBER_RATIO = 1.0 / 25.0;
-        public static double kCLIMBER_UP_POSITION = 0.0; //rotations
-        public static int kCLIMBER_CURRENT_LIMIT = 50; 
+        public static int kCLIMBER_CURRENT_LIMIT = 40; 
 
         public static double kCLIMBER_P = 0.2;
         public static double kCLIMBER_I = 0.0;
         public static double kCLIMBER_D = 0.0;
 
-        public static double kCLIMBER_TOLERANCE = 0.0;
+        public static double kCLIMBER_TOLERANCE = 0.5;
     }
 
     /** Arm Preset Positions */
@@ -75,28 +74,28 @@ public class Constants {
     public static class ArmConstants {
         public static int kLOWER_RIGHT_PIVOT_CURRENT_LIMIT = 60;
         public static int kLOWER_LEFT_PIVOT_CURRENT_LIMIT = 60;
-        public static int kUPPER_PIVOT_CURRENT_LIMIT = 60;
-        public static int kELEVATOR_EXT_CURRENT_LIMIT = 60;
+        public static int kUPPER_PIVOT_CURRENT_LIMIT = 25;
+        public static int kELEVATOR_EXT_CURRENT_LIMIT = 35;
 
-        public static double kLOWER_ANGLE_OFFSET = 0.0; // rots
-        public static double kUPPER_ANGLE_OFFSET = 0.0; // rots
+        public static double kLOWER_ANGLE_OFFSET = 0.163; // rots
+        public static double kUPPER_ANGLE_OFFSET = 0.653; // rots 0.5 = forward
 
         /** deg, minimum angle of lower pivot for upper pivot to safely spin */
-        public static double kUPPER_PIVOT_MIN_ARM_ANGLE = 15.0;
+        public static double kUPPER_PIVOT_MIN_ARM_ANGLE = 0.466; // rots
 
         public static double kLOWER_PIVOT_RATIO = 1.0 / 80.0;
         public static double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
         public static double kELEVATOR_EXT_RATIO = 1.0 / 25.0;
 
-        public static double kLOWER_PIVOT_P = 0.5;
+        public static double kLOWER_PIVOT_P = 0.5; // TODO
         public static double kLOWER_PIVOT_I = 0.0;
         public static double kLOWER_PIVOT_D = 0.2;
 
-        public static double kUPPER_PIVOT_P = 0.11;// could possibly be temporary
+        public static double kUPPER_PIVOT_P = 0.1;
         public static double kUPPER_PIVOT_I = 0.0; 
         public static double kUPPER_PIVOT_D = 0.0; 
 
-        public static double kELEVATOR_EXT_P = 0.11;// could possibly be temporary
+        public static double kELEVATOR_EXT_P = 0.03;
         public static double kELEVATOR_EXT_I = 0.0;
         public static double kELEVATOR_EXT_D = 0.0;
 
@@ -124,7 +123,7 @@ public class Constants {
         public static Translation2d kRL_SWERVE_POS = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(12.375));
         public static Translation2d kRR_SWERVE_POS = new Translation2d(Units.inchesToMeters(-11.375), Units.inchesToMeters(-12.375));
 
-        public static double kARM_LOWER_PIVOT_HEIGHT = Units.inchesToMeters(13.233 + 0.62); // Pivot to ground
+        public static double kARM_LOWER_PIVOT_HEIGHT = Units.inchesToMeters(13.233 + 0.62);//TODO: Move to arm constants // Pivot to ground
 
         // CANCoder Offsets
         public static double kFL_STEER_ZERO = 0.35969 - 0.5; // 0.497314

@@ -38,14 +38,15 @@ public class Climber implements Subsystem {
     private DoubleLogEntry climberRightSetPointLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightSetPoint", "rotations");
 
-    private double setpoint = 0.0;
+    private double lSetpoint = 0.0;
+    private double rSetpoint = 0.0;
 
     //init
     public Climber() {
         climberLeft.setIdleMode(IdleMode.kBrake);
         climberRight.setIdleMode(IdleMode.kBrake);
-        climberLeft.setInverted(false);//TBD
-        climberRight.setInverted(false);//TBD
+        climberLeft.setInverted(true);
+        climberRight.setInverted(false);
         climberLeft.setSmartCurrentLimit(ClimberConstants.kCLIMBER_CURRENT_LIMIT);
         climberRight.setSmartCurrentLimit(ClimberConstants.kCLIMBER_CURRENT_LIMIT);
 
@@ -64,41 +65,48 @@ public class Climber implements Subsystem {
         DiagUtil.addDevice(climberLeft);
         DiagUtil.addDevice(climberRight);
     
-        climberLeftSetPointLog.append(0.0);
-        climberRightSetPointLog.append(0.0);
+        setClimberHeight(0.0);
 
         register();
     }
 
-    /**Puts the climber up */
-    public void climberUp() {
-        climberLeftController.setReference(ClimberConstants.kCLIMBER_UP_POSITION / ClimberConstants.kCLIMBER_RATIO, ControlType.kPosition, 0);
-        climberRightController.setReference(ClimberConstants.kCLIMBER_UP_POSITION / ClimberConstants.kCLIMBER_RATIO, ControlType.kPosition, 0);
+    /**
+     * Sets the climber height
+     * @param height rots (0 = down, 72 is max)
+     */
+    public void setClimberHeight(double leftHeight, double rightHeight) {
+        // Safety
+        leftHeight = Math.max(0.0, Math.min(leftHeight, 72.0));
+        rightHeight = Math.max(0.0, Math.min(rightHeight, 72.0));
 
-        climberLeftSetPointLog.append(ClimberConstants.kCLIMBER_UP_POSITION);
-        climberRightSetPointLog.append(ClimberConstants.kCLIMBER_UP_POSITION);
-        setpoint = ClimberConstants.kCLIMBER_UP_POSITION;
+        // Set
+        climberLeftController.setReference(leftHeight, ControlType.kPosition);
+        climberRightController.setReference(rightHeight, ControlType.kPosition);
+
+        climberLeftSetPointLog.append(leftHeight);
+        climberRightSetPointLog.append(rightHeight);
+
+        lSetpoint = leftHeight;
+        rSetpoint = rightHeight;
     }
 
-    /**Puts the climber down */
-    public void climberDown() {
-        climberLeftController.setReference(0.0, ControlType.kPosition, 0);
-        climberRightController.setReference(0.0, ControlType.kPosition, 0);
-
-        climberRightSetPointLog.append(0);
-        climberLeftSetPointLog.append(0);
-        setpoint = 0.0;
+    /**
+     * Sets the climber height
+     * @param height rots (0 = down, 72 is max)
+     */
+    public void setClimberHeight(double height) {
+        setClimberHeight(height, height);
     }
 
     /**Is the climber at its setpoint? */
     public boolean climberAtSetpoint(){
-        return Math.abs(climberLeftEncoder.getPosition() - setpoint) <= ClimberConstants.kCLIMBER_TOLERANCE && 
-            Math.abs(climberRightEncoder.getPosition() - setpoint) <= ClimberConstants.kCLIMBER_TOLERANCE;
+        return Math.abs(climberLeftEncoder.getPosition() - lSetpoint) <= ClimberConstants.kCLIMBER_TOLERANCE && 
+            Math.abs(climberRightEncoder.getPosition() - rSetpoint) <= ClimberConstants.kCLIMBER_TOLERANCE;
     }
 
     @Override
     public void periodic() {
-        climberRightPositionLog.append(climberRightEncoder.getPosition() * ClimberConstants.kCLIMBER_RATIO);
-        climberLeftPositionLog.append(climberLeftEncoder.getPosition() * ClimberConstants.kCLIMBER_RATIO);
+        climberRightPositionLog.append(climberRightEncoder.getPosition());
+        climberLeftPositionLog.append(climberLeftEncoder.getPosition());
     }
 }

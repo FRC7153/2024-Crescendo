@@ -16,8 +16,8 @@ public class ClimberStageCommand extends SequentialCommandGroup{
         super(
             //new WaitUntilCommand(() -> climberSet == true),
             new InstantCommand(() -> {
-                if (climberSet) {climber.climberUp(); }
-                else { climber.climberDown(); }
+                if (climberSet) {climber.setClimberHeight(72.0); }
+                else { climber.setClimberHeight(0.0); }
             }, climber),
             new WaitUntilCommand(() -> climber.climberAtSetpoint())
         );
