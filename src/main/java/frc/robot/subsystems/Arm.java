@@ -12,12 +12,12 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
@@ -232,9 +232,10 @@ public class Arm implements Subsystem {
     }
 
     // TEST MODE //
-    private SimpleWidget testLowerPivot;
-    private SimpleWidget testUpperPivot;
-    private SimpleWidget testExt;
+    private GenericEntry testLowerPivot;
+    private GenericEntry testUpperPivot;
+    private GenericEntry testExt; 
+    private GenericEntry testLowerPivotPValue;
 
     /** Initializes shuffleboard values */
     public void initTestMode() {
@@ -243,20 +244,30 @@ public class Arm implements Subsystem {
         ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
         
         testLowerPivot = tab.add("Lower Pivot", 90.0)
-            .withPosition(0, 0);
+            .withPosition(0, 0)
+            .getEntry();
 
         testUpperPivot = tab.add("Upper Pivot", 0.0)
-            .withPosition(1, 0);
+            .withPosition(1, 0)
+            .getEntry();
 
         testExt = tab.add("Ext", 0.0)
-            .withPosition(2, 0);
+            .withPosition(2, 0)
+            .getEntry();
+
+        testLowerPivotPValue = tab.add("Lower Pivot P", 0.0)
+            .withPosition(0, 1)
+            .getEntry();
     }
 
     /** Runs test mode */
     public void execTestMode() {
-        setUpperPivotAngle(testUpperPivot.getEntry().getDouble(180.0));
-        setLowerPivotAngle(testLowerPivot.getEntry().getDouble(90.0));
-        setExtension(testExt.getEntry().getDouble(0.0));
+        setUpperPivotAngle(testUpperPivot.getDouble(180.0));
+        setLowerPivotAngle(testLowerPivot.getDouble(90.0));
+        setExtension(testExt.getDouble(0.0));
+
+        // Set P value
+        lowerRightPivotController.setP(testLowerPivotPValue.getDouble(0.0), 0);
 
         periodic();
     }
