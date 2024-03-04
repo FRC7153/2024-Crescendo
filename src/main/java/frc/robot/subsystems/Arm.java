@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ArmPositions;
 
 public class Arm implements Subsystem {
     /** Class for representing a state of the arm */
@@ -128,7 +129,7 @@ public class Arm implements Subsystem {
         upperPivot.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
         // Default
-        setpoint = new ArmState(90.0, 180.0, 0.0);
+        setpoint = ArmPositions.kDEFAULT;
         setState(setpoint);
         
         //config logging 
@@ -218,7 +219,7 @@ public class Arm implements Subsystem {
             upperPivotSafeToMoveLog.append(true);
         } else {
             // Unsafe to spin
-            upperPivotController.setReference(0.0, ControlType.kPosition, 0);
+            upperPivotController.setReference(180.0, ControlType.kPosition, 0);
             upperPivotSafeToMoveLog.append(false);
         }
 
@@ -243,15 +244,15 @@ public class Arm implements Subsystem {
 
         ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
         
-        testLowerPivot = tab.add("Lower Pivot", 90.0)
+        testLowerPivot = tab.add("Lower Pivot", ArmPositions.kDEFAULT.lowerAngle)
             .withPosition(0, 0)
             .getEntry();
 
-        testUpperPivot = tab.add("Upper Pivot", 0.0)
+        testUpperPivot = tab.add("Upper Pivot", ArmPositions.kDEFAULT.upperAngle)
             .withPosition(1, 0)
             .getEntry();
 
-        testExt = tab.add("Ext", 0.0)
+        testExt = tab.add("Ext", ArmPositions.kDEFAULT.ext)
             .withPosition(2, 0)
             .getEntry();
 
@@ -262,9 +263,9 @@ public class Arm implements Subsystem {
 
     /** Runs test mode */
     public void execTestMode() {
-        setUpperPivotAngle(testUpperPivot.getDouble(180.0));
-        setLowerPivotAngle(testLowerPivot.getDouble(90.0));
-        setExtension(testExt.getDouble(0.0));
+        setUpperPivotAngle(testUpperPivot.getDouble(ArmPositions.kDEFAULT.upperAngle));
+        setLowerPivotAngle(testLowerPivot.getDouble(ArmPositions.kDEFAULT.lowerAngle));
+        setExtension(testExt.getDouble(ArmPositions.kDEFAULT.ext));
 
         // Set P value
         lowerRightPivotController.setP(testLowerPivotPValue.getDouble(0.0), 0);
@@ -274,9 +275,7 @@ public class Arm implements Subsystem {
 
     /** Stops test mode */
     public void endTestMode() {
-        setUpperPivotAngle(180.0);
-        setLowerPivotAngle(90.0);
-        setExtension(0.0);
+        setState(ArmPositions.kDEFAULT);
 
         periodic();
     }

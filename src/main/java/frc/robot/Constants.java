@@ -58,6 +58,8 @@ public class Constants {
 
     /** Arm Preset Positions */
     public static class ArmPositions {
+        public static ArmState kDEFAULT = new ArmState(135.0, 180.0, 0.0);
+        
         public static ArmState kFRONT_AMP = new ArmState(45.0, 45.0, 2.0);
         public static ArmState kREAR_AMP = new ArmState(90.0, -10.0, 2.0);
     }
