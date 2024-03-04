@@ -17,7 +17,8 @@ public class Autonomous {
         // No-Op
         chooser.setDefaultOption("No-Op", () -> { return new PrintCommand("No-Op Auto"); });
 
-       
+       /* TODO: it is expected that autos will specify what OBJECTIVE STATE they want the robot in, and
+       whether a NOTE is preloaded */
 
         // Add to Shuffleboard
         Shuffleboard.getTab("Drive").add("Autonomous", chooser)

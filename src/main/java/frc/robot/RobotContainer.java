@@ -7,13 +7,17 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.ArmPositions;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.ArmAmpCommand;
 import frc.robot.commands.ArmSpeakerCommand;
+import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.ClimberStageCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
@@ -73,37 +77,46 @@ public class RobotContainer {
         driveBase, 
         () -> -driverXboxController.getLeftY(), 
         driverXboxController::getLeftX, 
-        () -> driverXboxController.getRightX() * -1.0
+        () -> -driverXboxController.getRightX()
       ).repeatedly());
 
-    // Driver manual intake button (only for testing, probably)
-    driverXboxController.y().and(
-      StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING).or(StateController.buildTrigger(NoteState.PROCESSING, ObjectiveState.SCORING))
-    )
+    // Driver Ground Intake Button (RT) pressed while robot is EMPTY and SCORING
+    driverXboxController.rightTrigger().and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))
       .whileTrue(new LoadShooterCommand(shooter, indexer, led))
       .whileTrue(new IntakeCommand(intake, true));
-      
+
+    // Driver Source Intake Button (LT) pressed while robot is EMPTY and SCORING
+    driverXboxController.leftTrigger().and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))
+      .whileTrue(new PrintCommand("Source pickup not yet implemented")); // TODO SOURCE PICKUP
+    
+    // Arm to intake while robot is EMPTY and SCORING
+    StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING)
+      .and(isTeleop) // Because this will run automatically, we should specify only in teleop
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kGROUND_INTAKE));
+
     // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING
     operatorController.button(6).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
       .whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)))
       .whileTrue(new TeleopDriveHeadingLockCommand(
         driveBase, 
         () -> -driverXboxController.getLeftY(), 
-        driverXboxController::getRightX
+        () -> -driverXboxController.getRightX()
       ));
 
     // Operator Arm Amp Button (4) pressed while robot is LOADED and SCORING
     operatorController.button(4).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
       .whileTrue(new ArmAmpCommand(arm, led, () -> driveBase.getPosition(false)));
 
-    // Operator Source Button (2) pressed while robot is NOT LOADED and SCORING
-    operatorController.button(2).and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))
-      .whileTrue(new InstantCommand()); // TODO SOURCE PICKUP
-
     // Operator Shoot Button (trigger) pressed while robot is LOADED and SCORING
+    // Assumes shooter is already up-to-speed (if needed)
     operatorController.trigger().and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
-      .whileTrue(new ShootCommand(indexer, true)); // Will change NoteState to EMPTY
+      .whileTrue(new ConditionalCommand(
+        new ShootCommand(indexer, true), // Shoot forwards
+        new ShootCommand(indexer, false), // Shoot backwards (if placing in AMP from rear)
+        shooter::isShooterRunning
+      )); // Will change NoteState to EMPTY
     
+    // TODO dynamic climber height setting using gyro?? ;)
     // Operator Climb Button (6) pressed while robot is CLIMBING
     operatorController.button(6).and(StateController.buildTrigger(null, ObjectiveState.CLIMBING))
       .onTrue(new ClimberStageCommand(climber, true));
@@ -126,15 +139,9 @@ public class RobotContainer {
       .and(isTeleop)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.DEFENDING)));
     
-    // Don't intake when robot is LOADED and SCORING
+    // Reverse intake when robot is LOADED and SCORING
     /*StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING)
-      .whileTrue(new IntakeCommand(intake, false));
-
-    // Intake when robot is EMPTY/PROCESSING and SCORING
-    StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING)
-      .or(StateController.buildTrigger(NoteState.PROCESSING, ObjectiveState.SCORING))
-      .whileTrue(new IntakeCommand(intake, true)) // Will change NoteState to PROCESSING
-      .whileTrue(new LoadShooterCommand(shooter, indexer, led)); // Will change NoteState to LOADED*/
+      .whileTrue(new IntakeCommand(intake, false));*/
   }
 
   public Command getAutonomousCommand() {

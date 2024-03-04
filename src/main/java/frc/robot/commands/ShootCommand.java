@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Indexer;
 import frc.robot.util.StateController;
 import frc.robot.util.StateController.NoteState;
@@ -20,8 +19,7 @@ public class ShootCommand extends SequentialCommandGroup {
             // Run intake
             new InstantCommand(() -> indexer.setIndexerVelocity(direction ? 400.0 : -400.0), indexer),
             // Wait until empty
-            new WaitCommand(0.5),
-            new WaitUntilCommand(() -> !indexer.detectingNote()),
+            new WaitCommand(0.75), // TODO reverse shooting will require more time
             // Stop and set state
             new InstantCommand(indexer::stop, indexer),
             new InstantCommand(() -> StateController.setNoteState(NoteState.EMPTY))

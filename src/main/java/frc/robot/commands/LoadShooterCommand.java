@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -16,7 +15,7 @@ import frc.robot.util.StateController.NoteState;
 
 public class LoadShooterCommand extends SequentialCommandGroup {
     /**
-     * Sets the indexer speed to intake a NOTE, while running the shooter backwards slowly.
+     * Sets the indexer speed to intake a NOTE, without running the shooter.
      * Does NOT move the arm.
      * Sets the robot state to LOADED.
      */
@@ -30,16 +29,10 @@ public class LoadShooterCommand extends SequentialCommandGroup {
             new WaitUntilCommand(indexer::detectingNote),
             // Stop motors
             new InstantCommand(indexer::stop, indexer),
-            // Flash LEDs, if not done already
-            new ConditionalCommand(
-                // LEDs flash already
-                new InstantCommand(() -> StateController.setNoteState(NoteState.LOADED)), 
-                // LEDs haven't flashed
-                new ParallelCommandGroup(
-                    new FlashLEDCommand(led, LEDConstants.kYELLOW),
-                    new InstantCommand(() -> StateController.setNoteState(NoteState.LOADED))
-                ), 
-                () -> StateController.getNoteState().equals(NoteState.PROCESSING)
+            // Flash LEDs + set state
+            new ParallelCommandGroup(
+                new FlashLEDCommand(led, LEDConstants.kYELLOW),
+                new InstantCommand(() -> StateController.setNoteState(NoteState.LOADED))
             )
         );
     }

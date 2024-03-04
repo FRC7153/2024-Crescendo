@@ -80,19 +80,27 @@ public class Shooter implements Subsystem {
         if (velocity <= .05) {
             shooterUpper.disable();
             shooterLower.disable();
+
+            shooterSetpointLog.append(0.0);
+            velocitySetpoint = 0.0;
         } else {
             shooterUpper.setControl(shooterControl.withVelocity(velocity / ShooterConstants.kSHOOT_RATIO));
             shooterLower.setControl(shooterControl.withVelocity(velocity / ShooterConstants.kSHOOT_RATIO));
-        }
 
-        shooterSetpointLog.append(velocity);
-        velocitySetpoint = velocity;
+            shooterSetpointLog.append(velocity);
+            velocitySetpoint = velocity;
+        }
     }
 
     /** Is the shooter velocity at the setpoint? */
     public boolean atShootSetpoint() {
         return Math.abs(shooterUpper.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE &&
             Math.abs(shooterLower.getVelocity().getValue() - velocitySetpoint) <= ShooterConstants.kSHOOT_TOLERANCE;
+    }
+
+    /** Is the shooter setpoint > 0.0? */
+    public boolean isShooterRunning() {
+        return velocitySetpoint > 0.0;
     }
 
     // Perform logging

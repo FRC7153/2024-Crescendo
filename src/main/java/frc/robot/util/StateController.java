@@ -15,8 +15,6 @@ public class StateController {
     public static enum NoteState {
         /** There is no NOTE in the robot (default) */
         EMPTY,
-        /** The robot is intaking a NOTE */
-        PROCESSING,
         /** The robot is carrying a NOTE */
         LOADED
     }
