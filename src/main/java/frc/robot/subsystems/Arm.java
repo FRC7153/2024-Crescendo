@@ -121,7 +121,7 @@ public class Arm implements Subsystem {
 
         relativeUpperLowerEncoder.setPosition(upperPivotEncoder.getPosition() * ArmConstants.kUPPER_PIVOT_RATIO);
 
-        upperPivot.setSoftLimit(SoftLimitDirection.kForward, 16);
+        upperPivot.setSoftLimit(SoftLimitDirection.kForward, (float)(1.0 / ArmConstants.kUPPER_PIVOT_RATIO));
         upperPivot.setSoftLimit(SoftLimitDirection.kReverse, 0);
 
         upperPivot.enableSoftLimit(SoftLimitDirection.kForward, true);
