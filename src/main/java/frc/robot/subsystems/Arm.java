@@ -237,6 +237,7 @@ public class Arm implements Subsystem {
     private GenericEntry testUpperPivot;
     private GenericEntry testExt; 
     private GenericEntry testLowerPivotPValue;
+    private GenericEntry testAbsEncoderLowerPivot;
 
     /** Initializes shuffleboard values */
     public void initTestMode() {
@@ -259,6 +260,9 @@ public class Arm implements Subsystem {
         testLowerPivotPValue = tab.add("Lower Pivot P", 0.0)
             .withPosition(0, 1)
             .getEntry();
+
+        testAbsEncoderLowerPivot = tab.add("Lower Pivot Encoder", 0.0)
+            .getEntry();
     }
 
     /** Runs test mode */
@@ -266,6 +270,9 @@ public class Arm implements Subsystem {
         setUpperPivotAngle(testUpperPivot.getDouble(ArmPositions.kDEFAULT.upperAngle));
         setLowerPivotAngle(testLowerPivot.getDouble(ArmPositions.kDEFAULT.lowerAngle));
         setExtension(testExt.getDouble(ArmPositions.kDEFAULT.ext));
+
+        //Adding abs encoder into Shuffleboard 
+        testAbsEncoderLowerPivot.setDouble(lowerPivotEncoder.getPosition());
 
         // Set P value
         lowerRightPivotController.setP(testLowerPivotPValue.getDouble(0.0), 0);
