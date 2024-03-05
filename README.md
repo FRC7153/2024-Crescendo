@@ -1,4 +1,14 @@
 # TODO
+- Arm lower pivot PID (empirical)
+- Get state for arm intake (empirical)
+- Get state for arm amp (empirical)
+- Get state for arm source (empirical)
+
+
+
+
+
+
 - Refactor README file (deferred)
 - PDH logging + error reporting
 - RaspberryPi python LED
@@ -12,7 +22,7 @@
 - Verify climber PID loops work under load (empirical)
 - Dynamic climb height w/ gyro (empirical + deferred)
 
-- Arm lower pivot PID (empirical)
-- Get state for arm intake (empirical)
-- Get state for arm amp (empirical)
-- Get state for arm source (empirical)
+
+
+
+
