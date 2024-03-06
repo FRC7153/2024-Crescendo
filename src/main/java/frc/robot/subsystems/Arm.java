@@ -18,9 +18,9 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.commands.ArmToStateCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmPositions;
 
@@ -73,7 +73,6 @@ public class Arm implements Subsystem {
     private DoubleLogEntry elevatorExtSetpointLog = 
 		new DoubleLogEntry(DataLogManager.getLog(), "Arm/elevatorExtSetpoint", "rotations");
 
-
     public Arm() {
         // Config motors
         lowerLeftPivot.setIdleMode(IdleMode.kBrake);
@@ -118,9 +117,9 @@ public class Arm implements Subsystem {
         upperPivotController.setFeedbackDevice(upperPivotEncoder);
 
         // Soft Limits
-        RelativeEncoder relativeUpperLowerEncoder = upperPivot.getEncoder();
+        RelativeEncoder relativeUpperPivotEncoder = upperPivot.getEncoder();
 
-        relativeUpperLowerEncoder.setPosition(upperPivotEncoder.getPosition() * ArmConstants.kUPPER_PIVOT_RATIO);
+        relativeUpperPivotEncoder.setPosition(upperPivotEncoder.getPosition() * ArmConstants.kUPPER_PIVOT_RATIO);
 
         upperPivot.setSoftLimit(SoftLimitDirection.kForward, (float)(1.0 / ArmConstants.kUPPER_PIVOT_RATIO));
         upperPivot.setSoftLimit(SoftLimitDirection.kReverse, 0);
@@ -144,15 +143,13 @@ public class Arm implements Subsystem {
     /** Sets Arm's default command (laying flat) */
     public void initDefaultCommand() {
         setDefaultCommand(
-            new InstantCommand(() -> setState(
-                new ArmState(90.0, 180.0, 0.0)
-            ), this)
+            new ArmToStateCommand(this, ArmPositions.kDEFAULT)
         );
     }
 
     /**
      * Sets the lower pivot's setpoint
-     * @param angle degrees. 0 is down, 90 is up
+     * @param angle degrees. 90 is down (unsafe), 180 is up
      */
     public void setLowerPivotAngle(double angle) {
         // Safety
@@ -182,11 +179,11 @@ public class Arm implements Subsystem {
 
     /**
      * Sets the elevator's extension
-     * @param rots rotations. 0 is inward
+     * @param rots rotations of the sprocket. 0 is inward, max is 2.72
      */
     public void setExtension(double rots) {
         // Safety
-        rots = Math.max(0.0, Math.min(rots, 68.0));
+        rots = Math.max(0.0, Math.min(rots, 68.0 * ArmConstants.kELEVATOR_EXT_RATIO));
 
         elevatorExtController.setReference(rots / ArmConstants.kELEVATOR_EXT_RATIO , ControlType.kPosition, 0);
 
@@ -222,14 +219,14 @@ public class Arm implements Subsystem {
             //upperPivotController.setReference(ArmPositions.kDEFAULT.upperAngle / 360.0, ControlType.kPosition, 0);
             upperPivotSafeToMoveLog.append(false);
         }
-        upperPivot.disable();
+        upperPivot.disable(); // TODO until upper pivot verified to be safe
 
         // Log
         lowerPivotPositionLog.append(lowerPivotEncoder.getPosition() * 360.0);
 
         upperPivotPositionLog.append(upperPivotEncoder.getPosition() * 360.0);
         
-        elevatorExtPositionLog.append(elevatorExtEncoder.getPosition());
+        elevatorExtPositionLog.append(elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO);
 		elevatorLimitSwitchLog.append(elevatorLimitSwitch.isPressed());
     }
 
@@ -238,7 +235,9 @@ public class Arm implements Subsystem {
     private GenericEntry testUpperPivot;
     private GenericEntry testExt; 
     private GenericEntry testLowerPivotPValue;
-    private GenericEntry testAbsEncoderLowerPivot;
+    private GenericEntry testLowerPivotAbsEncOut;
+    private GenericEntry testUpperPivotAbsEncOut;
+    private GenericEntry testExtEncOut;
 
     /** Initializes shuffleboard values */
     public void initTestMode() {
@@ -246,23 +245,39 @@ public class Arm implements Subsystem {
 
         ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
         
-        testLowerPivot = tab.add("Lower Pivot", ArmPositions.kDEFAULT.lowerAngle)
+        testLowerPivot = tab.add("Lower Pivot SP", ArmPositions.kDEFAULT.lowerAngle)
             .withPosition(0, 0)
+            .withSize(2, 1)
             .getEntry();
 
-        testUpperPivot = tab.add("Upper Pivot", ArmPositions.kDEFAULT.upperAngle)
-            .withPosition(1, 0)
-            .getEntry();
-
-        testExt = tab.add("Ext", ArmPositions.kDEFAULT.ext)
+        testUpperPivot = tab.add("Upper Pivot SP", ArmPositions.kDEFAULT.upperAngle)
             .withPosition(2, 0)
+            .withSize(2, 1)
+            .getEntry();
+
+        testExt = tab.add("Ext SP", ArmPositions.kDEFAULT.ext)
+            .withPosition(4, 0)
+            .withSize(2, 1)
             .getEntry();
 
         testLowerPivotPValue = tab.add("Lower Pivot P", 0.0)
-            .withPosition(0, 1)
+            .withPosition(6, 0)
+            .withSize(2, 1)
             .getEntry();
 
-        testAbsEncoderLowerPivot = tab.add("Lower Pivot Encoder", 0.0)
+        testLowerPivotAbsEncOut = tab.add("Lower Pivot Encoder", -1.0)
+            .withSize(2, 1)
+            .withPosition(0, 1)
+            .getEntry();
+        
+        testUpperPivotAbsEncOut = tab.add("Upper Pivot Encoder", -1.0)
+            .withSize(2, 1)
+            .withPosition(2, 1)
+            .getEntry();
+
+        testExtEncOut = tab.add("Ext Encoder", -1.0)
+            .withSize(2, 1)
+            .withPosition(4, 1)
             .getEntry();
     }
 
@@ -272,15 +287,19 @@ public class Arm implements Subsystem {
         setLowerPivotAngle(testLowerPivot.getDouble(ArmPositions.kDEFAULT.lowerAngle));
         setExtension(testExt.getDouble(ArmPositions.kDEFAULT.ext));
 
-        //Adding abs encoder into Shuffleboard 
-        testAbsEncoderLowerPivot.setDouble(lowerPivotEncoder.getPosition());
+        // Log values to shuffleboard
+        testLowerPivotAbsEncOut.setDouble(lowerPivotEncoder.getPosition() * 360.0);
+        testUpperPivotAbsEncOut.setDouble(upperPivotEncoder.getPosition() * 360.0);
+        testExtEncOut.setDouble(elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO);
 
         // Set P value
-        if (lowerRightPivotController.getP(0) != testLowerPivotPValue.getDouble(0.0)) {
-            System.out.println("Lower pivot P reset");
-            lowerRightPivotController.setP(testLowerPivotPValue.getDouble(0.0), 0);
+        double lowerPivotP = testLowerPivotPValue.getDouble(0.0);
+        if (lowerRightPivotController.getP(0) != lowerPivotP) {
+            System.out.printf("Lower pivot P set -> %d\n", lowerPivotP);
+            lowerRightPivotController.setP(lowerPivotP, 0);
         }
 
+        // Periodic (to populate log and move upper pivot if safe)
         periodic();
     }
 

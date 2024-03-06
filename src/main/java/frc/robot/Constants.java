@@ -76,10 +76,10 @@ public class Constants {
 
     /** Arm Constants */
     public static class ArmConstants {
-        public static int kLOWER_RIGHT_PIVOT_CURRENT_LIMIT = 60;
-        public static int kLOWER_LEFT_PIVOT_CURRENT_LIMIT = 60;
-        public static int kUPPER_PIVOT_CURRENT_LIMIT = 25;
-        public static int kELEVATOR_EXT_CURRENT_LIMIT = 35;
+        public static int kLOWER_RIGHT_PIVOT_CURRENT_LIMIT = 35; // 60
+        public static int kLOWER_LEFT_PIVOT_CURRENT_LIMIT = 35; // 60
+        public static int kUPPER_PIVOT_CURRENT_LIMIT = 15; // 25
+        public static int kELEVATOR_EXT_CURRENT_LIMIT = 20; // 35
 
         public static double kLOWER_ANGLE_OFFSET = 0.163; // rots
         public static double kUPPER_ANGLE_OFFSET = 0.653; // rots 0.5 = forward
@@ -91,9 +91,9 @@ public class Constants {
         public static double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
         public static double kELEVATOR_EXT_RATIO = 1.0 / 25.0;
 
-        public static double kLOWER_PIVOT_P = 0.5; // TODO
+        public static double kLOWER_PIVOT_P = 3.0; // TODO
         public static double kLOWER_PIVOT_I = 0.0;
-        public static double kLOWER_PIVOT_D = 0.2;
+        public static double kLOWER_PIVOT_D = 0.0; // this was 0.2 ... was that safe??
 
         public static double kUPPER_PIVOT_P = 0.1;
         public static double kUPPER_PIVOT_I = 0.0; 
@@ -103,9 +103,9 @@ public class Constants {
         public static double kELEVATOR_EXT_I = 0.0;
         public static double kELEVATOR_EXT_D = 0.0;
 
-        public static double kLOWER_ANGLE_TOLERANCE = 0.0; //deg
-        public static double kUPPER_ANGLE_TOLERANCE = 0.0; //deg
-        public static double kEXT_TOLERANCE = 0.0; //rots
+        public static double kLOWER_ANGLE_TOLERANCE = 7.0; //deg TODO these are guessed
+        public static double kUPPER_ANGLE_TOLERANCE = 5.0; //deg
+        public static double kEXT_TOLERANCE = 0.25; //rots
     }
 
     /** Swerve drive constants */
