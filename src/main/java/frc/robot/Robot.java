@@ -35,7 +35,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
+    // Do not command in test!
+    if (!DriverStation.isTestEnabled()) CommandScheduler.getInstance().run();
 
     // Periodic logging methods
     CANLogger.periodic();

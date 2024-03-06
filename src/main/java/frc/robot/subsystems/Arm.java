@@ -156,9 +156,9 @@ public class Arm implements Subsystem {
      */
     public void setLowerPivotAngle(double angle) {
         // Safety
-        angle = Math.max(0.0, Math.min(angle, 100.0));
+        angle = Math.max(90.0, Math.min(angle, 190.0));
 
-        lowerRightPivotController.setReference((angle / 360.0) / ArmConstants.kLOWER_PIVOT_RATIO, ControlType.kPosition);
+        lowerRightPivotController.setReference(angle / 360.0, ControlType.kPosition);
 
         setpoint.lowerAngle = angle;
 
@@ -215,13 +215,14 @@ public class Arm implements Subsystem {
         // Check if upper pivot safe to move
         if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
             // Safe to spin
-            upperPivotController.setReference(setpoint.upperAngle / 360.0, ControlType.kPosition, 0);
+            //upperPivotController.setReference(setpoint.upperAngle / 360.0, ControlType.kPosition, 0);
             upperPivotSafeToMoveLog.append(true);
         } else {
             // Unsafe to spin
-            upperPivotController.setReference(180.0, ControlType.kPosition, 0);
+            //upperPivotController.setReference(ArmPositions.kDEFAULT.upperAngle / 360.0, ControlType.kPosition, 0);
             upperPivotSafeToMoveLog.append(false);
         }
+        upperPivot.disable();
 
         // Log
         lowerPivotPositionLog.append(lowerPivotEncoder.getPosition() * 360.0);
@@ -275,7 +276,10 @@ public class Arm implements Subsystem {
         testAbsEncoderLowerPivot.setDouble(lowerPivotEncoder.getPosition());
 
         // Set P value
-        lowerRightPivotController.setP(testLowerPivotPValue.getDouble(0.0), 0);
+        if (lowerRightPivotController.getP(0) != testLowerPivotPValue.getDouble(0.0)) {
+            System.out.println("Lower pivot P reset");
+            lowerRightPivotController.setP(testLowerPivotPValue.getDouble(0.0), 0);
+        }
 
         periodic();
     }
