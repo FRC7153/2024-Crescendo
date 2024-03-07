@@ -52,6 +52,9 @@ public class RobotContainer {
   // Controls
   private CommandXboxController driverXboxController = new CommandXboxController(0);
   private CommandJoystick operatorController = new CommandJoystick(1);
+  
+  private Trigger operatorControllerConnected = new Trigger(() -> DriverStation.isJoystickConnected(1));
+
   private Dashboard dashboard = new Dashboard(driveBase);
 
   public RobotContainer() {
@@ -128,15 +131,18 @@ public class RobotContainer {
     // Handle Objective State Control (Operator throttle)
     operatorController.axisLessThan(Joystick.AxisType.kThrottle.value, -2.0/3.0)
       .and(isTeleop)
+      .and(operatorControllerConnected)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.SCORING)));
 
     operatorController.axisGreaterThan(Joystick.AxisType.kThrottle.value, -2.0/3.0)
       .and(operatorController.axisLessThan(Joystick.AxisType.kThrottle.value, 1.0/3.0))
       .and(isTeleop)
+      .and(operatorControllerConnected)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.CLIMBING)));
 
     operatorController.axisGreaterThan(Joystick.AxisType.kThrottle.value, 1.0/3.0)
       .and(isTeleop)
+      .and(operatorControllerConnected)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.DEFENDING)));
     
     // Reverse intake when robot is LOADED and SCORING
@@ -155,6 +161,6 @@ public class RobotContainer {
 
   // Test modes
   public void testInit() { arm.initTestMode(); }
-  public void testExec() { arm.execTestMode(); }
+  public void testExec(boolean acceptOperatorInput) { arm.execTestMode(acceptOperatorInput); }
   public void testEnd() { arm.endTestMode(); }
 }

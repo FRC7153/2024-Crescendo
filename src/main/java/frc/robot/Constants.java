@@ -58,9 +58,9 @@ public class Constants {
 
     /** Arm Preset Positions */
     public static class ArmPositions {
-        public static ArmState kDEFAULT = new ArmState(135.0, 180.0, 0.0);
+        public static ArmState kDEFAULT = new ArmState(110.0, 180.0, 0.0);
 
-        public static ArmState kGROUND_INTAKE = new ArmState(0.0, 0.0, 0.0);
+        public static ArmState kGROUND_INTAKE = new ArmState(115.0, 255.0, 0.6);
 
         public static ArmState kFRONT_AMP = new ArmState(45.0, 45.0, 2.0);
         public static ArmState kREAR_AMP = new ArmState(90.0, -10.0, 2.0);
@@ -79,25 +79,25 @@ public class Constants {
         public static int kLOWER_RIGHT_PIVOT_CURRENT_LIMIT = 35; // 60
         public static int kLOWER_LEFT_PIVOT_CURRENT_LIMIT = 35; // 60
         public static int kUPPER_PIVOT_CURRENT_LIMIT = 15; // 25
-        public static int kELEVATOR_EXT_CURRENT_LIMIT = 20; // 35
+        public static int kELEVATOR_EXT_CURRENT_LIMIT = 15; // 35
 
         public static double kLOWER_ANGLE_OFFSET = 0.163; // rots
         public static double kUPPER_ANGLE_OFFSET = 0.653; // rots 0.5 = forward
 
         /** rots, minimum angle of lower pivot for upper pivot to safely spin */
-        public static double kUPPER_PIVOT_MIN_ARM_ANGLE = 0.466; // rots
+        public static double kUPPER_PIVOT_MIN_ARM_ANGLE = 108.0 / 360.0; // rots
 
         public static double kLOWER_PIVOT_RATIO = 1.0 / (4.0 * 3.0 * 3.0 * (60.0/18.0));
         public static double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
         public static double kELEVATOR_EXT_RATIO = 1.0 / 25.0;
 
         public static double kLOWER_PIVOT_P = 3.0; // TODO
-        public static double kLOWER_PIVOT_I = 0.0;
-        public static double kLOWER_PIVOT_D = 0.0; // this was 0.2 ... was that safe??
+        public static double kLOWER_PIVOT_I = 0.001;
+        public static double kLOWER_PIVOT_D = 0.0;//5; // this was 0.2 ... was that safe??
 
-        public static double kUPPER_PIVOT_P = 0.1;
-        public static double kUPPER_PIVOT_I = 0.0; 
-        public static double kUPPER_PIVOT_D = 0.0; 
+        public static double kUPPER_PIVOT_P = 0.1; // 1.0 while absolute
+        public static double kUPPER_PIVOT_I = 0.00001; 
+        public static double kUPPER_PIVOT_D = 0.0;//001; 
 
         public static double kELEVATOR_EXT_P = 0.03;
         public static double kELEVATOR_EXT_I = 0.0;

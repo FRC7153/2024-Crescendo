@@ -72,10 +72,14 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    m_robotContainer.testInit();
+  }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    m_robotContainer.testExec(false);
+  }
 
   @Override
   public void teleopExit() {}
@@ -88,7 +92,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    m_robotContainer.testExec();
+    m_robotContainer.testExec(true);
   }
 
   @Override
