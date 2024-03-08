@@ -18,6 +18,12 @@ import frc.robot.subsystems.Arm.ArmState;
  * Swerve Base
  */
 public class Constants {
+    /** Build Constants */
+    public static class BuildConstants {
+        public static boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
+        public static boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
+    }
+
     /** Shooter Constants */
     public static class ShooterConstants {
         public static int kSHOOT_CURRENT_LIMIT = 60;
@@ -60,7 +66,7 @@ public class Constants {
     public static class ArmPositions {
         public static ArmState kDEFAULT = new ArmState(110.0, 180.0, 0.0);
 
-        public static ArmState kGROUND_INTAKE = new ArmState(115.0, 255.0, 0.6);
+        public static ArmState kGROUND_INTAKE = new ArmState(110.0, 265.0, 0.5); // 110
 
         public static ArmState kFRONT_AMP = new ArmState(45.0, 45.0, 2.0);
         public static ArmState kREAR_AMP = new ArmState(90.0, -10.0, 2.0);
@@ -95,7 +101,7 @@ public class Constants {
         public static double kLOWER_PIVOT_I = 0.001;
         public static double kLOWER_PIVOT_D = 0.0;//5; // this was 0.2 ... was that safe??
 
-        public static double kUPPER_PIVOT_P = 0.1; // 1.0 while absolute
+        public static double kUPPER_PIVOT_P = 1.0; // 0.1 while motor's relative
         public static double kUPPER_PIVOT_I = 0.00001; 
         public static double kUPPER_PIVOT_D = 0.0;//001; 
 

@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -23,7 +22,6 @@ import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
-import frc.robot.commands.TeleopDriveHeadingLockCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveBase;
@@ -53,8 +51,6 @@ public class RobotContainer {
   private CommandXboxController driverXboxController = new CommandXboxController(0);
   private CommandJoystick operatorController = new CommandJoystick(1);
   
-  private Trigger operatorControllerConnected = new Trigger(() -> DriverStation.isJoystickConnected(1));
-
   private Dashboard dashboard = new Dashboard(driveBase);
 
   public RobotContainer() {
@@ -99,12 +95,12 @@ public class RobotContainer {
 
     // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING
     operatorController.button(6).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
-      .whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)))
-      .whileTrue(new TeleopDriveHeadingLockCommand(
+      .whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)));
+      /*.whileTrue(new TeleopDriveHeadingLockCommand(
         driveBase, 
         () -> -driverXboxController.getLeftY(), 
         () -> -driverXboxController.getRightX()
-      ));
+      ));*/ // TODO driver should have control of heading lock
 
     // Operator Arm Amp Button (4) pressed while robot is LOADED and SCORING
     operatorController.button(4).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
@@ -128,21 +124,21 @@ public class RobotContainer {
     operatorController.button(4).and(StateController.buildTrigger(null, ObjectiveState.CLIMBING))
       .onTrue(new ClimberStageCommand(climber, false));
     
-    // Handle Objective State Control (Operator throttle)
-    operatorController.axisLessThan(Joystick.AxisType.kThrottle.value, -2.0/3.0)
+    // Handle Objective State Control (Operator throttle, axis 3)
+    operatorController.axisLessThan(3, -2.0/3.0)
       .and(isTeleop)
-      .and(operatorControllerConnected)
+      .and(operatorController.getHID()::isConnected)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.SCORING)));
 
-    operatorController.axisGreaterThan(Joystick.AxisType.kThrottle.value, -2.0/3.0)
-      .and(operatorController.axisLessThan(Joystick.AxisType.kThrottle.value, 1.0/3.0))
+    operatorController.axisGreaterThan(3, -2.0/3.0)
+      .and(operatorController.axisLessThan(3, 1.0/3.0))
       .and(isTeleop)
-      .and(operatorControllerConnected)
+      .and(operatorController.getHID()::isConnected)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.CLIMBING)));
 
-    operatorController.axisGreaterThan(Joystick.AxisType.kThrottle.value, 1.0/3.0)
+    operatorController.axisGreaterThan(3, 1.0/3.0)
       .and(isTeleop)
-      .and(operatorControllerConnected)
+      .and(operatorController.getHID()::isConnected)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.DEFENDING)));
     
     // Reverse intake when robot is LOADED and SCORING
@@ -161,6 +157,6 @@ public class RobotContainer {
 
   // Test modes
   public void testInit() { arm.initTestMode(); }
-  public void testExec(boolean acceptOperatorInput) { arm.execTestMode(acceptOperatorInput); }
+  public void testExec() { arm.execTestMode(); }
   public void testEnd() { arm.endTestMode(); }
 }

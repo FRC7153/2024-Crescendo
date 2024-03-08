@@ -6,10 +6,15 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.frc7153.diagnostics.DiagUtil;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
 
@@ -32,6 +37,9 @@ public class Shooter implements Subsystem {
         new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Upper Velocity", "rps");
     private DoubleLogEntry lowerShooterVeloLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Shooter/Lower Velocity", "rps");
+
+    // Telemetry
+    private GenericPublisher upperShootVeloOut, lowerShootVeloOut, shootAtSetpointOut;
 
     // Init
     public Shooter() {
@@ -62,6 +70,20 @@ public class Shooter implements Subsystem {
 
         // Initial log value
         shooterSetpointLog.append(0.0);
+
+        // Telemetry
+        if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
+            ShuffleboardTab tab = Shuffleboard.getTab("Shooter Telemetry");
+
+            upperShootVeloOut = tab.add("Upper Shoot Velo (RPS)", -1.0)
+                .getEntry().getTopic().genericPublish("double");
+            
+            lowerShootVeloOut = tab.add("Lower Shoot Velo (RPS)", -1.0)
+                .getEntry().getTopic().genericPublish("double");
+
+            shootAtSetpointOut = tab.add("At Setpoint", false)
+                .getEntry().getTopic().genericPublish("boolean");
+        }
 
         // Register
         register();
@@ -109,5 +131,29 @@ public class Shooter implements Subsystem {
         upperShooterVeloLog.append(shooterUpper.getVelocity().getValue() * ShooterConstants.kSHOOT_RATIO);
         lowerShooterVeloLog.append(shooterLower.getVelocity().getValue() * ShooterConstants.kSHOOT_RATIO);
 
+        // Telemetry
+        if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
+            upperShootVeloOut.setDouble(shooterUpper.getVelocity().getValue() * ShooterConstants.kSHOOT_RATIO);
+            lowerShootVeloOut.setDouble(shooterLower.getVelocity().getValue() * ShooterConstants.kSHOOT_RATIO);
+            shootAtSetpointOut.setBoolean(atShootSetpoint());
+        }
+    }
+
+    // TEST MODE //
+    private GenericEntry testShootVelo;
+
+    public void testInit() {
+        ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
+
+        testShootVelo = tab.add("Shoot Velocity (RPS)", 0.0)
+            .getEntry();
+    }
+
+    public void testExec() {
+        setShootVelocity(testShootVelo.getDouble(0.0));
+    }
+
+    public void testEnd() {
+        setShootVelocity(0.0);
     }
 }
