@@ -10,7 +10,9 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
@@ -175,7 +177,17 @@ public class Arm implements Subsystem {
         // Safety
         angle = Math.max(90.0, Math.min(angle, 190.0));
 
-        lowerRightPivotController.setReference(angle / 360.0, ControlType.kPosition);
+        double diff = -1.0 * Math.sin(
+            Units.degreesToRadians(angle - 90.0) - Units.rotationsToRadians(lowerPivotEncoder.getPosition() - 0.25)
+        ) * (0.0 + (setpoint.ext * 0.0)); // TODO zero pos, sprocket diameter
+
+        lowerRightPivotController.setReference(
+            angle / 360.0, 
+            ControlType.kPosition, 
+            0, 
+            Math.max(0.0, diff) * ArmConstants.kLOWER_PIVOT_FF, // FF, add voltage depending on target
+            ArbFFUnits.kVoltage
+        );
 
         setpoint.lowerAngle = angle;
 
@@ -213,9 +225,9 @@ public class Arm implements Subsystem {
     }
 
     public void setState(ArmState state){
+        setExtension(state.ext);
         setUpperPivotAngle(state.upperAngle);
         setLowerPivotAngle(state.lowerAngle);
-        setExtension(state.ext);
     }
 
     /**

@@ -100,6 +100,7 @@ public class Constants {
         public static double kLOWER_PIVOT_P = 3.0; // TODO
         public static double kLOWER_PIVOT_I = 0.001;
         public static double kLOWER_PIVOT_D = 0.0;//5; // this was 0.2 ... was that safe??
+        public static double kLOWER_PIVOT_FF = 0.0; // TODO
 
         public static double kUPPER_PIVOT_P = 1.0; // 0.1 while motor's relative
         public static double kUPPER_PIVOT_I = 0.00001; 
