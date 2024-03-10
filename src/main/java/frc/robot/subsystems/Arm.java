@@ -59,6 +59,7 @@ public class Arm implements Subsystem {
     private SparkPIDController upperPivotController; 
 
     private ArmState setpoint;
+    private double tempFF = ArmConstants.kLOWER_PIVOT_FF;
 
     // Log
     private DoubleLogEntry lowerPivotPositionLog = 
@@ -179,13 +180,15 @@ public class Arm implements Subsystem {
 
         double diff = -1.0 * Math.sin(
             Units.degreesToRadians(angle - 90.0) - Units.rotationsToRadians(lowerPivotEncoder.getPosition() - 0.25)
-        ) * (0.0 + (setpoint.ext * 0.0)); // TODO zero pos, sprocket diameter
+        ) * (21.0 + (setpoint.ext * 2.0));
 
         lowerRightPivotController.setReference(
             angle / 360.0, 
             ControlType.kPosition, 
             0, 
-            Math.max(0.0, diff) * ArmConstants.kLOWER_PIVOT_FF, // FF, add voltage depending on target
+            (BuildConstants.kARM_TUNE_MODE) ? 
+                Math.max(0.0, diff) * tempFF :
+                Math.max(0.0, diff) * ArmConstants.kLOWER_PIVOT_FF, // FF, add voltage depending on target
             ArbFFUnits.kVoltage
         );
 
@@ -242,8 +245,7 @@ public class Arm implements Subsystem {
     @Override
     public void periodic(){
         // Check if upper pivot safe to move
-        // TODO trig
-        if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE || elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO >= 0.2) {
+        if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
             // Safe to spin
             upperPivotController.setReference(setpoint.upperAngle / 360.0, ControlType.kPosition, 0);
             upperPivotSafeToMoveLog.append(true);
@@ -275,6 +277,7 @@ public class Arm implements Subsystem {
     private GenericEntry testUpperPivot;
     private GenericEntry testExt; 
     private GenericEntry testLowerPivotPValue;
+    private GenericEntry testLowerPivotFFValue;
     private GenericEntry testLowerPivotAbsEncOut;
     private GenericEntry testUpperPivotAbsEncOut;
     private GenericEntry testExtEncOut;
@@ -301,8 +304,13 @@ public class Arm implements Subsystem {
             .getEntry();
 
         if (BuildConstants.kARM_TUNE_MODE) {
-            testLowerPivotPValue = tab.add("Lower Pivot P", 0.0)
+            testLowerPivotPValue = tab.add("Lower Pivot P", ArmConstants.kLOWER_PIVOT_P)
                 .withPosition(6, 0)
+                .withSize(2, 1)
+                .getEntry();
+
+            testLowerPivotFFValue = tab.add("Lower Pivot FF", ArmConstants.kLOWER_PIVOT_FF)
+                .withPosition(7, 0)
                 .withSize(2, 1)
                 .getEntry();
         }
@@ -325,23 +333,31 @@ public class Arm implements Subsystem {
 
     /** Runs test mode */
     public void execTestMode() {
-        setUpperPivotAngle(testUpperPivot.getDouble(ArmPositions.kDEFAULT.upperAngle));
-        setLowerPivotAngle(testLowerPivot.getDouble(ArmPositions.kDEFAULT.lowerAngle));
-        setExtension(testExt.getDouble(ArmPositions.kDEFAULT.ext));
-
         // Log values to shuffleboard
         testLowerPivotAbsEncOut.setDouble(lowerPivotEncoder.getPosition() * 360.0);
         testUpperPivotAbsEncOut.setDouble(upperPivotAbsEncoder.getPosition() * 360.0);
         testExtEncOut.setDouble(elevatorExtEncoder.getPosition() * ArmConstants.kELEVATOR_EXT_RATIO);
 
-        // Set P value
         if (BuildConstants.kARM_TUNE_MODE) {
-            double lowerPivotP = testLowerPivotPValue.getDouble(0.0);
+            // Set P gain
+            double lowerPivotP = testLowerPivotPValue.getDouble(ArmConstants.kLOWER_PIVOT_P);
             if (lowerRightPivotController.getP(0) != lowerPivotP) {
                 System.out.printf("Lower pivot P set -> %f\n", lowerPivotP);
                 lowerRightPivotController.setP(lowerPivotP, 0);
             }
+
+            // Set FF gain
+            double lowerPivotFF = testLowerPivotFFValue.getDouble(ArmConstants.kLOWER_PIVOT_FF);
+            if (tempFF != lowerPivotFF) {
+                System.out.printf("Lower pivot FF set -> %f\n", lowerPivotFF);
+                tempFF = lowerPivotFF;
+            }
         }
+
+        // Set state
+        setUpperPivotAngle(testUpperPivot.getDouble(ArmPositions.kDEFAULT.upperAngle));
+        setLowerPivotAngle(testLowerPivot.getDouble(ArmPositions.kDEFAULT.lowerAngle));
+        setExtension(testExt.getDouble(ArmPositions.kDEFAULT.ext));
 
         // Periodic (to populate log and move upper pivot if safe)
         periodic();

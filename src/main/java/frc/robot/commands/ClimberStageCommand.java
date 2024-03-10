@@ -12,12 +12,11 @@ public class ClimberStageCommand extends SequentialCommandGroup{
      * @param climber
      * @param climberSet true = up false = down
      */
-    public ClimberStageCommand(Climber climber, boolean climberSet){
+    public ClimberStageCommand(Climber climber, double climberSet){
         super(
             //new WaitUntilCommand(() -> climberSet == true),
             new InstantCommand(() -> {
-                if (climberSet) {climber.setClimberHeight(72.0); }
-                else { climber.setClimberHeight(0.0); }
+                climber.setClimberHeight(climberSet);
             }, climber),
             new WaitUntilCommand(() -> climber.climberAtSetpoint())
         );

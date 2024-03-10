@@ -4,15 +4,27 @@ import com.frc7153.diagnostics.CheckableDevice;
 import com.frc7153.diagnostics.DiagUtil;
 
 import edu.wpi.first.hal.PowerDistributionFaults;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 public class PDHLogger extends CheckableDevice {
     private PowerDistribution hub;
+    private String id;
     private StringBuilder message = new StringBuilder(); // Cached message
+
+    // Log
+    private DoubleLogEntry tempLog, currentLog, powerLog, voltLog;
 
     public PDHLogger(int CAN) {
         hub = new PowerDistribution(CAN, ModuleType.kRev);
+        id = String.format("Rev PDH %d", hub.getModule());
+
+        tempLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Temp", id), "C");
+        currentLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Current", id), "Amps");
+        powerLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Power", id), "Watts");
+        voltLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Volt", id), "Volts");
 
         DiagUtil.addDevice(this);
     }
@@ -50,11 +62,14 @@ public class PDHLogger extends CheckableDevice {
 
     @Override
     public void performLogging() {
-        // TODO
+        tempLog.append(hub.getTemperature());
+        currentLog.append(hub.getTotalCurrent());
+        powerLog.append(hub.getTotalPower());
+        voltLog.append(hub.getVoltage());
     }
 
     @Override
     public String getID() {
-        return String.format("Rev PDH %d", hub.getModule());
+        return id;
     }
 }

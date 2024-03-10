@@ -1,9 +1,11 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.HardwareConstants;
-
+import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 
@@ -14,6 +16,8 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.ClimberConstants;
 
 
@@ -29,6 +33,9 @@ public class Climber implements Subsystem {
     private SparkPIDController climberLeftController;
     private SparkPIDController climberRightController;
 
+    // Output
+    private GenericPublisher leftClimberPosOut, rightClimberPosOut;
+
     private DoubleLogEntry climberLeftPositionLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Climber/LeftPosition", "rotations");
     private DoubleLogEntry climberRightPositionLog = 
@@ -38,11 +45,14 @@ public class Climber implements Subsystem {
     private DoubleLogEntry climberRightSetPointLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightSetPoint", "rotations");
 
-    private double lSetpoint = 0.0;
-    private double rSetpoint = 0.0;
+    private double lSetpoint, rSetpoint;
 
     //init
     public Climber() {
+        // init
+        climberLeft.restoreFactoryDefaults();
+        climberRight.restoreFactoryDefaults();
+
         climberLeft.setIdleMode(IdleMode.kBrake);
         climberRight.setIdleMode(IdleMode.kBrake);
         climberLeft.setInverted(true);
@@ -58,8 +68,19 @@ public class Climber implements Subsystem {
         climberLeftController.setD(ClimberConstants.kCLIMBER_D, 0);
 
         climberRightController.setP(ClimberConstants.kCLIMBER_P, 0);
-        climberRightController.setP(ClimberConstants.kCLIMBER_I, 0);
-        climberRightController.setP(ClimberConstants.kCLIMBER_D, 0);
+        climberRightController.setI(ClimberConstants.kCLIMBER_I, 0);
+        climberRightController.setD(ClimberConstants.kCLIMBER_D, 0);
+
+        // config output
+        if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
+            ShuffleboardTab tab = Shuffleboard.getTab("Climber Telemetry");
+
+            leftClimberPosOut = tab.add("Left Pos (rots)", -1.0)
+                .getEntry().getTopic().genericPublish("double");
+            
+            rightClimberPosOut = tab.add("Right Pos (rots)", -1.0)
+                .getEntry().getTopic().genericPublish("double");
+        }
 
         //config logging
         DiagUtil.addDevice(climberLeft);
@@ -72,7 +93,7 @@ public class Climber implements Subsystem {
 
     /**
      * Sets the climber height
-     * @param height rots (0 = down, 72 is max)
+     * @param height rots of motor (0 = down, 72 is max)
      */
     public void setClimberHeight(double leftHeight, double rightHeight) {
         // Safety
@@ -80,8 +101,8 @@ public class Climber implements Subsystem {
         rightHeight = Math.max(0.0, Math.min(rightHeight, 72.0));
 
         // Set
-        climberLeftController.setReference(leftHeight, ControlType.kPosition);
-        climberRightController.setReference(rightHeight, ControlType.kPosition);
+        climberLeftController.setReference(leftHeight, ControlType.kPosition, 0);
+        climberRightController.setReference(rightHeight, ControlType.kPosition, 0);
 
         climberLeftSetPointLog.append(leftHeight);
         climberRightSetPointLog.append(rightHeight);
@@ -108,5 +129,11 @@ public class Climber implements Subsystem {
     public void periodic() {
         climberRightPositionLog.append(climberRightEncoder.getPosition());
         climberLeftPositionLog.append(climberLeftEncoder.getPosition());
+
+        // Log
+        if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
+            leftClimberPosOut.setDouble(climberLeftEncoder.getPosition());
+            rightClimberPosOut.setDouble(climberRightEncoder.getPosition());
+        }
     }
 }

@@ -1,20 +1,20 @@
 ## Runs in the background, publishing the inputs from two REV Color Sensors
 
-# NOTE params
+## NOTE params
 kNOTE_MIN_HSV = [0.0, 0.79, 0.05]
-kNOTE_MAX_HSV = [0.07, 1.0, 0.35]
-kNOTE_MIN_PROX = 0.05
+kNOTE_MAX_HSV = [0.07, 1.0, 0.9]
+kNOTE_MIN_PROX = 0.35
 
-# Imports
+## Imports
 from ntcore import NetworkTableInstance
 import pigpio
 import time
 import colorsys
 
-# Init Pi
+## Init Pi
 pi = pigpio.pi()
 
-# Color Sensor
+## Color Sensor
 class RevColorSensor:
     def __init__(self, port):
         """
@@ -104,6 +104,11 @@ class RevColorSensor:
     def _write8Bit(self, reg, data):
         pi.i2c_write_byte_data(self._i2c, reg, data)
 
+## REV Through Bore Absolute Encoder
+class RevAbsThroughBore:
+    def __init__(self, port):
+        
+
 # Init color sensors
 colorSensor = RevColorSensor(1)
 
@@ -119,10 +124,11 @@ sensorTargetOut = ntTable.getBooleanTopic("Target").publish()
 
 # Check if sees note
 def seesNote(hsv, prox):
-    return (hsv[0] >= kNOTE_MIN_HSV[0] and  hsv[0] <= kNOTE_MAX_HSV[0] and
+    return ((hsv[0] >= kNOTE_MIN_HSV[0] and  hsv[0] <= kNOTE_MAX_HSV[0] and
             hsv[1] >= kNOTE_MIN_HSV[1] and hsv[1] <= kNOTE_MAX_HSV[1] and
-            hsv[2] >= kNOTE_MIN_HSV[2] and hsv[2] <= kNOTE_MAX_HSV[2] and
-            prox >= kNOTE_MIN_PROX)
+            hsv[2] >= kNOTE_MIN_HSV[2] and hsv[2] <= kNOTE_MAX_HSV[2]) or
+            prox >= kNOTE_MIN_PROX or
+            prox == 1)
 
 # Main loop
 print("Running main loop... (v1.0.0)")

@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPositions;
+import frc.robot.Constants.LEDConstants;
 import frc.robot.auto.Autonomous;
-import frc.robot.commands.ArmAmpCommand;
 import frc.robot.commands.ArmSpeakerCommand;
 import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.ClimberStageCommand;
@@ -22,6 +22,8 @@ import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.commands.led.FlashLEDCommand;
+import frc.robot.commands.led.SetLEDCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveBase;
@@ -79,10 +81,15 @@ public class RobotContainer {
         () -> -driverXboxController.getRightX()
       ).repeatedly());
 
-    // Driver Ground Intake Button (RT) pressed while robot is EMPTY and SCORING
+    // Driver Intake Button (RT) pressed while robot is EMPTY and SCORING
     driverXboxController.rightTrigger().and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))
       .whileTrue(new LoadShooterCommand(shooter, indexer, led))
       .whileTrue(new IntakeCommand(intake, true));
+
+    // Intake Sensor
+    new Trigger(indexer::detectingNote)
+      .onTrue(new InstantCommand(() -> StateController.setNoteState(NoteState.LOADED)))
+      .onTrue(new FlashLEDCommand(led, LEDConstants.kYELLOW));
 
     // Driver Source Intake Button (LT) pressed while robot is EMPTY and SCORING
     driverXboxController.leftTrigger().and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))
@@ -104,7 +111,13 @@ public class RobotContainer {
 
     // Operator Arm Amp Button (4) pressed while robot is LOADED and SCORING
     operatorController.button(4).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
-      .whileTrue(new ArmAmpCommand(arm, led, () -> driveBase.getPosition(false)));
+      //.whileTrue(new ArmAmpCommand(arm, led, () -> driveBase.getPosition(false)));
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFRONT_AMP, ArmPositions.kREAR_AMP, () -> driveBase.getPosition(false), 0.0, 180.0))
+      .whileTrue(new ConditionalCommand(
+        new SetLEDCommand(led, 0.0), 
+        new InstantCommand(() -> led.setAllianceStationColor(), led),
+        arm::atSetpoint
+      ));
 
     // Operator Shoot Button (trigger) pressed while robot is LOADED and SCORING
     // Assumes shooter is already up-to-speed (if needed)
@@ -115,14 +128,13 @@ public class RobotContainer {
         shooter::isShooterRunning
       )); // Will change NoteState to EMPTY
     
-    // TODO dynamic climber height setting using gyro?? ;)
     // Operator Climb Button (6) pressed while robot is CLIMBING
     operatorController.button(6).and(StateController.buildTrigger(null, ObjectiveState.CLIMBING))
-      .onTrue(new ClimberStageCommand(climber, true));
+      .onTrue(new ClimberStageCommand(climber, 67.0)); // 70.0
 
     // Operator Climb Button (4) pressed while robot is CLIMBING
     operatorController.button(4).and(StateController.buildTrigger(null, ObjectiveState.CLIMBING))
-      .onTrue(new ClimberStageCommand(climber, false));
+      .onTrue(new ClimberStageCommand(climber, 0.0));
     
     // Handle Objective State Control (Operator throttle, axis 3)
     operatorController.axisLessThan(3, -2.0/3.0)

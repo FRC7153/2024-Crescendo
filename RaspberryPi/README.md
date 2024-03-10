@@ -29,6 +29,6 @@ ChiefDelphi before if this occurs.
 (TODO)
 
 ## SecondaryPi.local
-The SecondaryPi is located on the robot's arm. It runs (TODO cameras here) and two REV Color Sensor V3, outputting their data to NetworkTables. This Pi is running [NTColorSensor.py](NTColorSensor.py) in the background
+The SecondaryPi is located on the robot's arm. It runs (TODO cameras here) and two REV Color Sensor V3, outputting their data to NetworkTables. This Pi is running [NTSecondarySensors.py](NTSecondarySensors.py) in the background
 (TODO wiring diagram)
 The configuration backup for this Pi can be found at [SecondaryPiConfig.zip](SecondaryPiConfig.zip)

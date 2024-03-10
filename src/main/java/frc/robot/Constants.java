@@ -59,12 +59,12 @@ public class Constants {
         public static double kCLIMBER_I = 0.0;
         public static double kCLIMBER_D = 0.0;
 
-        public static double kCLIMBER_TOLERANCE = 0.5;
+        public static double kCLIMBER_TOLERANCE = 3.0;
     }
 
     /** Arm Preset Positions */
     public static class ArmPositions {
-        public static ArmState kDEFAULT = new ArmState(110.0, 180.0, 0.0);
+        public static ArmState kDEFAULT = new ArmState(108.0, 180.0, 0.0);
 
         public static ArmState kGROUND_INTAKE = new ArmState(110.0, 265.0, 0.5); // 110
 
@@ -88,7 +88,7 @@ public class Constants {
         public static int kELEVATOR_EXT_CURRENT_LIMIT = 15; // 35
 
         public static double kLOWER_ANGLE_OFFSET = 0.163; // rots
-        public static double kUPPER_ANGLE_OFFSET = 0.653; // rots 0.5 = forward
+        public static double kUPPER_ANGLE_OFFSET = 0.3356208; // rots 0.5 = forward
 
         /** rots, minimum angle of lower pivot for upper pivot to safely spin */
         public static double kUPPER_PIVOT_MIN_ARM_ANGLE = 108.0 / 360.0; // rots
@@ -97,10 +97,10 @@ public class Constants {
         public static double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
         public static double kELEVATOR_EXT_RATIO = 1.0 / 25.0;
 
-        public static double kLOWER_PIVOT_P = 3.0; // TODO
+        public static double kLOWER_PIVOT_P = 3.0;
         public static double kLOWER_PIVOT_I = 0.001;
         public static double kLOWER_PIVOT_D = 0.0;//5; // this was 0.2 ... was that safe??
-        public static double kLOWER_PIVOT_FF = 0.0; // TODO
+        public static double kLOWER_PIVOT_FF = 0.00001;
 
         public static double kUPPER_PIVOT_P = 1.0; // 0.1 while motor's relative
         public static double kUPPER_PIVOT_I = 0.00001; 
@@ -216,7 +216,7 @@ public class Constants {
 
         public static int kELEVATOR_EXT_CAN = 23;
 
-        public static String kCANIVORE_BUS = "CANivore";
+        public static String kCANIVORE_BUS = "CANivore"; // CANivore
     }
 
     /** LED Constants */
