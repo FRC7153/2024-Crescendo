@@ -136,6 +136,9 @@ public class RobotContainer {
     operatorController.button(4).and(StateController.buildTrigger(null, ObjectiveState.CLIMBING))
       .onTrue(new ClimberStageCommand(climber, 0.0));
     
+    //Reverse Intake
+    driverXboxController.rightBumper().whileTrue(new IntakeCommand(intake, false));
+    
     // Handle Objective State Control (Operator throttle, axis 3)
     operatorController.axisLessThan(3, -2.0/3.0)
       .and(isTeleop)
