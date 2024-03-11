@@ -23,6 +23,7 @@ import frc.robot.commands.LoadShooterCommand;
 import frc.robot.commands.SetStateCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
+import frc.robot.commands.reverseIndexerCommand;
 import frc.robot.commands.led.FlashLEDCommand;
 import frc.robot.commands.led.SetLEDCommand;
 import frc.robot.subsystems.LED;
@@ -142,7 +143,7 @@ public class RobotContainer {
       .onTrue(new ClimberStageCommand(climber, 0.0));
     
     //Reverse Intake
-    driverXboxController.rightBumper().whileTrue(new IntakeCommand(intake, false));
+    driverXboxController.rightBumper().whileTrue(new IntakeCommand(intake, false)).whileTrue(new reverseIndexerCommand(indexer, led));
     
     // Handle Objective State Control (Operator throttle, axis 3)
     operatorController.axisLessThan(3, -1.0/3.0)
