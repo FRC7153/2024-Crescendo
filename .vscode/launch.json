@@ -20,7 +20,9 @@
     {
       "type": "wpilib",
       "name": "WPILib roboRIO Debug",
-      "request": "launch",
+      "request": "attach",
+      "hostName": "10.71.53.2",
+      "port": 8349,
       "desktop": false
     }
   ]

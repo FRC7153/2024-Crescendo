@@ -23,9 +23,9 @@ public class LoadShooterCommand extends SequentialCommandGroup {
         super(
             // Start motors
             new InstantCommand(() -> shooter.setShootVelocity(0.0), shooter),
-            new InstantCommand(() -> indexer.setIndexerVelocity(850.0), indexer)
+            new InstantCommand(() -> indexer.setIndexerVelocity(850.0), indexer),
             // Wait for piece
-            /*new WaitCommand(0.75),
+            new WaitCommand(0.75),
             new WaitUntilCommand(indexer::detectingNote),
             // Stop motors
             new InstantCommand(indexer::stop, indexer),
@@ -33,7 +33,7 @@ public class LoadShooterCommand extends SequentialCommandGroup {
             new ParallelCommandGroup(
                 new FlashLEDCommand(led, LEDConstants.kYELLOW),
                 new InstantCommand(() -> StateController.setNoteState(NoteState.LOADED))
-            )*/
+            )
         );
     }
 

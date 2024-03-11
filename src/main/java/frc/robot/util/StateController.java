@@ -56,6 +56,7 @@ public class StateController {
      * @param state
      */
     public static void setNoteState(NoteState state) {
+        System.out.printf("!! NOTE STATE SET TO %s", state.name());
         StateController.noteState = state;
         noteStateLog.append(state.name());
         noteStatePublisher.set(state.name());

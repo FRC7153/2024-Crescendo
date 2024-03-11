@@ -79,11 +79,19 @@ public class Indexer implements Subsystem {
         setDefaultCommand(new InstantCommand(() -> setIndexerVelocity(0.0), this));
     }
 
+    private boolean initial = true;
+
     /**
      * @return If either the left or right sensor sees the piece
      */
     public boolean detectingNote() {
-        return colorSensorTarget.get();
+        if (initial) {
+            initial = false;
+            return false;
+        }
+
+        //System.out.printf("%s -> %s\n", colorSensorTarget.getTopic().getName(), colorSensorTarget.getAsBoolean());
+        return colorSensorTarget.getAsBoolean();
     }
 
     @Override

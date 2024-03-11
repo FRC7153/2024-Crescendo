@@ -20,6 +20,7 @@ import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.ClimberStageCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
+import frc.robot.commands.SetStateCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.led.FlashLEDCommand;
@@ -52,6 +53,9 @@ public class RobotContainer {
   // Controls
   private CommandXboxController driverXboxController = new CommandXboxController(0);
   private CommandJoystick operatorController = new CommandJoystick(1);
+
+  // Triggers
+  private Trigger isTeleop, detectingNote;
   
   private Dashboard dashboard = new Dashboard(driveBase);
 
@@ -71,7 +75,7 @@ public class RobotContainer {
 
   private void configureBindings() {
     // Teleop trigger (reused multiple times)
-    Trigger isTeleop = new Trigger(DriverStation::isTeleopEnabled);
+    isTeleop = new Trigger(DriverStation::isTeleopEnabled);
 
     // Drive Control
     isTeleop.whileTrue(new TeleopDriveCommand(
@@ -85,11 +89,6 @@ public class RobotContainer {
     driverXboxController.rightTrigger().and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))
       .whileTrue(new LoadShooterCommand(shooter, indexer, led))
       .whileTrue(new IntakeCommand(intake, true));
-
-    // Intake Sensor
-    new Trigger(indexer::detectingNote)
-      .onTrue(new InstantCommand(() -> StateController.setNoteState(NoteState.LOADED)))
-      .onTrue(new FlashLEDCommand(led, LEDConstants.kYELLOW));
 
     // Driver Source Intake Button (LT) pressed while robot is EMPTY and SCORING
     driverXboxController.leftTrigger().and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))

@@ -82,8 +82,8 @@ public class Constants {
 
     /** Arm Constants */
     public static class ArmConstants {
-        public static int kLOWER_RIGHT_PIVOT_CURRENT_LIMIT = 35; // 60
-        public static int kLOWER_LEFT_PIVOT_CURRENT_LIMIT = 35; // 60
+        public static int kLOWER_RIGHT_PIVOT_CURRENT_LIMIT = 52; // 60
+        public static int kLOWER_LEFT_PIVOT_CURRENT_LIMIT = 52; // 60
         public static int kUPPER_PIVOT_CURRENT_LIMIT = 15; // 25
         public static int kELEVATOR_EXT_CURRENT_LIMIT = 15; // 35
 
