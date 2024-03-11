@@ -90,4 +90,13 @@ public class ArmToStateCommand extends Command {
   public InterruptionBehavior getInterruptionBehavior() {
     return InterruptionBehavior.kCancelSelf;
   }
+
+  // Format name
+  @Override
+  public String getName() {
+    if (targetBackward == null) return String.format("ArmToStateCommand: %s", targetForward);
+    else {
+      return String.format("ArmToStateCommand: %s and %s", targetForward, targetBackward);
+    }
+  }
 }

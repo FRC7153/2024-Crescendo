@@ -20,6 +20,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.ArmToStateCommand;
@@ -39,6 +40,12 @@ public class Arm implements Subsystem {
 				this.upperAngle = upperAngle;
 				this.ext = ext;
 			}
+
+            // Format string
+            @Override
+            public String toString() {
+                return String.format("Lower: %f deg, Upper: %f deg, ext: %f rots", lowerAngle, upperAngle, ext);
+            }
     }
 
     // Hardware
@@ -244,6 +251,8 @@ public class Arm implements Subsystem {
 
     @Override
     public void periodic(){
+        Command cc = getCurrentCommand();
+        System.out.println(cc == null ? "null" : cc.getName());
         // Check if upper pivot safe to move
         if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
             // Safe to spin

@@ -17,9 +17,9 @@ public class ShootCommand extends SequentialCommandGroup {
     public ShootCommand(Indexer indexer, boolean direction){
         super(
             // Run intake
-            new InstantCommand(() -> indexer.setIndexerVelocity(direction ? 400.0 : -400.0), indexer),
+            new InstantCommand(() -> indexer.setIndexerVelocity(direction ? 700.0 : -700.0), indexer),
             // Wait until empty
-            new WaitCommand(0.75), // TODO reverse shooting will require more time
+            new WaitCommand(100), // TODO reverse shooting will require more time, was 0.75
             // Stop and set state
             new InstantCommand(indexer::stop, indexer),
             new InstantCommand(() -> StateController.setNoteState(NoteState.EMPTY))

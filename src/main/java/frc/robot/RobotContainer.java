@@ -27,6 +27,7 @@ import frc.robot.commands.led.FlashLEDCommand;
 import frc.robot.commands.led.SetLEDCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.drive.SwerveBase;
 import frc.robot.util.Dashboard;
 import frc.robot.util.StateController;
@@ -55,7 +56,7 @@ public class RobotContainer {
   private CommandJoystick operatorController = new CommandJoystick(1);
 
   // Triggers
-  private Trigger isTeleop, detectingNote;
+  private Trigger isTeleop;
   
   private Dashboard dashboard = new Dashboard(driveBase);
 
@@ -118,6 +119,11 @@ public class RobotContainer {
         arm::atSetpoint
       ));
 
+    // Operator Arm Test Button (7) pressed
+    operatorController.button(7)
+      .whileTrue(new ArmToStateCommand(arm, new ArmState(111.0, 180.0, 0.0)))
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(6000.0), shooter).repeatedly());
+
     // Operator Shoot Button (trigger) pressed while robot is LOADED and SCORING
     // Assumes shooter is already up-to-speed (if needed)
     operatorController.trigger().and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
@@ -139,12 +145,12 @@ public class RobotContainer {
     driverXboxController.rightBumper().whileTrue(new IntakeCommand(intake, false));
     
     // Handle Objective State Control (Operator throttle, axis 3)
-    operatorController.axisLessThan(3, -2.0/3.0)
+    operatorController.axisLessThan(3, -1.0/3.0)
       .and(isTeleop)
       .and(operatorController.getHID()::isConnected)
       .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.SCORING)));
 
-    operatorController.axisGreaterThan(3, -2.0/3.0)
+    operatorController.axisGreaterThan(3, -1.0/3.0)
       .and(operatorController.axisLessThan(3, 1.0/3.0))
       .and(isTeleop)
       .and(operatorController.getHID()::isConnected)

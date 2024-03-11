@@ -11,6 +11,7 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.TimestampedBoolean;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -79,19 +80,26 @@ public class Indexer implements Subsystem {
         setDefaultCommand(new InstantCommand(() -> setIndexerVelocity(0.0), this));
     }
 
-    private boolean initial = true;
+    /**
+     * Flushes the color sensor's NetworkTables queue
+     */
+    public void flushColorSensorQueue() {
+        colorSensorTarget.readQueueValues();
+    }
 
     /**
-     * @return If either the left or right sensor sees the piece
+     * @return If the color sensor has reported seeing a NOTE since the last call or the last call to
+     * to {@code flushColorSensorQueue()}
      */
-    public boolean detectingNote() {
-        if (initial) {
-            initial = false;
-            return false;
+    public boolean getHasDetectedNote() {
+        //System.out.printf("%s -> %s\n", colorSensorTarget.getTopic().getName(), colorSensorTarget.getAsBoolean());
+        boolean[] values = colorSensorTarget.readQueueValues();
+
+        for (boolean val : values) {
+            if (val) return true;
         }
 
-        //System.out.printf("%s -> %s\n", colorSensorTarget.getTopic().getName(), colorSensorTarget.getAsBoolean());
-        return colorSensorTarget.getAsBoolean();
+        return false;
     }
 
     @Override

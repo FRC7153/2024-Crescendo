@@ -26,7 +26,8 @@ public class LoadShooterCommand extends SequentialCommandGroup {
             new InstantCommand(() -> indexer.setIndexerVelocity(850.0), indexer),
             // Wait for piece
             new WaitCommand(0.75),
-            new WaitUntilCommand(indexer::detectingNote),
+            new InstantCommand(indexer::flushColorSensorQueue),
+            new WaitUntilCommand(indexer::getHasDetectedNote),
             // Stop motors
             new InstantCommand(indexer::stop, indexer),
             // Flash LEDs + set state
