@@ -7,15 +7,14 @@ import frc.robot.commands.led.FlashLEDCommand;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.LED;
 
-public class reverseIndexerCommand extends SequentialCommandGroup{
-    
-    public reverseIndexerCommand(Indexer indexer, LED led){
-    /*
-     * Reverses the indexer at the set velo
-     */
+public class ReverseIndexerCommand extends SequentialCommandGroup{
+    /**
+    * Reverses the indexer at the set velo
+    */
+    public ReverseIndexerCommand(Indexer indexer, LED led){
         super(
-        new InstantCommand(() -> indexer.setIndexerVelocity(-500.0), indexer),
-        new FlashLEDCommand(led, LEDConstants.kRED)
+            new InstantCommand(() -> indexer.setIndexerVelocity(-500.0), indexer),
+            new FlashLEDCommand(led, LEDConstants.kRED)
         );
     }
 
