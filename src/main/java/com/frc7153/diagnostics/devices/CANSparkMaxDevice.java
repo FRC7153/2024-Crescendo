@@ -22,13 +22,14 @@ public class CANSparkMaxDevice extends CheckableDevice {
     private StringBuilder faultMsg = new StringBuilder(); // this is cached when rawIsOK() is called
 
     // Logging
-    private DoubleLogEntry tempLog;
+    private DoubleLogEntry tempLog, dutyCycleLog;
 
     public CANSparkMaxDevice(CANSparkMax spark) {
         this.spark = spark;
         id = "CAN Spark Max ID " + spark.getDeviceId();
 
         tempLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Temperature", id), "F");
+        dutyCycleLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Duty Cycle", id), "%");
     }
 
     @Override
@@ -61,5 +62,6 @@ public class CANSparkMaxDevice extends CheckableDevice {
     @Override
     public void performLogging() {
         tempLog.append(MathUtils.celsiusToFahrenheit(spark.getMotorTemperature()));
+        dutyCycleLog.append(spark.getAppliedOutput());
     }
 }
