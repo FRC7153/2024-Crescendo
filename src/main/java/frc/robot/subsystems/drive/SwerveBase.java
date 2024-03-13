@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.util.Util;
 
 public class SwerveBase implements Subsystem {
     // Shared SwerveModuleStateStruct
@@ -233,10 +234,9 @@ public class SwerveBase implements Subsystem {
      */
     public Pose2d getPosition(boolean global) {
         Pose2d estimation = estimator.getEstimatedPosition();
-        alliance = DriverStation.getAlliance();
 
         // Invert if red
-        if (!global && alliance.isPresent() && alliance.get().equals(Alliance.Red)) {
+        if (!global && Util.isRedAlliance()) {
             return FieldConstants.INVERT_ALLIANCE(estimation);
         }
 

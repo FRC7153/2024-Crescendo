@@ -27,9 +27,9 @@ import frc.robot.commands.ReverseIndexerCommand;
 import frc.robot.commands.led.SetLEDCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.drive.SwerveBase;
 import frc.robot.util.Dashboard;
+import frc.robot.util.PVCamera;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Indexer;
@@ -44,6 +44,9 @@ public class RobotContainer {
   private Arm arm = new Arm();
   private Climber climber = new Climber();
   private LED led = new LED();
+
+  // Camera
+  private PVCamera frontArmCamera = new PVCamera("Front Arm Camera");
 
   // Auto
   private Autonomous auto = new Autonomous(shooter);
@@ -156,7 +159,7 @@ public class RobotContainer {
   }
 
   // Test modes
-  public void testInit() { arm.initTestMode(); shooter.testInit(); }
-  public void testExec() { arm.execTestMode(); shooter.testExec(); }
-  public void testEnd() { arm.endTestMode(); shooter.testEnd(); }
+  public void testInit() { arm.initTestMode(); shooter.testInit(); indexer.stop(); }
+  public void testExec() { arm.execTestMode(); shooter.testExec(); indexer.testExec(operatorController); }
+  public void testEnd() { arm.endTestMode(); shooter.testEnd(); indexer.stop(); }
 }

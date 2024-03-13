@@ -20,8 +20,8 @@ import frc.robot.subsystems.Arm.ArmState;
 public class Constants {
     /** Build Constants */
     public static class BuildConstants {
-        public static boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
-        public static boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
+        public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
+        public static final boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
     }
 
     /** Shooter Constants */

@@ -11,11 +11,11 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.TimestampedBoolean;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
 
@@ -106,5 +106,16 @@ public class Indexer implements Subsystem {
     @Override
     public void periodic(){
         indexerVeloLog.append(indexerEncoder.getVelocity() * ShooterConstants.kINDEXER_RATIO);
+    }
+
+    // Test mode
+    public void testExec(CommandJoystick operatorController) {
+        if (operatorController.trigger().getAsBoolean()) {
+            // Run
+            setIndexerVelocity(700.0);
+        } else {
+            // Don't run
+            stop();
+        }
     }
 }
