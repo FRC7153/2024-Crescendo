@@ -74,10 +74,11 @@ public class Indexer implements Subsystem {
      */
     public void stop() {
         indexer.disable();
+        indexerSetpointLog.append(0.0);
     }
 
     public void initDefaultCommand() {
-        setDefaultCommand(new InstantCommand(() -> setIndexerVelocity(0.0), this));
+        setDefaultCommand(new InstantCommand(this::stop, this));
     }
 
     /**

@@ -36,6 +36,7 @@
     "ntcore",
     "pigpio",
     "revrobotics",
+    "SUBWOOFER",
     "swervedrive",
     "VELO",
     "WPILOG"

@@ -33,7 +33,7 @@ public class Constants {
         public static double kSHOOT_D = 0.0;
         public static double kSHOOT_TOLERANCE = 5.0;
 
-        public static int kINDEXER_CURRENT_LIMIT = 25;
+        public static int kINDEXER_CURRENT_LIMIT = 30;
         public static double kINDEXER_RATIO = 1.0 / 5.0;
         public static double kINDEXER_VELO_P = 0.000005;
         public static double kINDEXER_VELO_I = 5e-7;
@@ -68,8 +68,14 @@ public class Constants {
 
         public static ArmState kGROUND_INTAKE = new ArmState(110.0, 255.0, 0.5); // 110
 
+        public static ArmState kSUBWOOFER_SPEAKER_FRONT = new ArmState(120.0, 200.0, 0.0);
+        public static ArmState kSUBWOOFER_SPEAKER_REAR = new ArmState(125.0, 270.0, 0.0);
+
         public static ArmState kFRONT_AMP = new ArmState(45.0, 45.0, 2.0);
         public static ArmState kREAR_AMP = new ArmState(90.0, -10.0, 2.0);
+
+        public static ArmState kCLIMB_BALANCE = new ArmState(108.0, 180.0, 1.5);
+
     }
 
     /** Shooting Calculations */
@@ -99,7 +105,7 @@ public class Constants {
 
         public static double kLOWER_PIVOT_P = 3.15;
         public static double kLOWER_PIVOT_I = 0.001;
-        public static double kLOWER_PIVOT_D = 0.2; //5; // this was 0.2 ... was that safe??
+        public static double kLOWER_PIVOT_D = 0.0;
         public static double kLOWER_PIVOT_FF = 0.00001;
 
         public static double kUPPER_PIVOT_P = 1.0; // 0.1 while motor's relative

@@ -7,6 +7,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.frc7153.diagnostics.DiagUtil;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -145,7 +146,7 @@ public class SwerveBase implements Subsystem {
             y, 
             -x, 
             Units.degreesToRadians(theta), 
-            getPosition(false).getRotation() // TODO verify both alliances work here
+            getYaw()
         );
 
         drive(kinematics.toSwerveModuleStates(chassisSpeed));
@@ -240,6 +241,14 @@ public class SwerveBase implements Subsystem {
         }
 
         return estimation;
+    }
+
+    /**
+     * @return Yaw, CCW+
+     */
+    public Rotation2d getYaw() {
+        //System.out.printf("YAW -> %f\n", MathUtil.inputModulus(gyro.getAngle(IMUAxis.kYaw), 0.0, 360.0));
+        return Rotation2d.fromDegrees(MathUtil.inputModulus(gyro.getAngle(IMUAxis.kYaw), 0.0, 360.0));
     }
 
     // TEMP

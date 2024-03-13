@@ -49,7 +49,7 @@ public class Climber implements Subsystem {
 
     //init
     public Climber() {
-        // init
+        // Clear some problematic configs
         climberLeft.restoreFactoryDefaults();
         climberRight.restoreFactoryDefaults();
 

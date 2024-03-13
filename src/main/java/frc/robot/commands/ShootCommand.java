@@ -4,8 +4,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Indexer;
-import frc.robot.util.StateController;
-import frc.robot.util.StateController.NoteState;
 
 public class ShootCommand extends SequentialCommandGroup {
     /**
@@ -20,9 +18,8 @@ public class ShootCommand extends SequentialCommandGroup {
             new InstantCommand(() -> indexer.setIndexerVelocity(direction ? 700.0 : -700.0), indexer),
             // Wait until empty
             new WaitCommand(100), // TODO reverse shooting will require more time, was 0.75
-            // Stop and set state
-            new InstantCommand(indexer::stop, indexer),
-            new InstantCommand(() -> StateController.setNoteState(NoteState.EMPTY))
+            // Stop
+            new InstantCommand(indexer::stop, indexer)
         );
     }
 }

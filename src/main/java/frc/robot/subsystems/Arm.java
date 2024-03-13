@@ -20,10 +20,9 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
-import frc.robot.commands.ArmToStateCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmPositions;
 import frc.robot.Constants.BuildConstants;
@@ -173,7 +172,7 @@ public class Arm implements Subsystem {
     /** Sets Arm's default command (laying flat) */
     public void initDefaultCommand() {
         setDefaultCommand(
-            new ArmToStateCommand(this, ArmPositions.kDEFAULT)
+            new InstantCommand(() -> { setState(ArmPositions.kDEFAULT); }, this)
         );
     }
 
@@ -251,8 +250,10 @@ public class Arm implements Subsystem {
 
     @Override
     public void periodic(){
-        Command cc = getCurrentCommand();
-        System.out.println(cc == null ? "null" : cc.getName());
+        // TODO more robust logging
+        //Command cc = getCurrentCommand();
+        //System.out.println(cc == null ? "null" : cc.getName());
+
         // Check if upper pivot safe to move
         if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
             // Safe to spin

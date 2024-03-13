@@ -32,6 +32,9 @@ public class Intake implements Subsystem {
 
     // Init
     public Intake() {
+        // Clear some problematic configs
+        intake.restoreFactoryDefaults();
+
         intake.setIdleMode(IdleMode.kBrake);
         intake.setInverted(false);
         intake.setSmartCurrentLimit(IntakeConstants.kINTAKE_CURRENT_LIMIT);
@@ -57,21 +60,19 @@ public class Intake implements Subsystem {
 
     /** Runs the intake forward */
     public void enableIntake() {
-        //intakeController.setReference(4000, ControlType.kVelocity, 0);
-        //intakeSetpointLog.append(4000 * IntakeConstants.kINTAKE_RATIO);
-        intake.set(0.92);
+        intakeController.setReference(5800, ControlType.kVelocity, 0);
+        intakeSetpointLog.append(5800 * IntakeConstants.kINTAKE_RATIO);
     }
 
     /** Runs the intake in reverse */
     public void reverseIntake() {
-        //intakeController.setReference(-4000, ControlType.kVelocity, 0);
-        //intakeSetpointLog.append(-4000 * IntakeConstants.kINTAKE_RATIO);
-        intake.set(-0.85);
+        intakeController.setReference(-4000, ControlType.kVelocity, 0);
+        intakeSetpointLog.append(-4000 * IntakeConstants.kINTAKE_RATIO);
     }
 
     /** Ends the intake function */
     public void end() {
-        intakeController.setReference(0.0, ControlType.kVelocity, 0);
+        intake.disable();
         intakeSetpointLog.append(0.0);
     }
 

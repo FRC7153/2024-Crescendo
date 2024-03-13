@@ -13,27 +13,23 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPositions;
-import frc.robot.Constants.LEDConstants;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.ArmSpeakerCommand;
 import frc.robot.commands.ArmToStateCommand;
+import frc.robot.commands.BalanceArmClimbCommand;
 import frc.robot.commands.ClimberStageCommand;
+import frc.robot.commands.IndexerRegripCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterCommand;
-import frc.robot.commands.SetStateCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.ReverseIndexerCommand;
-import frc.robot.commands.led.FlashLEDCommand;
 import frc.robot.commands.led.SetLEDCommand;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.drive.SwerveBase;
 import frc.robot.util.Dashboard;
-import frc.robot.util.StateController;
-import frc.robot.util.StateController.NoteState;
-import frc.robot.util.StateController.ObjectiveState;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Indexer;
@@ -67,6 +63,7 @@ public class RobotContainer {
     arm.initDefaultCommand();
     shooter.initDefaultCommand();
     indexer.initDefaultCommand();
+    intake.initDefaultCommand();
     led.initDefaultCommand();
     
     // Config bindings
@@ -83,26 +80,29 @@ public class RobotContainer {
     isTeleop.whileTrue(new TeleopDriveCommand(
         driveBase, 
         () -> -driverXboxController.getLeftY(), 
-        driverXboxController::getLeftX, 
+        () -> driverXboxController.getLeftX(), 
         () -> -driverXboxController.getRightX()
       ).repeatedly());
 
-    // Driver Intake Button (RT) pressed while robot is EMPTY and SCORING
-    driverXboxController.rightTrigger().and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))
-      .whileTrue(new LoadShooterCommand(shooter, indexer, led))
-      .whileTrue(new IntakeCommand(intake, true));
+    // Driver Intake Button (RT)
+    driverXboxController.rightTrigger()
+      .onTrue(
+        new LoadShooterCommand(arm, shooter, intake, indexer, led, ArmPositions.kGROUND_INTAKE, true).until(driverXboxController.rightTrigger().negate())
+        .andThen(intake::end, intake)
+        .andThen(new IndexerRegripCommand(indexer))
+      );
 
-    // Driver Source Intake Button (LT) pressed while robot is EMPTY and SCORING
-    driverXboxController.leftTrigger().and(StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING))
+    // Driver Source Intake Button (LT)
+    driverXboxController.leftTrigger()
       .whileTrue(new PrintCommand("Source pickup not yet implemented")); // TODO SOURCE PICKUP
-    
-    // Arm to intake while robot is EMPTY and SCORING
-    StateController.buildTrigger(NoteState.EMPTY, ObjectiveState.SCORING)
-      .and(isTeleop) // Because this will run automatically, we should specify only in teleop
-      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kGROUND_INTAKE));
 
-    // Operator Arm Speaker Button (6) pressed while robot is LOADED and SCORING
-    operatorController.button(6).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
+    // Reverse Intake Button (Right Bumper)
+    driverXboxController.rightBumper()
+      .whileTrue(new IntakeCommand(intake, false))
+      .whileTrue(new ReverseIndexerCommand(indexer, led));
+    
+    // Operator Arm Speaker Button (6)
+    operatorController.button(6)
       .whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)));
       /*.whileTrue(new TeleopDriveHeadingLockCommand(
         driveBase, 
@@ -110,63 +110,40 @@ public class RobotContainer {
         () -> -driverXboxController.getRightX()
       ));*/ // TODO driver should have control of heading lock
 
-    // Operator Arm Amp Button (4) pressed while robot is LOADED and SCORING
-    operatorController.button(4).and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
-      //.whileTrue(new ArmAmpCommand(arm, led, () -> driveBase.getPosition(false)));
-      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFRONT_AMP, ArmPositions.kREAR_AMP, () -> driveBase.getPosition(false), 0.0, 180.0))
+    // Operator Arm Amp Button (4)
+    operatorController.button(4)
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFRONT_AMP, ArmPositions.kREAR_AMP, driveBase::getYaw, 0.0, 180.0))
       .whileTrue(new ConditionalCommand(
         new SetLEDCommand(led, 0.0), 
         new InstantCommand(() -> led.setAllianceStationColor(), led),
         arm::atSetpoint
       ));
 
-    // Operator Arm Test Button (7) pressed
+    // Operator Arm Preset Speaker Button (7)
     operatorController.button(7)
-      .whileTrue(new ArmToStateCommand(arm, new ArmState(111.0, 180.0, 0.0)))
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(6000.0), shooter).repeatedly());
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, ArmPositions.kSUBWOOFER_SPEAKER_REAR, driveBase::getYaw, 90.0, 270.0))
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(4000.0), shooter).repeatedly());
 
-    // Operator Shoot Button (trigger) pressed while robot is LOADED and SCORING
+    // Operator Shoot Button (trigger)
     // Assumes shooter is already up-to-speed (if needed)
-    operatorController.trigger().and(StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING))
+    operatorController.trigger()
       .whileTrue(new ConditionalCommand(
         new ShootCommand(indexer, true), // Shoot forwards
         new ShootCommand(indexer, false), // Shoot backwards (if placing in AMP from rear)
         shooter::isShooterRunning
-      )); // Will change NoteState to EMPTY
+      ));
     
-    // Operator Climb Button (6) pressed while robot is CLIMBING
-    operatorController.button(6).and(StateController.buildTrigger(null, ObjectiveState.CLIMBING))
+    // Operator Climb Button (6)
+    operatorController.button(6)
       .onTrue(new ClimberStageCommand(climber, 67.0)); // 70.0
 
-    // Operator Climb Button (4) pressed while robot is CLIMBING
-    operatorController.button(4).and(StateController.buildTrigger(null, ObjectiveState.CLIMBING))
+    // Operator Climb Button (4)
+    operatorController.button(4)
       .onTrue(new ClimberStageCommand(climber, 0.0));
-    
-    //Reverse Intake
-    driverXboxController.rightBumper()
-      .whileTrue(new IntakeCommand(intake, false))
-      .whileTrue(new ReverseIndexerCommand(indexer, led));
-    
-    // Handle Objective State Control (Operator throttle, axis 3)
-    operatorController.axisLessThan(3, -1.0/3.0)
-      .and(isTeleop)
-      .and(operatorController.getHID()::isConnected)
-      .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.SCORING)));
 
-    operatorController.axisGreaterThan(3, -1.0/3.0)
-      .and(operatorController.axisLessThan(3, 1.0/3.0))
-      .and(isTeleop)
-      .and(operatorController.getHID()::isConnected)
-      .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.CLIMBING)));
-
-    operatorController.axisGreaterThan(3, 1.0/3.0)
-      .and(isTeleop)
-      .and(operatorController.getHID()::isConnected)
-      .onTrue(new InstantCommand(() -> StateController.setObjectiveState(ObjectiveState.DEFENDING)));
-    
-    // Reverse intake when robot is LOADED and SCORING
-    /*StateController.buildTrigger(NoteState.LOADED, ObjectiveState.SCORING)
-      .whileTrue(new IntakeCommand(intake, false));*/
+    // Operator Balance (throttle up)
+    operatorController.axisLessThan(operatorController.getThrottleChannel(), 0.0)
+      .whileTrue(new BalanceArmClimbCommand(arm));
   }
 
   public Command getAutonomousCommand() {
@@ -179,7 +156,7 @@ public class RobotContainer {
   }
 
   // Test modes
-  public void testInit() { arm.initTestMode(); }
-  public void testExec() { arm.execTestMode(); }
-  public void testEnd() { arm.endTestMode(); }
+  public void testInit() { arm.initTestMode(); shooter.testInit(); }
+  public void testExec() { arm.execTestMode(); shooter.testExec(); }
+  public void testEnd() { arm.endTestMode(); shooter.testEnd(); }
 }

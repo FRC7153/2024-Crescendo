@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.ArmState;
@@ -12,8 +13,9 @@ public class ArmToStateCommand extends Command {
   // Subsystems
   private Arm arm;
   private ArmState targetForward, targetBackward;
-  private Supplier<Pose2d> poseSupplier;
+  private Supplier<Rotation2d> rotSupplier;
   private double minAngle, maxAngle;
+  private boolean highPriority;
 
   // Constructor
   /**
@@ -35,21 +37,24 @@ public class ArmToStateCommand extends Command {
    * @param poseSupplier
    * @param minAngle
    * @param maxAngle
+   * @param highPriority 
    */
   public ArmToStateCommand(
     Arm arm, 
     ArmState forwardTarget, 
     ArmState backwardTarget, 
-    Supplier<Pose2d> poseSupplier,
+    Supplier<Rotation2d> rotSupplier,
     double minAngle, 
-    double maxAngle
+    double maxAngle//,
+    //boolean highPriority
   ) {
     this.arm = arm;
     this.targetForward = forwardTarget;
     this.targetBackward = backwardTarget;
-    this.poseSupplier = poseSupplier;
+    this.rotSupplier = rotSupplier;
     this.minAngle = minAngle;
     this.maxAngle = maxAngle;
+    this.highPriority = highPriority; // TODO
 
     addRequirements(arm);
   }
@@ -68,7 +73,7 @@ public class ArmToStateCommand extends Command {
   public void execute() {
     if (targetBackward == null) return; // Only one state
 
-    double heading = MathUtil.inputModulus(poseSupplier.get().getRotation().getDegrees(), 0.0, 360.0);
+    double heading = MathUtil.inputModulus(rotSupplier.get().getDegrees(), 0.0, 360.0);
 
     if (heading >= minAngle && heading < maxAngle) {
       // Forward target
