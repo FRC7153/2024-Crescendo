@@ -1,8 +1,11 @@
 package frc.robot.util;
 
+import org.photonvision.PhotonCamera;
+
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import frc.robot.commands.dashboard.ResetOdometryCommand;
 import frc.robot.subsystems.drive.SwerveBase;
 
@@ -12,9 +15,11 @@ import frc.robot.subsystems.drive.SwerveBase;
 public class Dashboard {
   // Subsystems
   private SwerveBase base;
+  PhotonCamera camera = new PhotonCamera("Secondarypi");
 
   // Outputs
   private GenericEntry globalPoseOutput, relativePoseOutput;
+  private GenericEntry cameraStream;
 
   // Init
   public Dashboard(SwerveBase base) {
@@ -38,6 +43,11 @@ public class Dashboard {
       .withPosition(0, 1)
       .withSize(3, 1)
       .getEntry();
+
+    cameraStream = driveTab.add("Camera Stream", "?")
+    .withPosition(5, 5)
+    .withSize(3,3)
+    .getEntry();
   }
 
   /** Call periodically to update outputs */
