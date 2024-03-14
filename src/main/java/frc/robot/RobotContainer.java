@@ -55,7 +55,7 @@ public class RobotContainer {
   // Triggers
   private Trigger isTeleop;
   
-  private Dashboard dashboard = new Dashboard(driveBase);
+  private Dashboard dashboard = new Dashboard(driveBase, frontArmCamera);
 
   public RobotContainer() {
     // Default

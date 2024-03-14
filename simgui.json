@@ -14,22 +14,13 @@
       "open": false
     },
     "transitory": {
-      "Diagnostics": {
-        "open": true
-      },
-      "FMSInfo": {
-        "open": true
-      },
       "LED": {
         "open": true
       },
-      "LiveWindow": {
-        "open": true
-      },
-      "Shuffleboard": {
-        "open": true
-      },
       "State": {
+        "open": true
+      },
+      "photonvision": {
         "open": true
       }
     }
