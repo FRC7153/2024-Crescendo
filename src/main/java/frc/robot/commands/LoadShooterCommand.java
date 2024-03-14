@@ -36,7 +36,7 @@ public class LoadShooterCommand extends SequentialCommandGroup {
             new InstantCommand(indexer::flushColorSensorQueue),
             new WaitUntilCommand(indexer::getHasDetectedNote),
             // Stop motors
-            new InstantCommand(intake::end, intake),
+            //new InstantCommand(indexer::stop, indexer),
             new InstantCommand(() -> { if (runIntake) intake.end(); }, intake)
         );
     }

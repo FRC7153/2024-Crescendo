@@ -54,7 +54,7 @@ public class PVCamera extends SubsystemBase {
   private SwerveBase base;
 
   // Log
-  private DoubleLogEntry latencyLog;
+  private DoubleLogEntry latencyLog, distLog, angleLog;
   private IntegerLogEntry numTargetsLog;
 
   // Output (only tag 7)
@@ -112,6 +112,9 @@ public class PVCamera extends SubsystemBase {
     latencyLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Vision/%s/latency", name), "ms");
     numTargetsLog = new IntegerLogEntry(DataLogManager.getLog(), String.format("Vision/%s/target count", name));
 
+    distLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Vision/%s/distance", name), "m, tag 7");
+    angleLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Vision/%s/angle", name), "deg, tag 7");
+
     // Output
     if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
       ShuffleboardTab tab = Shuffleboard.getTab(String.format("Camera - %s", name));
@@ -152,10 +155,15 @@ public class PVCamera extends SubsystemBase {
         tagCache.get(target.getFiducialId()).timestamp = Timer.getFPGATimestamp();
 
         // Output?
-        if (BuildConstants.kOUTPUT_ALL_TELEMETRY && target.getFiducialId() == 7) {
-          distOut.setDouble(getDistanceToSpeaker());
-          angleOut.setDouble(getAngleToSpeaker());
-          ageOut.setDouble(getTagCacheAge(7));
+        if (target.getFiducialId() == 7 && !Util.isRedAlliance()) {
+          if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
+            distOut.setDouble(getDistanceToSpeaker());
+            angleOut.setDouble(getAngleToSpeaker());
+            ageOut.setDouble(getTagCacheAge(7));
+          }
+
+          distLog.append(getDistanceToSpeaker());
+          angleLog.append(getAngleToSpeaker());
         }
       }
     }

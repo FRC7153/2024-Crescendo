@@ -3,7 +3,6 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
@@ -16,6 +15,9 @@ public class ArmToStateCommand extends Command {
   private Supplier<Rotation2d> rotSupplier;
   private double minAngle, maxAngle;
   private boolean highPriority;
+
+  // For debugging
+  private String instantiationTrace;
 
   // Constructor
   /**
@@ -55,6 +57,8 @@ public class ArmToStateCommand extends Command {
     this.minAngle = minAngle;
     this.maxAngle = maxAngle;
     this.highPriority = highPriority; // TODO
+
+    instantiationTrace = Thread.currentThread().getStackTrace().toString();
 
     addRequirements(arm);
   }
@@ -99,9 +103,9 @@ public class ArmToStateCommand extends Command {
   // Format name
   @Override
   public String getName() {
-    if (targetBackward == null) return String.format("ArmToStateCommand: %s", targetForward);
+    if (targetBackward == null) return String.format("ArmToStateCommand: %s (from %s)", targetForward, instantiationTrace);
     else {
-      return String.format("ArmToStateCommand: %s and %s", targetForward, targetBackward);
+      return String.format("ArmToStateCommand: %s and %s (from %s)", targetForward, targetBackward, instantiationTrace);
     }
   }
 }

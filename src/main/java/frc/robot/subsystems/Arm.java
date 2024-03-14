@@ -157,7 +157,7 @@ public class Arm implements Subsystem {
         }
 
         // Default
-        setpoint = ArmPositions.kDEFAULT;
+        setpoint = new ArmState(ArmPositions.kDEFAULT.lowerAngle, ArmPositions.kDEFAULT.upperAngle, ArmPositions.kDEFAULT.ext);
         setState(setpoint);
         
         //config logging 
@@ -172,7 +172,7 @@ public class Arm implements Subsystem {
     /** Sets Arm's default command (laying flat) */
     public void initDefaultCommand() {
         setDefaultCommand(
-            new InstantCommand(() -> { setState(ArmPositions.kDEFAULT); }, this)
+            new InstantCommand(() -> { this.setState(ArmPositions.kDEFAULT); }, this).withName("Default Arm Command")
         );
     }
 
@@ -250,10 +250,6 @@ public class Arm implements Subsystem {
 
     @Override
     public void periodic(){
-        // TODO more robust logging
-        //Command cc = getCurrentCommand();
-        //System.out.println(cc == null ? "null" : cc.getName());
-
         // Check if upper pivot safe to move
         if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
             // Safe to spin
