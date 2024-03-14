@@ -14,7 +14,6 @@ public class ArmToStateCommand extends Command {
   private ArmState targetForward, targetBackward;
   private Supplier<Rotation2d> rotSupplier;
   private double minAngle, maxAngle;
-  private boolean highPriority;
 
   // For debugging
   private String instantiationTrace;
@@ -39,7 +38,6 @@ public class ArmToStateCommand extends Command {
    * @param poseSupplier
    * @param minAngle
    * @param maxAngle
-   * @param highPriority 
    */
   public ArmToStateCommand(
     Arm arm, 
@@ -47,8 +45,7 @@ public class ArmToStateCommand extends Command {
     ArmState backwardTarget, 
     Supplier<Rotation2d> rotSupplier,
     double minAngle, 
-    double maxAngle//,
-    //boolean highPriority
+    double maxAngle
   ) {
     this.arm = arm;
     this.targetForward = forwardTarget;
@@ -56,7 +53,6 @@ public class ArmToStateCommand extends Command {
     this.rotSupplier = rotSupplier;
     this.minAngle = minAngle;
     this.maxAngle = maxAngle;
-    this.highPriority = highPriority; // TODO
 
     instantiationTrace = Thread.currentThread().getStackTrace().toString();
 

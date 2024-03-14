@@ -20,9 +20,9 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.commands.ArmToStateCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmPositions;
 import frc.robot.Constants.BuildConstants;
@@ -172,7 +172,8 @@ public class Arm implements Subsystem {
     /** Sets Arm's default command (laying flat) */
     public void initDefaultCommand() {
         setDefaultCommand(
-            new InstantCommand(() -> { this.setState(ArmPositions.kDEFAULT); }, this).withName("Default Arm Command")
+            //new InstantCommand(() -> { this.setState(ArmPositions.kDEFAULT); }, this).withName("Default Arm Command")
+            new ArmToStateCommand(this, ArmPositions.kDEFAULT)
         );
     }
 

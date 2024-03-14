@@ -90,14 +90,16 @@ public class RobotContainer {
         new LoadShooterCommand(arm, shooter, intake, indexer, ArmPositions.kGROUND_INTAKE, true).until(driverXboxController.rightTrigger().negate())
         .andThen(intake::end, intake)
         .andThen(new IndexerRegripCommand(indexer))
-      );
+      )
+      .onTrue(new InstantCommand(frontArmCamera::snapshot));
 
     // Driver Source Intake Button (LT)
     driverXboxController.leftTrigger()
       .whileTrue(new PrintCommand("Source pickup not yet implemented")); // TODO SOURCE PICKUP
 
-    // Reverse Intake Button (Right Bumper)
+    // Driver Reverse Intake Button (Right Bumper)
     driverXboxController.rightBumper()
+      .and(operatorController.trigger().negate()) // Not while trying to shoot!
       .whileTrue(new IntakeCommand(intake, false))
       .whileTrue(new ReverseIndexerCommand(indexer));
     

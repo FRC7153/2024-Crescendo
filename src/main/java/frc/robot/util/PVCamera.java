@@ -211,4 +211,12 @@ public class PVCamera extends SubsystemBase {
   public double getTagCacheAge(int tag) {
     return Timer.getFPGATimestamp() - tagCache.get(tag).timestamp;
   }
+
+  /**
+   * Take picture
+   */
+  public void snapshot() {
+    System.out.println("Snap!");
+    camera.takeOutputSnapshot();
+  }
 }
