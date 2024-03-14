@@ -251,6 +251,17 @@ public class SwerveBase implements Subsystem {
         return Rotation2d.fromDegrees(MathUtil.inputModulus(gyro.getAngle(IMUAxis.kYaw), 0.0, 360.0));
     }
 
+    /**
+     * Yaw is inverted if on the Red Alliance
+     * @return
+     */
+    public Rotation2d getAllianceOrientedYaw() {
+        Rotation2d rot = getYaw();
+
+        if (Util.isRedAlliance()) return new Rotation2d(-rot.getCos(), rot.getSin());
+        else return rot;
+    }
+
     // TEMP
     private StructArrayPublisher<SwerveModuleState> statePub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("States", kSwerveModuleState).publish();
     private StructArrayPublisher<SwerveModuleState> setpointPub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("Setpoints", kSwerveModuleState).publish();

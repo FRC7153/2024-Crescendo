@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPositions;
 import frc.robot.auto.Autonomous;
-import frc.robot.commands.ArmSpeakerCommand;
 import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.BalanceArmClimbCommand;
 import frc.robot.commands.ClimberStageCommand;
@@ -24,8 +23,6 @@ import frc.robot.commands.LoadShooterCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.ReverseIndexerCommand;
-import frc.robot.commands.led.SetLEDCommand;
-import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveBase;
 import frc.robot.util.Dashboard;
@@ -43,7 +40,7 @@ public class RobotContainer {
   private Intake intake = new Intake();
   private Arm arm = new Arm();
   private Climber climber = new Climber();
-  private LED led = new LED();
+  //private LED led = new LED(); // NOT instantiated
 
   // Camera
   private PVCamera frontArmCamera = new PVCamera("Front Arm Camera");
@@ -67,7 +64,7 @@ public class RobotContainer {
     shooter.initDefaultCommand();
     indexer.initDefaultCommand();
     intake.initDefaultCommand();
-    led.initDefaultCommand();
+    //led.initDefaultCommand();
     
     // Config bindings
     configureBindings();
@@ -90,7 +87,7 @@ public class RobotContainer {
     // Driver Intake Button (RT)
     driverXboxController.rightTrigger()
       .onTrue(
-        new LoadShooterCommand(arm, shooter, intake, indexer, led, ArmPositions.kGROUND_INTAKE, true).until(driverXboxController.rightTrigger().negate())
+        new LoadShooterCommand(arm, shooter, intake, indexer, ArmPositions.kGROUND_INTAKE, true).until(driverXboxController.rightTrigger().negate())
         .andThen(intake::end, intake)
         .andThen(new IndexerRegripCommand(indexer))
       );
@@ -102,11 +99,12 @@ public class RobotContainer {
     // Reverse Intake Button (Right Bumper)
     driverXboxController.rightBumper()
       .whileTrue(new IntakeCommand(intake, false))
-      .whileTrue(new ReverseIndexerCommand(indexer, led));
+      .whileTrue(new ReverseIndexerCommand(indexer));
     
     // Operator Arm Speaker Button (6)
     operatorController.button(6)
-      .whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)));
+      .whileTrue(new PrintCommand("Speaker long shot not yet implemented"));
+      //.whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)));
       /*.whileTrue(new TeleopDriveHeadingLockCommand(
         driveBase, 
         () -> -driverXboxController.getLeftY(), 
@@ -115,17 +113,12 @@ public class RobotContainer {
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)
-      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFRONT_AMP, ArmPositions.kREAR_AMP, driveBase::getYaw, 0.0, 180.0))
-      .whileTrue(new ConditionalCommand(
-        new SetLEDCommand(led, 0.0), 
-        new InstantCommand(() -> led.setAllianceStationColor(), led),
-        arm::atSetpoint
-      ));
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kREAR_AMP, ArmPositions.kFRONT_AMP, driveBase::getAllianceOrientedYaw, 0.0, 180.0));
 
     // Operator Arm Preset Speaker Button (7)
     operatorController.button(7)
-      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, ArmPositions.kSUBWOOFER_SPEAKER_REAR, driveBase::getYaw, 90.0, 270.0))
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(4000.0), shooter).repeatedly());
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_REAR, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, driveBase::getYaw, 90.0, 270.0))
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly());
 
     // Operator Shoot Button (trigger)
     // Assumes shooter is already up-to-speed (if needed)

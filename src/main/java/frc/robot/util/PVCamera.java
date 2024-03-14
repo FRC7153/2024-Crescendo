@@ -110,7 +110,7 @@ public class PVCamera extends SubsystemBase {
     DiagUtil.addDevice(camera);
 
     latencyLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Vision/%s/latency", name), "ms");
-    numTargetsLog = new IntegerLogEntry(DataLogManager.getLog(), String.format("Vision/%s/target count"));
+    numTargetsLog = new IntegerLogEntry(DataLogManager.getLog(), String.format("Vision/%s/target count", name));
 
     // Output
     if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {

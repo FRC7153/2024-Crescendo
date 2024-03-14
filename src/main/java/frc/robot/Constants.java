@@ -71,8 +71,8 @@ public class Constants {
         public static ArmState kSUBWOOFER_SPEAKER_FRONT = new ArmState(120.0, 200.0, 0.0);
         public static ArmState kSUBWOOFER_SPEAKER_REAR = new ArmState(125.0, 270.0, 0.0);
 
-        public static ArmState kFRONT_AMP = new ArmState(45.0, 45.0, 2.0);
-        public static ArmState kREAR_AMP = new ArmState(90.0, -10.0, 2.0);
+        public static ArmState kFRONT_AMP = new ArmState(145.0, 275.0, 2.5);
+        public static ArmState kREAR_AMP = new ArmState(190.0, 105.0, 1.5);
 
         public static ArmState kCLIMB_BALANCE = new ArmState(108.0, 180.0, 1.5);
 
