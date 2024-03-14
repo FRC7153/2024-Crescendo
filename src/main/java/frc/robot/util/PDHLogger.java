@@ -16,15 +16,25 @@ public class PDHLogger extends CheckableDevice {
 
     // Log
     private DoubleLogEntry tempLog, currentLog, powerLog, voltLog;
+    private DoubleLogEntry[] channelLogs = new DoubleLogEntry[24];
 
     public PDHLogger(int CAN) {
         hub = new PowerDistribution(CAN, ModuleType.kRev);
         id = String.format("Rev PDH %d", hub.getModule());
 
+        // Init logs
         tempLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Temp", id), "C");
         currentLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Current", id), "Amps");
         powerLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Power", id), "Watts");
         voltLog = new DoubleLogEntry(DataLogManager.getLog(), String.format("Hardware/%s/Volt", id), "Volts");
+
+        for (int x = 0; x < 24; x++) {
+            channelLogs[x] = new DoubleLogEntry(
+                DataLogManager.getLog(), 
+                String.format("Hardware/%s/Channel%dCurrent", id, x), 
+                "Amps"
+            );
+        }
 
         DiagUtil.addDevice(this);
     }
@@ -66,6 +76,10 @@ public class PDHLogger extends CheckableDevice {
         currentLog.append(hub.getTotalCurrent());
         powerLog.append(hub.getTotalPower());
         voltLog.append(hub.getVoltage());
+
+        for (int x = 0; x < 24; x++) {
+            channelLogs[x].append(hub.getCurrent(x));
+        }
     }
 
     @Override

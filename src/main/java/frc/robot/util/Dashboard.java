@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import frc.robot.auto.Autonomous;
 import frc.robot.commands.dashboard.ResetOdometryCommand;
 import frc.robot.subsystems.drive.SwerveBase;
 
@@ -23,7 +24,7 @@ public class Dashboard {
   // Outputs
 
   // Init
-  public Dashboard(SwerveBase base, PVCamera camera) {
+  public Dashboard(SwerveBase base, PVCamera camera, Autonomous auto) {
     // Remember subsystems
     this.base = base;
 
@@ -33,6 +34,11 @@ public class Dashboard {
     // Reset odometry button
     driveTab.add("Reset Odometry", new ResetOdometryCommand(base))
       .withPosition(0, 3);
+
+    // Add Auto chooser
+    driveTab.add("Auto", auto.getChooser())
+      .withPosition(1, 3)
+      .withSize(2, 1);
 
     // TODO camera name here
     /*driveTab.add("Front Arm Camera", CameraServer.getServer("Front Arm Camera").getSource())

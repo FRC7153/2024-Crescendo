@@ -42,21 +42,19 @@ public class RobotContainer {
   private Climber climber = new Climber();
   //private LED led = new LED(); // NOT instantiated
 
-  // Camera
+  // Cameras
   private PVCamera frontArmCamera = new PVCamera("Front Arm Camera");
 
   // Auto
-  private Autonomous auto = new Autonomous(shooter);
+  private Autonomous auto = new Autonomous(driveBase, arm, shooter, indexer);
 
   // Controls
   private CommandXboxController driverXboxController = new CommandXboxController(0);
   private CommandJoystick operatorController = new CommandJoystick(1);
-
-  // Triggers
-  private Trigger isTeleop;
   
-  private Dashboard dashboard = new Dashboard(driveBase, frontArmCamera);
+  private Dashboard dashboard = new Dashboard(driveBase, frontArmCamera, auto);
 
+  // Init
   public RobotContainer() {
     // Default
     driveBase.initDefaultCommand();
@@ -74,7 +72,7 @@ public class RobotContainer {
 
   private void configureBindings() {
     // Teleop trigger (reused multiple times)
-    isTeleop = new Trigger(DriverStation::isTeleopEnabled);
+    Trigger isTeleop = new Trigger(DriverStation::isTeleopEnabled);
 
     // Drive Control
     isTeleop.whileTrue(new TeleopDriveCommand(
