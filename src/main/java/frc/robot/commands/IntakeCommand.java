@@ -39,6 +39,6 @@ public class IntakeCommand extends Command {
     // Cancels itself
     @Override
     public InterruptionBehavior getInterruptionBehavior() {
-        return InterruptionBehavior.kCancelSelf;
+        return InterruptionBehavior.kCancelIncoming;
     }
 }

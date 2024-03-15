@@ -14,7 +14,7 @@ public class CANSparkMaxDevice extends CheckableDevice {
     private static FaultID[] faults = {
         FaultID.kBrownout, FaultID.kCANRX, FaultID.kCANTX, FaultID.kDRVFault,
         FaultID.kEEPROMCRC, FaultID.kHasReset, FaultID.kIWDTReset, FaultID.kMotorFault,
-        FaultID.kSensorFault, FaultID.kOtherFault
+        FaultID.kSensorFault, FaultID.kOtherFault, FaultID.kOvercurrent
     };
 
     private CANSparkMax spark;

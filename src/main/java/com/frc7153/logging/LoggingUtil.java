@@ -74,28 +74,32 @@ public class LoggingUtil {
 
     // Runs in other thread to grab DS match info
     private static void waitForDSThread() {
-        // Wait for Driver Station connection (no timeout)
-        DriverStation.waitForDsConnection(0);
-        addMetadata("DS Connection TS", Timer.getFPGATimestamp(), MetadataType.TIMESTAMP_NETWORK);
-        
-        // Wait for FMS connection (5 min timeout)
-        if (waitForFMS()) addMetadata("FMS TS", Timer.getFPGATimestamp(), MetadataType.TIMESTAMP_NETWORK);
-        else addMetadata("FMS TS", "Timed out (>5min)", MetadataType.TIMESTAMP_NETWORK);
+        try {
+            // Wait for Driver Station connection (no timeout)
+            DriverStation.waitForDsConnection(0);
+            addMetadata("DS Connection TS", Timer.getFPGATimestamp(), MetadataType.TIMESTAMP_NETWORK);
+            
+            // Wait for FMS connection (5 min timeout)
+            if (waitForFMS()) addMetadata("FMS TS", Timer.getFPGATimestamp(), MetadataType.TIMESTAMP_NETWORK);
+            else addMetadata("FMS TS", "Timed out (>5min)", MetadataType.TIMESTAMP_NETWORK);
 
-        // Log FMS info
-        addMetadata("Event Name", DriverStation.getEventName(), MetadataType.MATCH_INFO);
-        addMetadata("Match Number", DriverStation.getMatchNumber(), MetadataType.MATCH_INFO);
-        addMetadata("Match Type", DriverStation.getMatchType(), MetadataType.MATCH_INFO);
-        addMetadata("Replay Number", DriverStation.getReplayNumber(), MetadataType.MATCH_INFO);
-        addMetadata("Driver Station Location", DriverStation.getLocation().orElse(-1), MetadataType.MATCH_INFO);
+            // Log FMS info
+            addMetadata("Event Name", DriverStation.getEventName(), MetadataType.MATCH_INFO);
+            addMetadata("Match Number", DriverStation.getMatchNumber(), MetadataType.MATCH_INFO);
+            addMetadata("Match Type", DriverStation.getMatchType(), MetadataType.MATCH_INFO);
+            addMetadata("Replay Number", DriverStation.getReplayNumber(), MetadataType.MATCH_INFO);
+            addMetadata("Driver Station Location", DriverStation.getLocation().orElse(-1), MetadataType.MATCH_INFO);
 
-        // This optional needs to be unwrapped
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        addMetadata(
-            "Alliance", 
-            alliance.isPresent() ? alliance.get().name() : "Unknown", 
-            MetadataType.MATCH_INFO
-        );
+            // This optional needs to be unwrapped
+            Optional<Alliance> alliance = DriverStation.getAlliance();
+            addMetadata(
+                "Alliance", 
+                alliance.isPresent() ? alliance.get().name() : "Unknown", 
+                MetadataType.MATCH_INFO
+            );
+        } catch (Exception e) {
+            DriverStation.reportWarning(String.format("Could not log DS/FMS info."), true);
+        }
     }
 
     /**

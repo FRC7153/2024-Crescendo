@@ -21,7 +21,7 @@ public class Constants {
     /** Build Constants */
     public static final class BuildConstants {
         public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
-        public static final boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
+        public static final boolean kARM_TUNE_MODE = true; // For tuning lower pivot PID
     }
 
     /** Shooter Constants */
@@ -97,7 +97,7 @@ public class Constants {
         public static final double kUPPER_ANGLE_OFFSET = 0.3356208; // rots 0.5 = forward
 
         /** rots, minimum angle of lower pivot for upper pivot to safely spin */
-        public static final double kUPPER_PIVOT_MIN_ARM_ANGLE = 108.0 / 360.0; // rots
+        public static final double kUPPER_PIVOT_MIN_ARM_ANGLE = 105.0 / 360.0; // rots (was 108)
 
         public static final double kLOWER_PIVOT_RATIO = 1.0 / (4.0 * 3.0 * 3.0 * (60.0/18.0));
         public static final double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
@@ -172,7 +172,7 @@ public class Constants {
 
         // Drive Motor
         public static final double kDRIVE_RATIO = 6.75; // SDS Mk4i L2 modules
-        public static final int kDRIVE_CURRENT_LIMIT = 50;
+        public static final int kDRIVE_CURRENT_LIMIT = 45;
         public static final double kDRIVE_P = 0.00005;
         public static final double kDRIVE_I = 0.0;
         public static final double kDRIVE_D = 0.0; // 5e-7
@@ -182,7 +182,7 @@ public class Constants {
 
         // Steer Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;
-        public static final int kSTEER_CURRENT_LIMIT = 30;
+        public static final int kSTEER_CURRENT_LIMIT = 25;
         public static final double kSTEER_P = 0.45;
         public static final double kSTEER_I = 0.00001;
         public static final double kSTEER_D = 0.0;
@@ -190,7 +190,7 @@ public class Constants {
     }
 
     /** CAN Hardware Constants */
-    public static final class HardwareConstants { // TODO verify all these
+    public static final class HardwareConstants {
         public static final int kFL_STEER_CAN = 2;
         public static final int kFR_STEER_CAN = 3;
         public static final int kRL_STEER_CAN = 4;

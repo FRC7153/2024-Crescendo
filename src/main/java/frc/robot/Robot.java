@@ -26,6 +26,9 @@ public class Robot extends TimedRobot {
     ConsoleLogger.init();
     DriverStation.startDataLog(DataLogManager.getLog(), true);
 
+    // Don't warn joystick unplugged (spams console)
+    DriverStation.silenceJoystickConnectionWarning(true);
+
     // Log metadata
     LoggingUtil.addDefaultMetadata();
 

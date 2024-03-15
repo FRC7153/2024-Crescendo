@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HardwareConstants;
@@ -99,6 +100,10 @@ public class SwerveBase implements Subsystem {
     private IntegerLogEntry tagIdLog = 
         new IntegerLogEntry(DataLogManager.getLog(), "Drive/Tag IDs");
 
+    // Output
+    private StructArrayPublisher<SwerveModuleState> statePub;
+    private StructArrayPublisher<SwerveModuleState> setpointPub;
+
     // Module state arrays (for logging)
     private SwerveModuleState[] setpointArray = new SwerveModuleState[4];
     private SwerveModuleState[] stateArray = new SwerveModuleState[4];
@@ -107,6 +112,12 @@ public class SwerveBase implements Subsystem {
     public SwerveBase() {
         // Start logging
         DiagUtil.addDevice(gyro);
+
+        if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
+            statePub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("States", kSwerveModuleState).publish();
+            setpointPub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("Setpoints", kSwerveModuleState).publish();
+        }
+
         register();
     }
 
@@ -262,10 +273,6 @@ public class SwerveBase implements Subsystem {
         else return rot;
     }
 
-    // TEMP
-    private StructArrayPublisher<SwerveModuleState> statePub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("States", kSwerveModuleState).publish();
-    private StructArrayPublisher<SwerveModuleState> setpointPub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("Setpoints", kSwerveModuleState).publish();
-
     // Periodic method
     @Override
     public void periodic() {
@@ -289,8 +296,10 @@ public class SwerveBase implements Subsystem {
         stateLog.append(stateArray);
         poseLog.append(estimator.getEstimatedPosition());
 
-        // Temp
-        statePub.set(stateArray);
-        setpointPub.set(setpointArray);
+        // Output
+        if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
+            statePub.set(stateArray);
+            setpointPub.set(setpointArray);
+        }
     }
 }

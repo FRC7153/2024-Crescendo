@@ -143,6 +143,8 @@ public class Shooter implements Subsystem {
     private GenericEntry testShootVelo;
 
     public void testInit() {
+        if (testShootVelo != null) return; // Already initialized
+
         ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
 
         testShootVelo = tab.add("Shoot Velocity (RPS)", 0.0)
