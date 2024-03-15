@@ -43,7 +43,7 @@ public class RobotContainer {
   //private LED led = new LED(); // NOT instantiated
 
   // Cameras
-  private PVCamera frontArmCamera = new PVCamera("Front Arm Camera");
+  private PVCamera frontArmCamera = new PVCamera("FrontUSBCamera");
 
   // Auto
   private Autonomous auto = new Autonomous(driveBase, arm, shooter, indexer);
@@ -113,11 +113,11 @@ public class RobotContainer {
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)
-      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kREAR_AMP, ArmPositions.kFRONT_AMP, driveBase::getAllianceOrientedYaw, 0.0, 180.0));
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFRONT_AMP, ArmPositions.kREAR_AMP, driveBase::getAllianceOrientedYaw, 0.0, 180.0));
 
     // Operator Arm Preset Speaker Button (7)
     operatorController.button(7)
-      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_REAR, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, driveBase::getYaw, 90.0, 270.0))
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, ArmPositions.kSUBWOOFER_SPEAKER_REAR, driveBase::getYaw, 90.0, 270.0))
       .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly());
 
     // Operator Shoot Button (trigger)
@@ -129,12 +129,12 @@ public class RobotContainer {
         shooter::isShooterRunning
       ));
     
-    // Operator Climb Button (6)
-    operatorController.button(6)
+    // Operator Climb Button (5)
+    operatorController.button(5)
       .onTrue(new ClimberStageCommand(climber, 67.0)); // 70.0
 
-    // Operator Climb Button (4)
-    operatorController.button(4)
+    // Operator Climb Button (3)
+    operatorController.button(3)
       .onTrue(new ClimberStageCommand(climber, 0.0));
 
     // Operator Balance (throttle up)

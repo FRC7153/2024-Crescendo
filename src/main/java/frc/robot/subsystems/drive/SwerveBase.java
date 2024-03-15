@@ -258,7 +258,7 @@ public class SwerveBase implements Subsystem {
     public Rotation2d getAllianceOrientedYaw() {
         Rotation2d rot = getYaw();
 
-        if (Util.isRedAlliance()) return new Rotation2d(-rot.getCos(), rot.getSin());
+        if (Util.isRedAlliance()) return new Rotation2d(rot.getCos(), -rot.getSin());
         else return rot;
     }
 
@@ -271,7 +271,7 @@ public class SwerveBase implements Subsystem {
     public void periodic() {
         for (int m = 0; m < 4; m++) {
             // Run each module's periodic
-            modules[m].periodic();
+            //modules[m].periodic();
 
             // Get states
             setpointArray[m] = modules[m].getSetpoint();

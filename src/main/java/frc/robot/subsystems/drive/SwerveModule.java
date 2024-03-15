@@ -149,7 +149,17 @@ public class SwerveModule {
      */
     public void setDriveWheelVelocity(double velocity) {
         setpoint.speedMetersPerSecond = velocity;
-        periodic(); // This will set the drive motor control
+        //periodic(); // This will set the drive motor control
+
+        // Immediate:
+        velocity /= SwerveModuleConstants.kWHEEL_CIRCUMFERENCE;
+        velocity *= SwerveModuleConstants.kDRIVE_RATIO * 60.0;
+
+        drivePIDController.setReference(
+            velocity,
+            ControlType.kVelocity,
+            0
+        );
     }
 
     /**
@@ -168,24 +178,24 @@ public class SwerveModule {
      * error and steer velocity.
      */
     public void periodic() {
-        steerCANCoderPos.refresh();
+        //steerCANCoderPos.refresh();
 
         /* Multiply velocity setpoint by cosine of steer error to tune down the 
          * velocity when its pointing in the wrong direction */
-        double steerErr = Math.abs(getSteerAnglePosRots() - setpoint.angle.getRotations()) * Math.PI * 2.0; // rads
-        double velocity = setpoint.speedMetersPerSecond * Math.cos(steerErr);
+        //double steerErr = Math.abs(getSteerAnglePosRots() - setpoint.angle.getRotations()) * Math.PI * 2.0; // rads
+        //double velocity = setpoint.speedMetersPerSecond;// * Math.cos(steerErr);
 
         // Convert from wheel translational velocity (mps) to wheel rotor velocity (rpm)
-        velocity /= SwerveModuleConstants.kWHEEL_CIRCUMFERENCE;
-        velocity *= SwerveModuleConstants.kDRIVE_RATIO * 60.0;
+        //velocity /= SwerveModuleConstants.kWHEEL_CIRCUMFERENCE;
+        //velocity *= SwerveModuleConstants.kDRIVE_RATIO * 60.0;
 
         // Set drive motor
-        drivePIDController.setReference(
-            velocity, 
-            ControlType.kVelocity, 
-            0
+        //drivePIDController.setReference(
+        //    velocity, 
+        //    ControlType.kVelocity, 
+        //    0
             //driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
-        );
+        //);
     }
 
     /**

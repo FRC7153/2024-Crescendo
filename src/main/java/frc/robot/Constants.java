@@ -252,8 +252,8 @@ public class Constants {
                 (kFIELD_SIZE.getX()) - original.getX(), // X inverted around midline
                 original.getY(), // Same Y
                 new Rotation2d( // Invert angle around midline
-                    -original.getRotation().getCos(), 
-                    original.getRotation().getSin()
+                    original.getRotation().getCos(), 
+                    -original.getRotation().getSin()
                 )
             );
         }
