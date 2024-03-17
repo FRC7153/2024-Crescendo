@@ -23,7 +23,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Start logging
     DataLogManager.start();
-    ConsoleLogger.init();
+    ConsoleLogger.robotProgramRunning();
     DriverStation.startDataLog(DataLogManager.getLog(), true);
 
     // Don't warn joystick unplugged (spams console)
