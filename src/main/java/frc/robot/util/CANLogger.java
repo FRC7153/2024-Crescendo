@@ -1,22 +1,20 @@
 package frc.robot.util;
 
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.CANBus.CANBusStatus;
+import com.ctre.phoenix6.jni.CANBusJNI;
 
+import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.HardwareConstants;
 
 /**
- * Singleton that logs the CAN (and CAN FD) status
+ * Singleton that logs the CAN (and CAN FD) status.
  */
 public class CANLogger {
-    /** CTRE says the method to get the CAN FD bus status is resource-intensive, so we'll only log
-     * it once a second */
-    private static double lastFDLog = 0.0;
+    // Preallocate objects
+    private static CANStatus canStatus = new CANStatus();
+    private static CANBusJNI canFDStatus = new CANBusJNI();
 
     // Log entries
     private static DoubleLogEntry busOffLog = 
@@ -51,25 +49,21 @@ public class CANLogger {
      */
     public static void periodic() {
         // Log CAN
-        CANStatus status = RobotController.getCANStatus();
+        CANJNI.getCANStatus(canStatus);
         
-        busOffLog.append(status.busOffCount);
-        percentUtilLog.append(status.percentBusUtilization);
-        rxErr.append(status.receiveErrorCount);
-        txErr.append(status.transmitErrorCount);
-        txFull.append(status.txFullCount);
+        busOffLog.append(canStatus.busOffCount);
+        percentUtilLog.append(canStatus.percentBusUtilization);
+        rxErr.append(canStatus.receiveErrorCount);
+        txErr.append(canStatus.transmitErrorCount);
+        txFull.append(canStatus.txFullCount);
 
         // Log CAN FD
-        if (Timer.getFPGATimestamp() - lastFDLog >= 1.0) {
-            CANBusStatus fdStatus = CANBus.getStatus(HardwareConstants.kCANIVORE_BUS);
+        canFDStatus.JNI_GetStatus(HardwareConstants.kCANIVORE_BUS);
 
-            fdBusOffLog.append(fdStatus.BusOffCount);
-            fdPercentUtilLog.append(fdStatus.BusUtilization);
-            fdRxErr.append(fdStatus.REC);
-            fdTxErr.append(fdStatus.TEC);
-            fdTxFull.append(fdStatus.TxFullCount);
-
-            lastFDLog = Timer.getFPGATimestamp();
-        }
+        fdBusOffLog.append(canFDStatus.busOffCount);
+        fdPercentUtilLog.append(canFDStatus.busUtilization);
+        fdRxErr.append(canFDStatus.rec);
+        fdTxErr.append(canFDStatus.tec);
+        fdTxFull.append(canFDStatus.txFullCount);
     }
 }

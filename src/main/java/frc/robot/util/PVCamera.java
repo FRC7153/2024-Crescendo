@@ -136,42 +136,49 @@ public class PVCamera extends SubsystemBase {
   // Fill cache
   @Override
   public void periodic() {
-    if (!camera.isConnected()) return; // Camera not up yet
-    PhotonPipelineResult results = camera.getLatestResult();
+    try { // getLatestResult() throws!
+        if (!camera.isConnected()) return; // Camera not up yet
+        PhotonPipelineResult results = camera.getLatestResult();
 
-    if (results.getTimestampSeconds() == lastPacket) return; // No new packets
-    lastPacket = results.getTimestampSeconds();
-    
-    // Get pose update
-    if (poseEstimator != null && base != null && kAprilTagLayout != null) {
-      Optional<EstimatedRobotPose> pose = poseEstimator.update();
-      if (pose.isPresent()) base.addVisionMeasurement(pose.get());
-    }
-
-    // Cache new results
-    for (PhotonTrackedTarget target : results.targets) {
-      if (tagCache.containsKey(target.getFiducialId())) {
-        // This is a cached tag
-        tagCache.get(target.getFiducialId()).target = target;
-        tagCache.get(target.getFiducialId()).timestamp = Timer.getFPGATimestamp();
-
-        // Output?
-        if (target.getFiducialId() == 7 && !Util.isRedAlliance()) {
-          if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
-            distOut.setDouble(getDistanceToSpeaker());
-            angleOut.setDouble(getAngleToSpeaker());
-            ageOut.setDouble(getTagCacheAge(7));
-          }
-
-          distLog.append(getDistanceToSpeaker());
-          angleLog.append(getAngleToSpeaker());
+        if (results.getTimestampSeconds() == lastPacket) return; // No new packets
+        lastPacket = results.getTimestampSeconds();
+        
+        // Get pose update
+        if (poseEstimator != null && base != null && kAprilTagLayout != null) {
+          Optional<EstimatedRobotPose> pose = poseEstimator.update();
+          if (pose.isPresent()) base.addVisionMeasurement(pose.get());
         }
-      }
-    }
 
-    // Log
-    numTargetsLog.append(results.targets.size());
-    latencyLog.append(results.getLatencyMillis());
+        // Cache new results
+        for (PhotonTrackedTarget target : results.targets) {
+          if (tagCache.containsKey(target.getFiducialId())) {
+            // This is a cached tag
+            tagCache.get(target.getFiducialId()).target = target;
+            tagCache.get(target.getFiducialId()).timestamp = Timer.getFPGATimestamp();
+
+            // Output?
+            if (target.getFiducialId() == 7 && !Util.isRedAlliance()) {
+              if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
+                distOut.setDouble(getDistanceToSpeaker());
+                angleOut.setDouble(getAngleToSpeaker());
+                ageOut.setDouble(getTagCacheAge(7));
+              }
+
+              distLog.append(getDistanceToSpeaker());
+              angleLog.append(getAngleToSpeaker());
+            }
+          }
+        }
+
+      // Log
+      numTargetsLog.append(results.targets.size());
+      latencyLog.append(results.getLatencyMillis());
+    } catch (Exception e) {
+      DriverStation.reportWarning(
+        String.format("PhotonVision Camera '%s' refresh has thrown: ", camera.getName(), e.getMessage()), 
+        false
+      );
+    }
   }
 
   /**
