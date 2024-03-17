@@ -2,6 +2,10 @@ package frc.robot;
 
 import java.nio.file.Path;
 
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,13 +24,13 @@ import frc.robot.subsystems.Arm.ArmState;
 public class Constants {
     /** Build Constants */
     public static final class BuildConstants {
-        public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
-        public static final boolean kARM_TUNE_MODE = true; // For tuning lower pivot PID
+        public static final boolean kOUTPUT_ALL_TELEMETRY = false; // For debugging, output all live values to NT
+        public static final boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
     }
 
     /** Shooter Constants */
     public static final class ShooterConstants {
-        public static final int kSHOOT_CURRENT_LIMIT = 60;
+        public static final int kSHOOT_CURRENT_LIMIT = 55;
         public static final double kSHOOT_RATIO = 30.0 / 18.0; // step-up ratio
         public static final double kSHOOT_P = 0.5;
         public static final double kSHOOT_I = 0.0;
@@ -44,7 +48,7 @@ public class Constants {
     public static final class IntakeConstants {
         public static final double kINTAKE_RATIO = 1.0 / 25.0;
         
-        public static final int kINTAKE_CURRENT_LIMIT = 15;
+        public static final int kINTAKE_CURRENT_LIMIT = 30;
 
         public static final double kINTAKE_P = 0.000005;
         public static final double kINTAKE_I = 5e-7;
@@ -67,6 +71,7 @@ public class Constants {
         public static final ArmState kDEFAULT = new ArmState(108.0, 180.0, 0.0);
 
         public static final ArmState kGROUND_INTAKE = new ArmState(110.0, 255.0, 0.5); // 110
+        public static final ArmState kSOURCE_INTAKE_FRONT = new ArmState(138.0, 180.0, 1.0);
 
         public static final ArmState kSUBWOOFER_SPEAKER_FRONT = new ArmState(120.0, 200.0, 0.0);
         public static final ArmState kSUBWOOFER_SPEAKER_REAR = new ArmState(125.0, 270.0, 0.0);
@@ -76,6 +81,17 @@ public class Constants {
 
         public static final ArmState kCLIMB_BALANCE = new ArmState(108.0, 180.0, 1.5);
 
+    }
+
+    /** Auto Constants */
+    public static final class AutoConstants {
+        public static final HolonomicPathFollowerConfig kAUTO_PATH_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
+            new PIDConstants(5.0, 0.0, 0.0), 
+            new PIDConstants(5.0, 0.0, 0.0), 
+            5.0, 
+            DriveConstants.kRL_SWERVE_POS.getNorm(), 
+            new ReplanningConfig()
+        );
     }
 
     /** Shooting Calculations */
@@ -143,10 +159,10 @@ public class Constants {
         public static final double kARM_LOWER_PIVOT_HEIGHT = Units.inchesToMeters(13.233 + 0.62);//TODO: Move to arm constants // Pivot to ground
 
         // CANCoder Offsets
-        public static final double kFL_STEER_ZERO = 0.35969 - 0.5; // 0.497314
+        public static final double kFL_STEER_ZERO = 0.35969; // + 0.5
         public static final double kFR_STEER_ZERO = 0.11376; // -0.386719
         public static final double kRL_STEER_ZERO = -0.1297; // 0.2769 - 0.5
-        public static final double kRR_STEER_ZERO = -0.332275 + 0.5; // -0.332275
+        public static final double kRR_STEER_ZERO = (1.408 * (180.0 / Math.PI)) + 0.5; //(1.0 - 0.332275) + 0.5 - 0.366; // -0.332275
 
         // Pose Estimation
         public static final IMUAxis kGYRO_YAW = IMUAxis.kZ; 

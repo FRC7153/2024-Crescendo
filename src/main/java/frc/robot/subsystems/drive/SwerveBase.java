@@ -147,6 +147,10 @@ public class SwerveBase implements Subsystem {
         }
     }
 
+    public void driveChassisSpeeds(ChassisSpeeds speeds) {
+        drive(kinematics.toSwerveModuleStates(speeds));
+    }
+
     /**
      * Drives the robot, field oriented
      * @param y Forward + / backward - (m/s)
@@ -182,7 +186,8 @@ public class SwerveBase implements Subsystem {
     }
 
     /**
-     * Resets the pose estimator and gyro's position. Will account for alliance. 
+     * Resets the pose estimator and gyro's position.
+     * It is expected that the gyro always starts facing FORWARD!
      * (Call this at the beginning of autonomous)
      * @param pos
      */
@@ -192,16 +197,7 @@ public class SwerveBase implements Subsystem {
             modulePositions[m] = modules[m].getPosition();
         }
 
-        // Account for red alliance
-        alliance = DriverStation.getAlliance();
-
-        if (!alliance.isPresent()) {
-            DriverStation.reportWarning("Attempted to reset position with no known alliance!", false);
-        } else if (alliance.get().equals(Alliance.Red)) {
-            pos = FieldConstants.INVERT_ALLIANCE(pos);
-        }
-
-        gyro.setGyroAngle(DriveConstants.kGYRO_YAW, pos.getRotation().getDegrees());
+        //gyro.setGyroAngle(DriveConstants.kGYRO_YAW, pos.getRotation().getDegrees());
         estimator.resetPosition(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions, pos);
     }
 
@@ -266,11 +262,15 @@ public class SwerveBase implements Subsystem {
      * Yaw is inverted if on the Red Alliance
      * @return
      */
-    public Rotation2d getAllianceOrientedYaw() {
+    public Rotation2d getReorientedYaw() {
         Rotation2d rot = getYaw();
 
         if (Util.isRedAlliance()) return new Rotation2d(rot.getCos(), -rot.getSin());
         else return rot;
+    }
+
+    public ChassisSpeeds getRobotRelativeChassisSpeeds() {
+        return kinematics.toChassisSpeeds(stateArray); // This should be populated automatically
     }
 
     // Periodic method
@@ -287,7 +287,7 @@ public class SwerveBase implements Subsystem {
         }
 
         // Update pose estimator
-        estimator.update(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions);
+        estimator.update(getYaw(), modulePositions);
 
         //System.out.printf("X: %f, Y: %f, Z: %f\n", gyro.getAngle(IMUAxis.kX), gyro.getAngle(IMUAxis.kY), gyro.getAngle(IMUAxis.kZ));
 
@@ -301,5 +301,16 @@ public class SwerveBase implements Subsystem {
             statePub.set(stateArray);
             setpointPub.set(setpointArray);
         }
+    }
+
+    // Double check heading encoders
+    public void doubleCheckHeadings() {
+        System.out.println("Rechecking swerve headings...");
+
+        for (int m = 0; m < 4; m++) {
+            modules[m].doubleCheckSteerEncoderPositions();
+        }
+
+        System.out.println("Done rechecking swerve headings!");
     }
 }

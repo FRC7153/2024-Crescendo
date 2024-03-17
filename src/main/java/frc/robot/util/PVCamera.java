@@ -136,6 +136,7 @@ public class PVCamera extends SubsystemBase {
   // Fill cache
   @Override
   public void periodic() {
+    if (!camera.isConnected()) return; // Camera not up yet
     PhotonPipelineResult results = camera.getLatestResult();
 
     if (results.getTimestampSeconds() == lastPacket) return; // No new packets

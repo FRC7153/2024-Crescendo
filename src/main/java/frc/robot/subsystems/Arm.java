@@ -252,7 +252,7 @@ public class Arm implements Subsystem {
     @Override
     public void periodic(){
         // Check if upper pivot safe to move
-        if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE) {
+        if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE || true) {
             // Safe to spin
             upperPivotController.setReference(setpoint.upperAngle / 360.0, ControlType.kPosition, 0);
             upperPivotSafeToMoveLog.append(true);

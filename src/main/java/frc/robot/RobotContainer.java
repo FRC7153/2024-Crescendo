@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -46,7 +48,7 @@ public class RobotContainer {
   private PVCamera frontArmCamera = new PVCamera("FrontUSBCamera");
 
   // Auto
-  private Autonomous auto = new Autonomous(driveBase, arm, shooter, indexer);
+  private Autonomous auto = new Autonomous(driveBase, intake, arm, shooter, indexer);
 
   // Controls
   private CommandXboxController driverXboxController = new CommandXboxController(0);
@@ -66,8 +68,6 @@ public class RobotContainer {
     
     // Config bindings
     configureBindings();
-
-    // Config Auto
   }
 
   private void configureBindings() {
@@ -91,15 +91,25 @@ public class RobotContainer {
       )
       .onTrue(new InstantCommand(frontArmCamera::snapshot));
 
-    // Driver Source Intake Button (LT)
-    driverXboxController.leftTrigger()
-      .whileTrue(new PrintCommand("Source pickup not yet implemented")); // TODO SOURCE PICKUP
-
     // Driver Reverse Intake Button (Right Bumper)
     driverXboxController.rightBumper()
       .and(operatorController.trigger().negate()) // Not while trying to shoot!
       .whileTrue(new IntakeCommand(intake, false))
       .whileTrue(new ReverseIndexerCommand(indexer));
+
+    // Operator Source Intake Button (Button 2)
+    operatorController.button(2)
+      .onTrue(
+        //new LoadShooterCommand(arm, shooter, intake, indexer, ArmPositions.kSOURCE_INTAKE_FRONT, false).until(operatorController.button(2).negate())
+        new SequentialCommandGroup(
+          new InstantCommand(() -> arm.setState(ArmPositions.kSOURCE_INTAKE_FRONT), arm),
+          new InstantCommand(() -> shooter.setShootVelocity(-400.0), shooter),
+          new InstantCommand(() -> indexer.setIndexerVelocity(0.0), indexer),
+          new WaitUntilCommand(operatorController.button(2).negate()),
+          new InstantCommand(() -> shooter.setShootVelocity(0.0), shooter),
+          new IndexerRegripCommand(indexer)
+        )
+      );
     
     // Operator Arm Speaker Button (6)
     operatorController.button(6)
@@ -113,10 +123,11 @@ public class RobotContainer {
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)
-      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFRONT_AMP, ArmPositions.kREAR_AMP, driveBase::getAllianceOrientedYaw, 0.0, 180.0));
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFRONT_AMP, ArmPositions.kREAR_AMP, driveBase::getReorientedYaw, 0.0, 180.0));
 
     // Operator Arm Preset Speaker Button (7)
     operatorController.button(7)
+      .and(driverXboxController.rightTrigger().negate()) // Not while intaking
       .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, ArmPositions.kSUBWOOFER_SPEAKER_REAR, driveBase::getYaw, 90.0, 270.0))
       .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly());
 
@@ -150,6 +161,9 @@ public class RobotContainer {
   public void periodic() {
     dashboard.periodic();
   }
+
+  // Auto has ended
+  public void autoEnded() { driveBase.doubleCheckHeadings(); }
 
   // Test modes
   public void testInit() { arm.initTestMode(); shooter.testInit(); indexer.stop(); }

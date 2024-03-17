@@ -64,6 +64,14 @@ public class Intake implements Subsystem {
         ));
     }
 
+    private void intakeFullSend() {
+        setpoint = 0.0; // no setpoint
+        setpointTimestamp = Timer.getFPGATimestamp();
+
+        intake.set(1.0);
+        intakeSetpointLog.append(6000 * IntakeConstants.kINTAKE_RATIO);
+    }
+
     /** Runs the intake at a speed */
     private void setIntakeSpeed(double velocity) {
         setpointTimestamp = Timer.getFPGATimestamp();
@@ -75,12 +83,12 @@ public class Intake implements Subsystem {
 
     /** Runs the intake forward */
     public void enableIntake() {
-        setIntakeSpeed(5800);
+        intakeFullSend();
     }
 
     /** Runs the intake in reverse */
     public void reverseIntake() {
-        setIntakeSpeed(-4000);
+        setIntakeSpeed(-5000);
     }
 
     /** Ends the intake function */

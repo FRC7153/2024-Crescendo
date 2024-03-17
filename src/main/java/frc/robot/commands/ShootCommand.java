@@ -23,7 +23,7 @@ public class ShootCommand extends Command {
     // Init
     @Override
     public void initialize() {
-        indexer.setIndexerVelocity(direction ? 700.0 : -700.0);
+        indexer.setIndexerVelocity(direction ? 730.0 : -730.0);
     }
 
     // End

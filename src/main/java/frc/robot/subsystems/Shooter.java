@@ -99,7 +99,7 @@ public class Shooter implements Subsystem {
     /** Set shoot velocity (r/s) */
     public void setShootVelocity(double velocity) {
 
-        if (velocity <= .05) {
+        if (Math.abs(velocity) <= .05) {
             shooterUpper.disable();
             shooterLower.disable();
 

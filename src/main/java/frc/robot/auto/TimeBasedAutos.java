@@ -32,19 +32,21 @@ public class TimeBasedAutos extends SequentialCommandGroup {
       new ConditionalCommand(
         // Shoot preloaded note
         new SequentialCommandGroup(
+          new InstantCommand(indexer::stop, indexer),
           new InstantCommand(() -> arm.setState(ArmPositions.kSUBWOOFER_SPEAKER_REAR), arm),
           new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter),
-          new WaitCommand(1.5),
+          new WaitCommand(2.0),
           new InstantCommand(() -> indexer.setIndexerVelocity(700.0), indexer),
-          new WaitCommand(0.5)
+          new WaitCommand(2.15),
+          new InstantCommand(indexer::stop, indexer)
         ),
         // Don't shoot preloaded note
         new PrintCommand("Not shooting preloaded note in auto"), 
         () -> shootPreloaded
       ),
       // Drive forward
-      new InstantCommand(() -> base.driveFieldOriented(1.0, 0.0, 0.0), base),
-      new WaitCommand(1.2),
+      new InstantCommand(() -> base.driveFieldOriented(7.0, 0.0, 0.0), base),
+      new WaitCommand(1.8),
       new InstantCommand(() -> base.driveFieldOriented(0.0, 0.0, 0.0), base)
     );
 

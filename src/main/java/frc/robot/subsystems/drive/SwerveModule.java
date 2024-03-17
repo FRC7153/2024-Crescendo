@@ -17,6 +17,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 
@@ -80,16 +82,25 @@ public class SwerveModule {
         );
 
         // Create and config STEER CANCODER
+        double canCoderBootTime = Timer.getFPGATimestamp();
+
         steerCANCoder = new CANcoder(cancoderCan, HardwareConstants.kCANIVORE_BUS);
 
         CANcoderConfiguration steerCANCoderConfigs = new CANcoderConfiguration();
         steerCANCoderConfigs.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
         steerCANCoderConfigs.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         steerCANCoderConfigs.MagnetSensor.MagnetOffset = steerZeroPos;
-        steerCANCoder.getConfigurator().apply(steerCANCoderConfigs);
+        steerCANCoder.getConfigurator().apply(steerCANCoderConfigs, 15.0);
 
+        // Set up cancoder
         steerCANCoderPos = steerCANCoder.getAbsolutePosition();
-        steerCANCoderPos.waitForUpdate(1.5); // this is BLOCKING
+        steerCANCoderPos.waitForUpdate(15.0); // this is BLOCKING
+        
+        if (steerCANCoderPos.hasUpdated()) {
+            DriverStation.reportError("CANCoder has not updated at init!!", true);
+        }
+
+        System.out.printf("CANCoder configured, took %f seconds to boot!\n", Timer.getFPGATimestamp() - canCoderBootTime);
 
         // Create and configure STEER MOTOR
         steerMotor = new CANSparkMax(steerCan, MotorType.kBrushless);
@@ -117,6 +128,27 @@ public class SwerveModule {
         DiagUtil.addDevice(driveMotor);
         DiagUtil.addDevice(steerCANCoder);
         DiagUtil.addDevice(steerMotor);
+    }
+
+    /** Checks cancoder vs spark rel encoder. CALL WHEN DISABLED */
+    public void doubleCheckSteerEncoderPositions() {
+        steerCANCoderPos.refresh();
+        double abs = steerCANCoderPos.getValue();
+        double rel = steerRelEncoder.getPosition() / SwerveModuleConstants.kSTEER_RATIO;
+
+        System.out.printf("Checking a swerve module! Heading is off by %f\n", abs - rel);
+
+        if (Math.abs(abs - rel) >= 0.1) {
+            DriverStation.reportError(
+                String.format("Steer encoders are arguing! (off by %f)", abs - rel), 
+                false
+            );
+
+            steerRelEncoder.setPosition(
+                steerCANCoderPos.getValue() * SwerveModuleConstants.kSTEER_RATIO
+            );
+        }
+
     }
 
     /**
