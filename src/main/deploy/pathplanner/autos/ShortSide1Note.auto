@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.5540509782271972,
+      "y": 6.9965594476641675
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ShortSide1Notes"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "BeginIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "EndIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SpeakerShoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
