@@ -1,10 +1,8 @@
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.frc7153.controllers.SafeCANCoder;
 import com.frc7153.diagnostics.DiagUtil;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -13,14 +11,13 @@ import static com.revrobotics.CANSparkMax.ControlType;
 import static com.revrobotics.CANSparkMax.IdleMode;
 import static com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.SwerveModuleConstants;
+import frc.robot.util.Util;
 
 /**
  * A single swerve module, with a NEO for drive, NEO for steer, and CANCoder
@@ -30,15 +27,13 @@ public class SwerveModule {
     // Hardware
     private CANSparkMax driveMotor;
     private CANSparkMax steerMotor; 
-    private CANcoder steerCANCoder;
+    private SafeCANCoder steerCANCoder;
 
     // Control
     private SparkPIDController drivePIDController;
     private RelativeEncoder driveEncoder;
-    private SimpleMotorFeedforward driveFF;
     private SparkPIDController steerPIDControl;
     private RelativeEncoder steerRelEncoder;
-    private StatusSignal<Double> steerCANCoderPos;
 
     // State
     private SwerveModuleState setpoint = new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0));
@@ -74,33 +69,12 @@ public class SwerveModule {
         driveEncoder = driveMotor.getEncoder();
         driveEncoder.setPosition(0.0);
 
-        // Configure drive feed forward
-        driveFF = new SimpleMotorFeedforward(
-            SwerveModuleConstants.kDRIVE_S, 
-            SwerveModuleConstants.kDRIVE_V, 
-            SwerveModuleConstants.kDRIVE_A
-        );
-
         // Create and config STEER CANCODER
-        double canCoderBootTime = Timer.getFPGATimestamp();
+        steerCANCoder = new SafeCANCoder(cancoderCan, HardwareConstants.kCANIVORE_BUS);
 
-        steerCANCoder = new CANcoder(cancoderCan, HardwareConstants.kCANIVORE_BUS);
-
-        CANcoderConfiguration steerCANCoderConfigs = new CANcoderConfiguration();
-        steerCANCoderConfigs.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
-        steerCANCoderConfigs.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        steerCANCoderConfigs.MagnetSensor.MagnetOffset = steerZeroPos;
-        steerCANCoder.getConfigurator().apply(steerCANCoderConfigs, 15.0);
-
-        // Set up cancoder
-        steerCANCoderPos = steerCANCoder.getAbsolutePosition();
-        steerCANCoderPos.waitForUpdate(15.0); // this is BLOCKING
-        
-        if (steerCANCoderPos.hasUpdated()) {
-            DriverStation.reportError("CANCoder has not updated at init!!", true);
-        }
-
-        System.out.printf("CANCoder configured, took %f seconds to boot!\n", Timer.getFPGATimestamp() - canCoderBootTime);
+        steerCANCoder.setRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf);
+        steerCANCoder.setMagnetDirection(SensorDirectionValue.CounterClockwise_Positive);
+        steerCANCoder.setMagnetOffset(-steerZeroPos);
 
         // Create and configure STEER MOTOR
         steerMotor = new CANSparkMax(steerCan, MotorType.kBrushless);
@@ -108,7 +82,7 @@ public class SwerveModule {
         steerRelEncoder = steerMotor.getEncoder();
 
         steerRelEncoder.setPosition(
-            steerCANCoderPos.getValue() * SwerveModuleConstants.kSTEER_RATIO
+            steerCANCoder.getAbsolutePosition() * SwerveModuleConstants.kSTEER_RATIO
         );
 
         steerMotor.setIdleMode(IdleMode.kBrake);
@@ -126,43 +100,24 @@ public class SwerveModule {
 
         // Initiate diagnostics
         DiagUtil.addDevice(driveMotor);
-        DiagUtil.addDevice(steerCANCoder);
         DiagUtil.addDevice(steerMotor);
+        steerCANCoder.initDiagnostics();
+
+        // Reduce CAN usage
+        Util.disableExternalEncoderFrames(driveMotor);
+        Util.disableExternalEncoderFrames(steerMotor);
     }
 
     /** Checks cancoder vs spark rel encoder. CALL WHEN DISABLED */
     public void doubleCheckSteerEncoderPositions() {
-        steerCANCoderPos.refresh();
-        double abs = steerCANCoderPos.getValue();
+        double abs = steerCANCoder.getAbsolutePosition();
         double rel = steerRelEncoder.getPosition() / SwerveModuleConstants.kSTEER_RATIO;
 
         System.out.printf("Checking a swerve module! Heading is off by %f\n", abs - rel);
 
-        if (Math.abs(abs - rel) >= 0.1) {
-            DriverStation.reportError(
-                String.format("Steer encoders are arguing! (off by %f)", abs - rel), 
-                false
-            );
-
-            steerRelEncoder.setPosition(
-                steerCANCoderPos.getValue() * SwerveModuleConstants.kSTEER_RATIO
-            );
-        }
-
-    }
-
-    /**
-     * Gets the steer angle from the CANCoder, falling back to NEO built-in
-     * encoder if necessary
-     * @return Rotations (CCW+)
-     */
-    private double getSteerAnglePosRots() {
-        steerCANCoderPos.refresh();
-        if (steerCANCoderPos.getTimestamp().getLatency() < 2.0) { // CANCoder good
-            return steerCANCoderPos.getValue();
-        } else { // CANCoder bad
-            return steerRelEncoder.getPosition() / SwerveModuleConstants.kSTEER_RATIO;
-        }
+        steerRelEncoder.setPosition(
+            abs * SwerveModuleConstants.kSTEER_RATIO
+        );
     }
 
     /**
@@ -170,6 +125,7 @@ public class SwerveModule {
      * @param angle degrees (0 is forward, CCW positive)
      */
     public void setSteerAngle(double angle) {
+        angle = MathUtil.inputModulus(angle, -180.0, 180.0);
         setpoint.angle = Rotation2d.fromDegrees(angle);
         angle = (angle/360.0) * SwerveModuleConstants.kSTEER_RATIO;
         steerPIDControl.setReference(angle, ControlType.kPosition, 0);
@@ -185,7 +141,8 @@ public class SwerveModule {
 
         // Immediate:
         velocity /= SwerveModuleConstants.kWHEEL_CIRCUMFERENCE;
-        velocity *= SwerveModuleConstants.kDRIVE_RATIO * 60.0;
+        velocity *= SwerveModuleConstants.kDRIVE_RATIO;
+        velocity *= 60.0;
 
         drivePIDController.setReference(
             velocity,
@@ -199,35 +156,10 @@ public class SwerveModule {
      * @param state
      */
     public void setModuleState(SwerveModuleState state) {
-        //state = SwerveModuleState.optimize(state, Rotation2d.fromRotations(getSteerAnglePosRots()));
+        state = SwerveModuleState.optimize(state, Rotation2d.fromRotations(steerCANCoder.getAbsolutePosition()));
 
         setSteerAngle(state.angle.getDegrees());
         setDriveWheelVelocity(state.speedMetersPerSecond);
-    }
-
-    /**
-     * This should run periodically, updating the velocity wheel to account for steer
-     * error and steer velocity.
-     */
-    public void periodic() {
-        //steerCANCoderPos.refresh();
-
-        /* Multiply velocity setpoint by cosine of steer error to tune down the 
-         * velocity when its pointing in the wrong direction */
-        //double steerErr = Math.abs(getSteerAnglePosRots() - setpoint.angle.getRotations()) * Math.PI * 2.0; // rads
-        //double velocity = setpoint.speedMetersPerSecond;// * Math.cos(steerErr);
-
-        // Convert from wheel translational velocity (mps) to wheel rotor velocity (rpm)
-        //velocity /= SwerveModuleConstants.kWHEEL_CIRCUMFERENCE;
-        //velocity *= SwerveModuleConstants.kDRIVE_RATIO * 60.0;
-
-        // Set drive motor
-        //drivePIDController.setReference(
-        //    velocity, 
-        //    ControlType.kVelocity, 
-        //    0
-            //driveFF.calculate(velocity, SwerveModuleConstants.kDRIVE_MAX_ACCEL)
-        //);
     }
 
     /**
@@ -237,15 +169,26 @@ public class SwerveModule {
     public SwerveModuleState getSetpoint() { return setpoint; }
 
     /**
-     * Returns the current state of the swerve module
+     * Returns the current state of the swerve module, using the CANCoder for heading
      * @return  The current actual state
      */
-    public SwerveModuleState getState() {
+    public SwerveModuleState getStateWithCanivore() {
         return new SwerveModuleState(
             (driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE / 60.0,
-            Rotation2d.fromRotations(getSteerAnglePosRots())
+            Rotation2d.fromRotations(steerCANCoder.getAbsolutePosition())
         );
     }
+
+    /**
+     * Returns the current state of the swerve module, using the relative encoder for heading
+     * @return  The current actual state
+     */
+    public SwerveModuleState getStateWithSparkEnc() {
+        return new SwerveModuleState(
+            (driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE / 60.0,
+            Rotation2d.fromRotations(steerRelEncoder.getPosition() / SwerveModuleConstants.kSTEER_RATIO)
+        );
+    } 
 
     /**
      * Returns the current position of the swerve module
@@ -254,7 +197,7 @@ public class SwerveModule {
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
             driveEncoder.getPosition() / SwerveModuleConstants.kDRIVE_RATIO * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE,
-            Rotation2d.fromRotations(getSteerAnglePosRots())
+            Rotation2d.fromRotations(steerCANCoder.getAbsolutePosition())
         );
     }
 }

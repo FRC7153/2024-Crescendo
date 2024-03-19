@@ -15,7 +15,6 @@ import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.GenericPublisher;
-import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -23,6 +22,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.commands.ArmToStateCommand;
+import frc.robot.util.Util;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmPositions;
 import frc.robot.Constants.BuildConstants;
@@ -44,6 +44,17 @@ public class Arm implements Subsystem {
             @Override
             public String toString() {
                 return String.format("Lower: %f deg, Upper: %f deg, ext: %f rots", lowerAngle, upperAngle, ext);
+            }
+
+            // Is equal
+            @Override
+            public boolean equals(Object obj) {
+                if (!(obj instanceof ArmState)) return false;
+                ArmState other = (ArmState)obj;
+                return (
+                    other.ext == this.ext && 
+                    other.lowerAngle == this.lowerAngle && 
+                    other.upperAngle == this.upperAngle);
             }
     }
 
@@ -74,8 +85,6 @@ public class Arm implements Subsystem {
 		new DoubleLogEntry(DataLogManager.getLog(), "Arm/ElevatorExtPosition", "rotations");
     private DoubleLogEntry upperPivotPositionLog = 
 		new DoubleLogEntry(DataLogManager.getLog(), "Arm/upperPivotPosition", "deg");
-    private BooleanLogEntry upperPivotSafeToMoveLog = 
-        new BooleanLogEntry(DataLogManager.getLog(), "Arm/upperPivotSafeToMove");
 	/*private BooleanLogEntry elevatorLimitSwitchLog = 
 		new BooleanLogEntry(DataLogManager.getLog(), "Arm/elevatorLimitSwitch", "pressed?");*/
     private DoubleLogEntry lowerPivotSetpointLog = 
@@ -167,6 +176,10 @@ public class Arm implements Subsystem {
         DiagUtil.addDevice(elevatorExt);
 
         register();
+
+        // Reduce CAN usage
+        Util.disableExternalEncoderFrames(elevatorExt);
+        Util.disableExternalEncoderFrames(lowerLeftPivot);
     }
 
     /** Sets Arm's default command (laying flat) */
@@ -213,7 +226,8 @@ public class Arm implements Subsystem {
         // Safety
         angle = Math.max(5.0, Math.min(angle, 355.0));
 
-        // Upper pivot motor set in periodic()
+        upperPivotController.setReference(angle / 360.0, ControlType.kPosition, 0);
+
         setpoint.upperAngle = angle;
 
         upperPivotSetpointLog.append(angle);
@@ -251,15 +265,10 @@ public class Arm implements Subsystem {
 
     @Override
     public void periodic(){
-        // Check if upper pivot safe to move
-        if (lowerPivotEncoder.getPosition() >= ArmConstants.kUPPER_PIVOT_MIN_ARM_ANGLE || true) {
-            // Safe to spin
-            upperPivotController.setReference(setpoint.upperAngle / 360.0, ControlType.kPosition, 0);
-            upperPivotSafeToMoveLog.append(true);
-        } else {
-            // Unsafe to spin
-            upperPivotController.setReference(ArmPositions.kDEFAULT.upperAngle / 360.0, ControlType.kPosition, 0);
-            upperPivotSafeToMoveLog.append(false);
+        // Disable arm if lowered
+        if (setpoint.equals(ArmPositions.kDEFAULT) && lowerPivotEncoder.getPosition() * 360.0 < 111.0) {
+            lowerLeftPivot.disable();
+            lowerRightPivot.disable();
         }
 
         // Log

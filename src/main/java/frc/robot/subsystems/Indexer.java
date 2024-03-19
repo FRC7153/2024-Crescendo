@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.util.Util;
 
 public class Indexer implements Subsystem {
     //Devices
@@ -63,6 +64,9 @@ public class Indexer implements Subsystem {
         indexerSetpointLog.append(0.0);
 
         register();
+
+        // Reduce CAN usage
+        Util.disableExternalEncoderFrames(indexer);
     }
     /**
      * Sets velocity in rpm

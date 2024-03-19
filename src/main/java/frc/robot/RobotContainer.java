@@ -9,25 +9,26 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPositions;
+import frc.robot.Constants.HardwareConstants;
 import frc.robot.auto.Autonomous;
+import frc.robot.commands.ArmSourceCommand;
 import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.BalanceArmClimbCommand;
 import frc.robot.commands.ClimberStageCommand;
 import frc.robot.commands.IndexerRegripCommand;
 import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.LoadShooterCommand;
+import frc.robot.commands.LoadShooterGroundCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.ReverseIndexerCommand;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveBase;
 import frc.robot.util.Dashboard;
+import frc.robot.util.PDHLogger;
 import frc.robot.util.PVCamera;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
@@ -44,7 +45,8 @@ public class RobotContainer {
   private Climber climber = new Climber();
   //private LED led = new LED(); // NOT instantiated
 
-  // Cameras
+  // Cameras + Devices
+  private PDHLogger pdh = new PDHLogger(HardwareConstants.kPDH_CAN);
   private PVCamera frontArmCamera = new PVCamera("FrontUSBCamera");
 
   // Auto
@@ -58,6 +60,9 @@ public class RobotContainer {
 
   // Init
   public RobotContainer() {
+    // Clear our sticky faults
+    pdh.clearStickyFaults();
+
     // Default
     driveBase.initDefaultCommand();
     arm.initDefaultCommand();
@@ -85,11 +90,10 @@ public class RobotContainer {
     // Driver Intake Button (RT)
     driverXboxController.rightTrigger()
       .onTrue(
-        new LoadShooterCommand(arm, shooter, intake, indexer, ArmPositions.kGROUND_INTAKE, true).until(driverXboxController.rightTrigger().negate())
+        new LoadShooterGroundCommand(arm, shooter, intake, indexer).until(driverXboxController.rightTrigger().negate())
         .andThen(intake::end, intake)
         .andThen(new IndexerRegripCommand(indexer))
-      )
-      .onTrue(new InstantCommand(frontArmCamera::snapshot));
+      );
 
     // Driver Reverse Intake Button (Right Bumper)
     driverXboxController.rightBumper()
@@ -99,17 +103,7 @@ public class RobotContainer {
 
     // Operator Source Intake Button (Button 2)
     operatorController.button(2)
-      .onTrue(
-        //new LoadShooterCommand(arm, shooter, intake, indexer, ArmPositions.kSOURCE_INTAKE_FRONT, false).until(operatorController.button(2).negate())
-        new SequentialCommandGroup(
-          new InstantCommand(() -> arm.setState(ArmPositions.kSOURCE_INTAKE_FRONT), arm),
-          new InstantCommand(() -> shooter.setShootVelocity(-400.0), shooter),
-          new InstantCommand(() -> indexer.setIndexerVelocity(0.0), indexer),
-          new WaitUntilCommand(operatorController.button(2).negate()),
-          new InstantCommand(() -> shooter.setShootVelocity(0.0), shooter),
-          new IndexerRegripCommand(indexer)
-        )
-      );
+      .onTrue(new ArmSourceCommand(arm, shooter, indexer, operatorController.button(2)));
     
     // Operator Arm Speaker Button (6)
     operatorController.button(6)
@@ -129,7 +123,7 @@ public class RobotContainer {
     operatorController.button(7)
       .and(driverXboxController.rightTrigger().negate()) // Not while intaking
       .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, ArmPositions.kSUBWOOFER_SPEAKER_REAR, driveBase::getYaw, 90.0, 270.0))
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly());
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(58.0), shooter).repeatedly());
 
     // Operator Shoot Button (trigger)
     // Assumes shooter is already up-to-speed (if needed)
@@ -162,8 +156,10 @@ public class RobotContainer {
     dashboard.periodic();
   }
 
-  // Auto has ended
-  public void autoEnded() { driveBase.doubleCheckHeadings(); }
+  /**
+   * Realigns the swerve relative encoders with the absolute encoders. Call at start of teleop/auto.
+   */
+  public void recheckSwerveHeadings() { driveBase.doubleCheckHeadings(); }
 
   // Test modes
   public void testInit() { arm.initTestMode(); shooter.testInit(); indexer.stop(); }

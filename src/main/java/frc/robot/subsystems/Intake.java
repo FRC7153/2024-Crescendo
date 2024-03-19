@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.util.Util;
 
 import com.frc7153.diagnostics.DiagUtil;
 import com.revrobotics.CANSparkMax;
@@ -55,6 +56,9 @@ public class Intake implements Subsystem {
         intakeSetpointLog.append(0.0);
 
         register();
+
+        // Reduce CAN usage
+        Util.disableExternalEncoderFrames(intake);
     }
 
     /** Sets the intake's default command (not moving) */

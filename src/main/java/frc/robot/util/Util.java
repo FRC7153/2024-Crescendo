@@ -25,7 +25,7 @@ public class Util {
    * @param spark
    */
   public static void disableExternalEncoderFrames(CANSparkMax spark) {
-    // 60000ms = 1 second
+    // 60000ms = 1 minutes
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 60000); // Analog sensor
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 60000); // Alt encoder
     spark.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 60000); // Duty cycle encoder position

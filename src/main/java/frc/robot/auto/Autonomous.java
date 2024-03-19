@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.Constants.ArmPositions;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.commands.IndexerRegripCommand;
-import frc.robot.commands.LoadShooterCommand;
+import frc.robot.commands.LoadShooterGroundCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
@@ -47,7 +47,7 @@ public class Autonomous {
 
         // Config auto commands
         NamedCommands.registerCommand("BeginIntake", 
-            new LoadShooterCommand(arm, shooter, intake, indexer, ArmPositions.kGROUND_INTAKE, true).withInterruptBehavior(InterruptionBehavior.kCancelSelf)
+            new LoadShooterGroundCommand(arm, shooter, intake, indexer).withInterruptBehavior(InterruptionBehavior.kCancelSelf)
         );
 
         NamedCommands.registerCommand("EndIntake", new ParallelCommandGroup(
@@ -58,7 +58,7 @@ public class Autonomous {
 
         NamedCommands.registerCommand("SpeakerRearShoot", new SequentialCommandGroup(
             new InstantCommand(() -> arm.setState(ArmPositions.kSUBWOOFER_SPEAKER_REAR), arm),
-            new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter),
+            new InstantCommand(() -> shooter.setShootVelocity(58.0), shooter),
             new WaitCommand(1.5),
             new InstantCommand(() -> indexer.setIndexerVelocity(700.0), indexer),
             new WaitCommand(1.0),

@@ -92,7 +92,9 @@ public class SwerveBase implements Subsystem {
     private StructArrayLogEntry<SwerveModuleState> setpointLog = 
         StructArrayLogEntry.create(DataLogManager.getLog(), "Drive/Swerve Setpoints", kSwerveModuleState, "m/s, rad");
     private StructArrayLogEntry<SwerveModuleState> stateLog = 
-        StructArrayLogEntry.create(DataLogManager.getLog(), "Drive/Swerve States", kSwerveModuleState, "m/s, rad");
+        StructArrayLogEntry.create(DataLogManager.getLog(), "Drive/Swerve CANivore States", kSwerveModuleState, "m/s, rad");
+    private StructArrayLogEntry<SwerveModuleState> stateWithSparkEncLog = 
+        StructArrayLogEntry.create(DataLogManager.getLog(), "Drive/Swerve Rel Enc States", kSwerveModuleState, "m/s, rad");
     private StructLogEntry<Pose2d> poseLog =
         StructLogEntry.create(DataLogManager.getLog(), "Drive/Pose Estimation", new Pose2dStruct());
     private DoubleLogEntry ambiguityLog = 
@@ -102,11 +104,13 @@ public class SwerveBase implements Subsystem {
 
     // Output
     private StructArrayPublisher<SwerveModuleState> statePub;
+    private StructArrayPublisher<SwerveModuleState> stateRelPub;
     private StructArrayPublisher<SwerveModuleState> setpointPub;
 
     // Module state arrays (for logging)
     private SwerveModuleState[] setpointArray = new SwerveModuleState[4];
     private SwerveModuleState[] stateArray = new SwerveModuleState[4];
+    private SwerveModuleState[] stateWithRelEncArray = new SwerveModuleState[4]; // only for logging
 
     // Constructor
     public SwerveBase() {
@@ -114,8 +118,9 @@ public class SwerveBase implements Subsystem {
         DiagUtil.addDevice(gyro);
 
         if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
-            statePub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("States", kSwerveModuleState).publish();
-            setpointPub = NetworkTableInstance.getDefault().getTable("DriveTemp").getStructArrayTopic("Setpoints", kSwerveModuleState).publish();
+            statePub = NetworkTableInstance.getDefault().getTable("Swerve Wheels").getStructArrayTopic("States (abs)", kSwerveModuleState).publish();
+            stateRelPub = NetworkTableInstance.getDefault().getTable("Swerve Wheels").getStructArrayTopic("States (rel)", kSwerveModuleState).publish();
+            setpointPub = NetworkTableInstance.getDefault().getTable("Swerve Wheels").getStructArrayTopic("Setpoints", kSwerveModuleState).publish();
         }
 
         register();
@@ -282,23 +287,26 @@ public class SwerveBase implements Subsystem {
 
             // Get states
             setpointArray[m] = modules[m].getSetpoint();
-            stateArray[m] = modules[m].getState();
+            stateArray[m] = modules[m].getStateWithCanivore();
+            stateWithRelEncArray[m] = modules[m].getStateWithSparkEnc();
             modulePositions[m] = modules[m].getPosition();
         }
 
         // Update pose estimator
-        estimator.update(getYaw(), modulePositions);
+        estimator.update(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions);
 
         //System.out.printf("X: %f, Y: %f, Z: %f\n", gyro.getAngle(IMUAxis.kX), gyro.getAngle(IMUAxis.kY), gyro.getAngle(IMUAxis.kZ));
 
         // Log
         setpointLog.append(setpointArray);
         stateLog.append(stateArray);
+        stateWithSparkEncLog.append(stateWithRelEncArray);
         poseLog.append(estimator.getEstimatedPosition());
 
         // Output
         if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
             statePub.set(stateArray);
+            stateRelPub.set(stateWithRelEncArray);
             setpointPub.set(setpointArray);
         }
     }

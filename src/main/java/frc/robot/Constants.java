@@ -24,7 +24,7 @@ import frc.robot.subsystems.Arm.ArmState;
 public class Constants {
     /** Build Constants */
     public static final class BuildConstants {
-        public static final boolean kOUTPUT_ALL_TELEMETRY = false; // For debugging, output all live values to NT
+        public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
         public static final boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
     }
 
@@ -112,9 +112,6 @@ public class Constants {
         public static final double kLOWER_ANGLE_OFFSET = 0.163; // rots
         public static final double kUPPER_ANGLE_OFFSET = 0.3356208; // rots 0.5 = forward
 
-        /** rots, minimum angle of lower pivot for upper pivot to safely spin */
-        public static final double kUPPER_PIVOT_MIN_ARM_ANGLE = 105.0 / 360.0; // rots (was 108)
-
         public static final double kLOWER_PIVOT_RATIO = 1.0 / (4.0 * 3.0 * 3.0 * (60.0/18.0));
         public static final double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
         public static final double kELEVATOR_EXT_RATIO = 1.0 / 25.0;
@@ -140,8 +137,8 @@ public class Constants {
     /** Swerve drive constants */
     public static final class DriveConstants {
         // Max Speeds
-        public static final double kMAX_TELEOP_TRANSLATIONAL_SPEED = 15;
-        public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 800.0;
+        public static final double kMAX_TELEOP_TRANSLATIONAL_SPEED = 12.0;
+        public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 1000.0;
 
         // Base sizes
         /*
@@ -159,10 +156,10 @@ public class Constants {
         public static final double kARM_LOWER_PIVOT_HEIGHT = Units.inchesToMeters(13.233 + 0.62);//TODO: Move to arm constants // Pivot to ground
 
         // CANCoder Offsets
-        public static final double kFL_STEER_ZERO = 0.35969; // + 0.5
-        public static final double kFR_STEER_ZERO = 0.11376; // -0.386719
-        public static final double kRL_STEER_ZERO = -0.1297; // 0.2769 - 0.5
-        public static final double kRR_STEER_ZERO = (1.408 * (180.0 / Math.PI)) + 0.5; //(1.0 - 0.332275) + 0.5 - 0.366; // -0.332275
+        public static final double kFL_STEER_ZERO = 0.125448; // 14
+        public static final double kFR_STEER_ZERO = -0.321777; // 17
+        public static final double kRL_STEER_ZERO = 0.155762; // 15
+        public static final double kRR_STEER_ZERO = -0.181152; // 16
 
         // Pose Estimation
         public static final IMUAxis kGYRO_YAW = IMUAxis.kZ; 
@@ -192,9 +189,6 @@ public class Constants {
         public static final double kDRIVE_P = 0.00005;
         public static final double kDRIVE_I = 0.0;
         public static final double kDRIVE_D = 0.0; // 5e-7
-        public static final double kDRIVE_S = 0.0; // TODO
-        public static final double kDRIVE_V = 0.0; // TODO
-        public static final double kDRIVE_A = 0.0; // TODO
 
         // Steer Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;
@@ -207,6 +201,8 @@ public class Constants {
 
     /** CAN Hardware Constants */
     public static final class HardwareConstants {
+        public static final int kPDH_CAN = 1;
+
         public static final int kFL_STEER_CAN = 2;
         public static final int kFR_STEER_CAN = 3;
         public static final int kRL_STEER_CAN = 4;

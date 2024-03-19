@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.util.Util;
 import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -89,6 +90,10 @@ public class Climber implements Subsystem {
         setClimberHeight(0.0);
 
         register();
+
+        // Reduce CAN usage
+        Util.disableExternalEncoderFrames(climberLeft);
+        Util.disableExternalEncoderFrames(climberRight);
     }
 
     /**

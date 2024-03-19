@@ -34,7 +34,7 @@ public class TimeBasedAutos extends SequentialCommandGroup {
         new SequentialCommandGroup(
           new InstantCommand(indexer::stop, indexer),
           new InstantCommand(() -> arm.setState(ArmPositions.kSUBWOOFER_SPEAKER_REAR), arm),
-          new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter),
+          new InstantCommand(() -> shooter.setShootVelocity(58.0), shooter),
           new WaitCommand(2.0),
           new InstantCommand(() -> indexer.setIndexerVelocity(700.0), indexer),
           new WaitCommand(2.15),

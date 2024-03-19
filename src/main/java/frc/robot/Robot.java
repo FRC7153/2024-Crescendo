@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // Check swerves
-    m_robotContainer.autoEnded(); // TODO rename
+    m_robotContainer.recheckSwerveHeadings();
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -75,13 +75,12 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
-    // Check swerve headings
-    m_robotContainer.autoEnded();
   }
 
   @Override
   public void teleopInit() {
+    // Check swerves
+    m_robotContainer.recheckSwerveHeadings();
   }
 
   @Override
