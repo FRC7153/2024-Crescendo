@@ -80,9 +80,6 @@ public class Autonomous {
 
         // Center Subwoofer Autos
         chooser.addOption("Center Subwoofer Double Note", () -> new PathPlannerAuto("SubwooferCenter2Notes"));
-
-        //Short Side 1 Note Auto
-        chooser.addOption("Short Side 2 Note Autonomous", () -> new PathPlannerAuto("ShortSide1Note"));
     }
 
     // On change
