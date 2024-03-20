@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.util.Util;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -42,9 +43,13 @@ public class Climber implements Subsystem {
     private DoubleLogEntry climberRightPositionLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightPosition", "rotations");
     private DoubleLogEntry climberLeftSetPointLog = 
-        new DoubleLogEntry(DataLogManager.getLog(), "Climber/LeftSetPoint", "rotations");
+        new DoubleLogEntry(DataLogManager.getLog(), "Climber/LeftPosSetPoint", "rotations");
     private DoubleLogEntry climberRightSetPointLog = 
-        new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightSetPoint", "rotations");
+        new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightPosSetPoint", "rotations");
+    private DoubleLogEntry climberLeftVeloSetpointLog = 
+            new DoubleLogEntry(DataLogManager.getLog(), "Climber/LeftVeloSetpoint", "rotations/sec");
+    private DoubleLogEntry climberRightVeloSetpointLog = 
+        new DoubleLogEntry(DataLogManager.getLog(), "Climber/RightVeloSetpoint", "rotations/sec");
 
     private double lSetpoint, rSetpoint;
 
@@ -64,13 +69,20 @@ public class Climber implements Subsystem {
         climberLeftController = climberLeft.getPIDController();
         climberRightController = climberRight.getPIDController();
 
-        climberLeftController.setP(ClimberConstants.kCLIMBER_P, 0);
-        climberLeftController.setI(ClimberConstants.kCLIMBER_I, 0);
-        climberLeftController.setD(ClimberConstants.kCLIMBER_D, 0);
+        // Set PID
+        SparkPIDController[] controllers = {climberLeftController, climberRightController};
 
-        climberRightController.setP(ClimberConstants.kCLIMBER_P, 0);
-        climberRightController.setI(ClimberConstants.kCLIMBER_I, 0);
-        climberRightController.setD(ClimberConstants.kCLIMBER_D, 0);
+        for (SparkPIDController climberController : controllers) {
+            // Position control
+            climberController.setP(ClimberConstants.kCLIMBER_P, 0);
+            climberController.setI(ClimberConstants.kCLIMBER_I, 0);
+            climberController.setD(ClimberConstants.kCLIMBER_D, 0);
+
+            // Velocity control
+            climberController.setP(ClimberConstants.kCLIMBER_P, 1);
+            climberController.setI(ClimberConstants.kCLIMBER_I, 1);
+            climberController.setD(ClimberConstants.kCLIMBER_D, 1);
+        }
 
         // config output
         if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
@@ -112,6 +124,9 @@ public class Climber implements Subsystem {
         climberLeftSetPointLog.append(leftHeight);
         climberRightSetPointLog.append(rightHeight);
 
+        climberLeftVeloSetpointLog.append(0.0);
+        climberRightVeloSetpointLog.append(0.0);
+
         lSetpoint = leftHeight;
         rSetpoint = rightHeight;
     }
@@ -124,10 +139,34 @@ public class Climber implements Subsystem {
         setClimberHeight(height, height);
     }
 
-    /**Is the climber at its setpoint? */
-    public boolean climberAtSetpoint(){
-        return Math.abs(climberLeftEncoder.getPosition() - lSetpoint) <= ClimberConstants.kCLIMBER_TOLERANCE && 
-            Math.abs(climberRightEncoder.getPosition() - rSetpoint) <= ClimberConstants.kCLIMBER_TOLERANCE;
+    /**
+     * Set the velocity, rotations/sec of sprocket
+     * @param left
+     * @param right
+     */
+    public void setClimberVelocity(double left, double right) {
+        // Safety
+        left = MathUtil.clamp(left, -1.0, 1.0);
+        right = MathUtil.clamp(right, -1.0, 1.0);
+
+        // Gearing
+        left /= ClimberConstants.kCLIMBER_RATIO;
+        right /= ClimberConstants.kCLIMBER_RATIO;
+
+        // Set
+        climberLeftController.setReference(left, ControlType.kVelocity, 1);
+        climberRightController.setReference(right, ControlType.kVelocity, 1);
+
+        climberLeftVeloSetpointLog.append(left);
+        climberRightVeloSetpointLog.append(right);
+
+        climberLeftSetPointLog.append(0.0);
+        climberRightSetPointLog.append(0.0);
+    }
+
+    /** Is either climber at the bottom? */
+    public boolean isClimberFloored(){
+        return climberLeftEncoder.getPosition() < 0.2 || climberRightEncoder.getPosition() < 0.2;
     }
 
     @Override

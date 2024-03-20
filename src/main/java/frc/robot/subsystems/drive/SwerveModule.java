@@ -174,7 +174,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getStateWithCanivore() {
         return new SwerveModuleState(
-            (driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE / 60.0,
+            ((driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE) / 60.0,
             Rotation2d.fromRotations(steerCANCoder.getAbsolutePosition())
         );
     }
@@ -185,7 +185,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getStateWithSparkEnc() {
         return new SwerveModuleState(
-            (driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE / 60.0,
+            ((driveEncoder.getVelocity() / SwerveModuleConstants.kDRIVE_RATIO) * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE) / 60.0,
             Rotation2d.fromRotations(steerRelEncoder.getPosition() / SwerveModuleConstants.kSTEER_RATIO)
         );
     } 

@@ -15,6 +15,11 @@ public class ClimberStageCommand extends InstantCommand {
                 climber.setClimberHeight(climberSet);
         }, climber);
     }
+
+    @Override
+    public InterruptionBehavior getInterruptionBehavior() {
+        return InterruptionBehavior.kCancelSelf;
+    }
 }
 
 

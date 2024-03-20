@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import java.util.Optional;
-
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -10,16 +8,21 @@ import com.frc7153.diagnostics.DiagUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.struct.Pose2dStruct;
+import edu.wpi.first.math.geometry.struct.Pose3dStruct;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
@@ -30,7 +33,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.BuildConstants;
@@ -42,9 +44,6 @@ import frc.robot.util.Util;
 public class SwerveBase implements Subsystem {
     // Shared SwerveModuleStateStruct
     private static SwerveModuleStateStruct kSwerveModuleState = new SwerveModuleStateStruct();
-
-    // Preallocated Alliance Optional
-    private Optional<Alliance> alliance;
 
     // Modules
     private SwerveModule[] modules = {
@@ -95,8 +94,8 @@ public class SwerveBase implements Subsystem {
         StructArrayLogEntry.create(DataLogManager.getLog(), "Drive/Swerve CANivore States", kSwerveModuleState, "m/s, rad");
     private StructArrayLogEntry<SwerveModuleState> stateWithSparkEncLog = 
         StructArrayLogEntry.create(DataLogManager.getLog(), "Drive/Swerve Rel Enc States", kSwerveModuleState, "m/s, rad");
-    private StructLogEntry<Pose2d> poseLog =
-        StructLogEntry.create(DataLogManager.getLog(), "Drive/Pose Estimation", new Pose2dStruct());
+    private StructLogEntry<Pose3d> poseLog =
+        StructLogEntry.create(DataLogManager.getLog(), "Drive/Pose Estimation", new Pose3dStruct());
     private DoubleLogEntry ambiguityLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "Drive/Tag Ambiguity (avg)", "Should not exceed 0.2");
     private IntegerLogEntry tagIdLog = 
@@ -106,6 +105,8 @@ public class SwerveBase implements Subsystem {
     private StructArrayPublisher<SwerveModuleState> statePub;
     private StructArrayPublisher<SwerveModuleState> stateRelPub;
     private StructArrayPublisher<SwerveModuleState> setpointPub;
+    private StructPublisher<Pose3d> globalPoseEstPub;
+    private StructPublisher<Pose3d> alliancePoseEstPub;
 
     // Module state arrays (for logging)
     private SwerveModuleState[] setpointArray = new SwerveModuleState[4];
@@ -118,9 +119,14 @@ public class SwerveBase implements Subsystem {
         DiagUtil.addDevice(gyro);
 
         if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
-            statePub = NetworkTableInstance.getDefault().getTable("Swerve Wheels").getStructArrayTopic("States (abs)", kSwerveModuleState).publish();
-            stateRelPub = NetworkTableInstance.getDefault().getTable("Swerve Wheels").getStructArrayTopic("States (rel)", kSwerveModuleState).publish();
-            setpointPub = NetworkTableInstance.getDefault().getTable("Swerve Wheels").getStructArrayTopic("Setpoints", kSwerveModuleState).publish();
+            NetworkTable nt = NetworkTableInstance.getDefault().getTable("Swerve Drive");
+
+            statePub = nt.getStructArrayTopic("States (abs)", kSwerveModuleState).publish();
+            stateRelPub = nt.getStructArrayTopic("States (rel)", kSwerveModuleState).publish();
+            setpointPub = nt.getStructArrayTopic("Setpoints", kSwerveModuleState).publish();
+
+            globalPoseEstPub = nt.getStructTopic("Global Pose Estimation", new Pose3dStruct()).publish();
+            alliancePoseEstPub = nt.getStructTopic("Alliance Pose Estimation", new Pose3dStruct()).publish();
         }
 
         register();
@@ -174,29 +180,13 @@ public class SwerveBase implements Subsystem {
     }
 
     /**
-     * Drives the robot, field oriented. Positive theta will always rotate the robot towards the AMPs
-     * @param y
-     * @param x
-     * @param theta
-     */
-    public void driveFullFieldOriented(double y, double x, double theta) {
-        alliance = DriverStation.getAlliance();
-
-        if (alliance.isPresent() && alliance.get().equals(Alliance.Red)) {
-            Rotation2d rot = new Rotation2d(theta);
-            theta = (new Rotation2d(-rot.getCos(), rot.getSin())).getDegrees();
-        }
-
-        driveFieldOriented(y, x, theta);
-    }
-
-    /**
      * Resets the pose estimator and gyro's position.
      * It is expected that the gyro always starts facing FORWARD!
      * (Call this at the beginning of autonomous)
      * @param pos
      */
     public void resetPosition(Pose2d pos) {
+        System.out.printf("Reset position to %s\n", pos.toString());
         // Repopulate module positions array
         for (int m = 0; m < 4; m++) {
             modulePositions[m] = modules[m].getPosition();
@@ -256,6 +246,20 @@ public class SwerveBase implements Subsystem {
     }
 
     /**
+     * Returns the estimator's position, with ROLL and PITCH
+     * @param global if true, position will always be relative to blue alliance. If false, it will
+     * be relative to the robot's alliance
+     * @return
+     */
+    public Pose3d get3dPose(boolean global) {
+        return (new Pose3d(getPosition(global))).rotateBy(new Rotation3d(
+            Units.degreesToRadians(getRoll()),
+            Units.degreesToRadians(gyro.getAngle(IMUAxis.kPitch)),
+            0.0
+        ));
+    }
+
+    /**
      * @return Yaw, CCW+
      */
     public Rotation2d getYaw() {
@@ -272,6 +276,13 @@ public class SwerveBase implements Subsystem {
 
         if (Util.isRedAlliance()) return new Rotation2d(rot.getCos(), -rot.getSin());
         else return rot;
+    }
+
+    /**
+     * @return Roll, CCW+
+     */
+    public double getRoll() {
+        return gyro.getAngle(IMUAxis.kRoll);
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
@@ -301,13 +312,16 @@ public class SwerveBase implements Subsystem {
         setpointLog.append(setpointArray);
         stateLog.append(stateArray);
         stateWithSparkEncLog.append(stateWithRelEncArray);
-        poseLog.append(estimator.getEstimatedPosition());
+        poseLog.append(get3dPose(false));
 
         // Output
         if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
             statePub.set(stateArray);
             stateRelPub.set(stateWithRelEncArray);
             setpointPub.set(setpointArray);
+
+            globalPoseEstPub.set(get3dPose(true));
+            alliancePoseEstPub.set(get3dPose(false));
         }
     }
 

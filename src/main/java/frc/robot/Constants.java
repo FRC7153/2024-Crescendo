@@ -63,6 +63,12 @@ public class Constants {
         public static final double kCLIMBER_I = 0.0;
         public static final double kCLIMBER_D = 0.0;
 
+        public static final double kCLIMB_VELO_P = 0.00005;
+        public static final double kCLIMB_VELO_I = 0.0;
+        public static final double kCLIMB_VELO_D = 0.0;
+
+        public static final double kCLIMB_ROLL_STABILIZE_P = 0.01; // todo
+
         public static final double kCLIMBER_TOLERANCE = 3.0;
     }
 
@@ -86,8 +92,8 @@ public class Constants {
     /** Auto Constants */
     public static final class AutoConstants {
         public static final HolonomicPathFollowerConfig kAUTO_PATH_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
-            new PIDConstants(5.0, 0.0, 0.0), 
-            new PIDConstants(5.0, 0.0, 0.0), 
+            new PIDConstants(10.5, 0.0, 0.0), 
+            new PIDConstants(6.5, 0.0, 0.0), 
             5.0, 
             DriveConstants.kRL_SWERVE_POS.getNorm(), 
             new ReplanningConfig()
@@ -137,7 +143,7 @@ public class Constants {
     /** Swerve drive constants */
     public static final class DriveConstants {
         // Max Speeds
-        public static final double kMAX_TELEOP_TRANSLATIONAL_SPEED = 12.0;
+        public static final double kMAX_TELEOP_TRANSLATIONAL_SPEED = 10.0;
         public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 1000.0;
 
         // Base sizes
@@ -237,15 +243,6 @@ public class Constants {
         public static final String kCANIVORE_BUS = "CANivore"; // CANivore
     }
 
-    /** LED Constants */
-    public static final class LEDConstants {
-        public static final double kOFF = 0.99;
-        public static final double kRED = 0.61;
-        public static final double kBLUE = 0.87;
-        public static final double kGREEN = 0.77;
-        public static final double kYELLOW = 0.69;
-    }
-
     /** Field Constants */
     public static final class FieldConstants {
         public static final Translation2d kFIELD_SIZE = new Translation2d(
@@ -253,6 +250,9 @@ public class Constants {
             Units.inchesToMeters((26.0 * 12.0) + 11.25)
         );
 
+        /**
+         * Pose of the speaker, meters
+         */
         public static final Translation2d kSPEAKER_POS = new Translation2d(0.0, 5.547867999999999);
 
         // Average of lowest and highest point (meters):
@@ -264,9 +264,10 @@ public class Constants {
                 (kFIELD_SIZE.getX()) - original.getX(), // X inverted around midline
                 original.getY(), // Same Y
                 new Rotation2d( // Invert angle around midline
-                    original.getRotation().getCos(), 
-                    -original.getRotation().getSin()
+                    -original.getRotation().getCos(), 
+                    original.getRotation().getSin()
                 )
+                //original.getRotation()
             );
         }
     }

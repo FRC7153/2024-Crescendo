@@ -18,6 +18,7 @@ import frc.robot.auto.Autonomous;
 import frc.robot.commands.ArmSourceCommand;
 import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.BalanceArmClimbCommand;
+import frc.robot.commands.ClimbBalancedCommand;
 import frc.robot.commands.ClimberStageCommand;
 import frc.robot.commands.IndexerRegripCommand;
 import frc.robot.commands.IntakeCommand;
@@ -26,6 +27,7 @@ import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.ReverseIndexerCommand;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.drive.SpeakerHeadingLock;
 import frc.robot.subsystems.drive.SwerveBase;
 import frc.robot.util.Dashboard;
 import frc.robot.util.PDHLogger;
@@ -47,7 +49,8 @@ public class RobotContainer {
 
   // Cameras + Devices
   private PDHLogger pdh = new PDHLogger(HardwareConstants.kPDH_CAN);
-  private PVCamera frontArmCamera = new PVCamera("FrontUSBCamera");
+  //private PVCamera frontArmCamera = new PVCamera("FrontUSBCamera");
+  private PVCamera rearLLCamera = new PVCamera("RearLLCamera");
 
   // Auto
   private Autonomous auto = new Autonomous(driveBase, intake, arm, shooter, indexer);
@@ -56,7 +59,7 @@ public class RobotContainer {
   private CommandXboxController driverXboxController = new CommandXboxController(0);
   private CommandJoystick operatorController = new CommandJoystick(1);
   
-  private Dashboard dashboard = new Dashboard(driveBase, frontArmCamera, auto);
+  private Dashboard dashboard = new Dashboard(driveBase, null, auto);
 
   // Init
   public RobotContainer() {
@@ -79,13 +82,29 @@ public class RobotContainer {
     // Teleop trigger (reused multiple times)
     Trigger isTeleop = new Trigger(DriverStation::isTeleopEnabled);
 
-    // Drive Control
-    isTeleop.whileTrue(new TeleopDriveCommand(
+    // Drive Control (while A is not held)
+    driverXboxController.a().negate()
+    .and(isTeleop)
+      .whileTrue(new TeleopDriveCommand(
         driveBase, 
         () -> -driverXboxController.getLeftY(), 
         () -> driverXboxController.getLeftX(), 
-        () -> -driverXboxController.getRightX()
+        () -> -driverXboxController.getRightX(),
+        true
       ).repeatedly());
+
+    // Driver speaker heading lock (A held)
+    driverXboxController.a()
+      .whileTrue(new TeleopDriveCommand(
+        driveBase, 
+        () -> -driverXboxController.getLeftY(), 
+        ()-> driverXboxController.getLeftX(),
+        (new SpeakerHeadingLock(
+          rearLLCamera, 
+          () -> driveBase.getPosition(false)
+        )),
+        false
+      ));
 
     // Driver Intake Button (RT)
     driverXboxController.rightTrigger()
@@ -109,11 +128,6 @@ public class RobotContainer {
     operatorController.button(6)
       .whileTrue(new PrintCommand("Speaker long shot not yet implemented"));
       //.whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)));
-      /*.whileTrue(new TeleopDriveHeadingLockCommand(
-        driveBase, 
-        () -> -driverXboxController.getLeftY(), 
-        () -> -driverXboxController.getRightX()
-      ));*/ // TODO driver should have control of heading lock
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)
@@ -123,7 +137,7 @@ public class RobotContainer {
     operatorController.button(7)
       .and(driverXboxController.rightTrigger().negate()) // Not while intaking
       .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, ArmPositions.kSUBWOOFER_SPEAKER_REAR, driveBase::getYaw, 90.0, 270.0))
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(58.0), shooter).repeatedly());
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly()); // I know, this velocity is obscenely high. Don't question it :)
 
     // Operator Shoot Button (trigger)
     // Assumes shooter is already up-to-speed (if needed)
@@ -136,11 +150,12 @@ public class RobotContainer {
     
     // Operator Climb Button (5)
     operatorController.button(5)
-      .onTrue(new ClimberStageCommand(climber, 67.0)); // 70.0
+      .onTrue(new ClimberStageCommand(climber, 68.5)); // 70.0
 
     // Operator Climb Button (3)
     operatorController.button(3)
-      .onTrue(new ClimberStageCommand(climber, 0.0));
+      //.onTrue(new ClimberStageCommand(climber, 0.0));
+      .onTrue(new ClimbBalancedCommand(driveBase, climber));
 
     // Operator Balance (throttle up)
     operatorController.axisLessThan(operatorController.getThrottleChannel(), 0.0)

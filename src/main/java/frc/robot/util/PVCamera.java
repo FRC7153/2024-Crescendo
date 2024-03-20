@@ -159,13 +159,13 @@ public class PVCamera extends SubsystemBase {
             // Output?
             if (target.getFiducialId() == 7 && !Util.isRedAlliance()) {
               if (BuildConstants.kOUTPUT_ALL_TELEMETRY) {
-                distOut.setDouble(getDistanceToSpeaker());
-                angleOut.setDouble(getAngleToSpeaker());
-                ageOut.setDouble(getTagCacheAge(7));
+                distOut.setDouble(getDistanceToTag(7));
+                angleOut.setDouble(getAngleToTag(7));
+                ageOut.setDouble(Timer.getFPGATimestamp() - getTagCacheTime(7));
               }
 
-              distLog.append(getDistanceToSpeaker());
-              angleLog.append(getAngleToSpeaker());
+              distLog.append(getDistanceToTag(7));
+              angleLog.append(getAngleToTag(7));
             }
           }
         }
@@ -185,8 +185,8 @@ public class PVCamera extends SubsystemBase {
    * Gets the distance to the cached speaker tag
    * @return meters
    */
-  public double getDistanceToSpeaker() {
-    TimestampedPhotonTrackedTarget speakerTag = tagCache.get((Util.isRedAlliance()) ? 4 : 7);
+  public double getDistanceToTag(int tag) {
+    TimestampedPhotonTrackedTarget speakerTag = tagCache.get(tag);
 
     if (speakerTag.target != null) {
       Transform3d proj = speakerTag.target.getBestCameraToTarget();
@@ -201,8 +201,8 @@ public class PVCamera extends SubsystemBase {
    * Gets the angle to the cached speaker tag.
    * @return deg, CCW+
    */
-  public double getAngleToSpeaker() {
-    TimestampedPhotonTrackedTarget speakerTag = tagCache.get((Util.isRedAlliance()) ? 4 : 7);
+  public double getAngleToTag(int tag) {
+    TimestampedPhotonTrackedTarget speakerTag = tagCache.get(tag);
 
     if (speakerTag.target != null) {
       return speakerTag.target.getYaw();
@@ -213,11 +213,11 @@ public class PVCamera extends SubsystemBase {
   }
 
   /**
-   * Age of tag in cache
-   * @return seconds
+   * Time tag was updated in cache
+   * @return FPGA timestamp, or -1.0 if never seen
    */
-  public double getTagCacheAge(int tag) {
-    return Timer.getFPGATimestamp() - tagCache.get(tag).timestamp;
+  public double getTagCacheTime(int tag) {
+    return tagCache.get(tag).timestamp;
   }
 
   /**
