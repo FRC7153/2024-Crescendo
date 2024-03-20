@@ -106,4 +106,12 @@ public class Autonomous {
             AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer)
         );
     }
+
+    /**
+     * Short Side 2 Note
+     */
+
+     private Command buildSLefthortSide2Note(){
+
+     }
 }
