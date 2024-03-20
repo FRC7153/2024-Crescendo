@@ -108,10 +108,21 @@ public class Autonomous {
     }
 
     /**
-     * Short Side 2 Note
+     * 45 Subwoofer 2 Note
      */
 
-     private Command buildSLefthortSide2Note(){
-
+     private Command build45Subwoofer2Note(){
+        return new SequentialCommandGroup(
+            AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer), // TODO: With Shooter Regression for that specific angle
+            new ParallelRaceGroup(
+                new SequentialCommandGroup(
+                    new LoadShooterGroundCommand(arm, shooter, intake, indexer),
+                    new NeverEndingCommand()
+                ), 
+                AutoUtils.createFollowPathCommand(base, "45Subwoofer2Note", false),
+            ), 
+            new WaitCommand(0.7),
+            new Inta
+        )
      }
 }
