@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 
 import com.frc7153.commands.NeverEndingCommand;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -65,8 +64,7 @@ public class Autonomous {
         //chooser.addOption("Time-based Speaker/Drive", () -> new TimeBasedAutos(base, arm, shooter, indexer, true));
 
         // Simple trajectory autos
-        //chooser.addOption("Simple forward", () -> new PathPlannerAuto("DriveForward")); // TODO broken
-        chooser.addOption("Simple forward", () -> new PrintCommand("bad :(")); // TODO broken
+        chooser.addOption("Simple forward", this::simpleForward);
 
         // Center Subwoofer Autos
         chooser.addOption("Center Subwoofer Double Note", this::buildDoubleNoteFromSpeakerCenter);
@@ -88,9 +86,13 @@ public class Autonomous {
         return loadedAutoCommand;
     }
     
+    /** Drive forward straight */
+    private Command simpleForward() {
+        return AutoUtils.createFollowPathCommand(base, "StraightLine", true);
+    }
+
     /** Double note from speaker center */
     private Command buildDoubleNoteFromSpeakerCenter() {
-        // TODO error handling
         return new SequentialCommandGroup(
             AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer),
             new ParallelRaceGroup(
