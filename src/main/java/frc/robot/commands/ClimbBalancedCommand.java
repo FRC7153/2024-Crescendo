@@ -15,7 +15,8 @@ public class ClimbBalancedCommand extends Command {
 
   /**
    * Brings the robot up, adjusting the height of each climber to stabilize the roll.
-   * Does not require the drive base
+   * Does not require the drive base.
+   * Will reset the robot gyro's ROLL
    */
   public ClimbBalancedCommand(SwerveBase base, Climber climber) {
     this.base = base;
@@ -27,6 +28,8 @@ public class ClimbBalancedCommand extends Command {
   // Init
   @Override
   public void initialize() {
+    base.resetRoll();
+
     lSpeed = 0.8;
     rSpeed = 0.8;
   }
