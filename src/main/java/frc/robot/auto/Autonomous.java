@@ -7,7 +7,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -69,6 +68,7 @@ public class Autonomous {
 
         // Center Subwoofer Autos
         chooser.addOption("Center Subwoofer Double Note", this::buildDoubleNoteFromSpeakerCenter);
+        chooser.addOption("Left 45 Subwoofer Double Note", this::build45Subwoofer2Note);
     }
 
     // On change
@@ -122,10 +122,11 @@ public class Autonomous {
                     new LoadShooterGroundCommand(arm, shooter, intake, indexer),
                     new NeverEndingCommand()
                 ), 
-                AutoUtils.createFollowPathCommand(base, "45Subwoofer2Note", false),
+                AutoUtils.createFollowPathCommand(base, "45Subwoofer2Note", false)
             ), 
             AutoUtils.finishIntakingCommand(indexer, intake),
             AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer)
+            //build45Subwoofer2Note() // TODO test
         );
      }
 }
