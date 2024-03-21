@@ -7,6 +7,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -123,8 +124,8 @@ public class Autonomous {
                 ), 
                 AutoUtils.createFollowPathCommand(base, "45Subwoofer2Note", false),
             ), 
-            new WaitCommand(0.7),
-            new Inta
-        )
+            AutoUtils.finishIntakingCommand(indexer, intake),
+            AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer)
+        );
      }
 }
