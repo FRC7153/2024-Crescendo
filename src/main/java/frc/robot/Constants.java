@@ -25,7 +25,7 @@ public class Constants {
     /** Build Constants */
     public static final class BuildConstants {
         public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
-        public static final boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
+        public static final boolean kARM_TUNE_MODE = true; // For tuning lower pivot PID
     }
 
     /** Shooter Constants */
@@ -143,7 +143,8 @@ public class Constants {
     /** Swerve drive constants */
     public static final class DriveConstants {
         // Max Speeds
-        public static final double kMAX_TELEOP_TRANSLATIONAL_SPEED = 10.0;
+        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 10.0;
+        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 15.5;
         public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 1000.0;
 
         // Base sizes

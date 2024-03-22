@@ -82,7 +82,7 @@ public class RobotContainer {
     // Teleop trigger (reused multiple times)
     Trigger isTeleop = new Trigger(DriverStation::isTeleopEnabled);
 
-    // Drive Control (while A is not held)
+    // Drive Control (Left joystick hold for fast mode) (while A is not held)
     driverXboxController.a().negate()
     .and(isTeleop)
       .whileTrue(new TeleopDriveCommand(
@@ -90,7 +90,8 @@ public class RobotContainer {
         () -> -driverXboxController.getLeftY(), 
         () -> driverXboxController.getLeftX(), 
         () -> -driverXboxController.getRightX(),
-        true
+        true,
+        () -> driverXboxController.leftStick().getAsBoolean()
       ).repeatedly());
 
     // Driver speaker heading lock (A held)
@@ -103,7 +104,8 @@ public class RobotContainer {
           rearLLCamera, 
           () -> driveBase.getPosition(false)
         )),
-        false
+        false,
+        () -> false // Don't allow fast mode here
       ));
 
     // Driver Intake Button (RT)
@@ -150,12 +152,12 @@ public class RobotContainer {
     
     // Operator Climb Button (5)
     operatorController.button(5)
-      .onTrue(new ClimberStageCommand(climber, 68.5)); // 70.0
+      .onTrue(new ClimberStageCommand(climber, 70.0)); // 70.0
 
     // Operator Climb Button (3)
     operatorController.button(3)
-      //.onTrue(new ClimberStageCommand(climber, 0.0));
-      .onTrue(new ClimbBalancedCommand(driveBase, climber));
+      .onTrue(new ClimberStageCommand(climber, 0.0));
+      //.onTrue(new ClimbBalancedCommand(driveBase, climber));
 
     // Operator Balance (throttle up)
     operatorController.axisLessThan(operatorController.getThrottleChannel(), 0.0)
