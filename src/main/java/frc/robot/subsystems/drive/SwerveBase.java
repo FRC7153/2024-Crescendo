@@ -251,11 +251,18 @@ public class SwerveBase implements Subsystem {
      * @return
      */
     public Pose3d get3dPose(boolean global) {
-        return (new Pose3d(getPosition(global))).rotateBy(new Rotation3d(
-            Units.degreesToRadians(getRoll()),
-            Units.degreesToRadians(gyro.getAngle(IMUAxis.kPitch)),
-            0.0
-        ));
+        Pose2d pos = getPosition(global);
+
+        return new Pose3d(
+            pos.getX(),
+            pos.getY(),
+            0.0, // No, we can't fly :(
+            new Rotation3d(
+                Units.degreesToRadians(gyro.getAngle(IMUAxis.kRoll)),
+                Units.degreesToRadians(gyro.getAngle(IMUAxis.kPitch)),
+                pos.getRotation().getRadians()
+            )
+        );
     }
 
     /**

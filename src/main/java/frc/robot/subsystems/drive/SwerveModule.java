@@ -113,7 +113,7 @@ public class SwerveModule {
         double abs = steerCANCoder.getAbsolutePosition();
         double rel = steerRelEncoder.getPosition() / SwerveModuleConstants.kSTEER_RATIO;
 
-        System.out.printf("Checking a swerve module! Heading is off by %f\n", abs - rel);
+        System.out.printf("Checking a swerve module! Heading is off by %f rots\n", abs - rel);
 
         steerRelEncoder.setPosition(
             abs * SwerveModuleConstants.kSTEER_RATIO

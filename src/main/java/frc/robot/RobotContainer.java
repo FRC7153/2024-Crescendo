@@ -14,8 +14,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPositions;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.Constants.ShootingRegressions;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.ArmSourceCommand;
+import frc.robot.commands.ArmToRegressionCommand;
 import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.BalanceArmClimbCommand;
 import frc.robot.commands.ClimbBalancedCommand;
@@ -59,7 +61,7 @@ public class RobotContainer {
   private CommandXboxController driverXboxController = new CommandXboxController(0);
   private CommandJoystick operatorController = new CommandJoystick(1);
   
-  private Dashboard dashboard = new Dashboard(driveBase, null, auto);
+  private Dashboard dashboard = new Dashboard(driveBase, rearLLCamera, auto);
 
   // Init
   public RobotContainer() {
@@ -126,10 +128,11 @@ public class RobotContainer {
     operatorController.button(2)
       .onTrue(new ArmSourceCommand(arm, shooter, indexer, operatorController.button(2)));
     
-    // Operator Arm Speaker Button (6)
+    // Operator Arm Speaker Long Shot Button (6)
     operatorController.button(6)
-      .whileTrue(new PrintCommand("Speaker long shot not yet implemented"));
-      //.whileTrue(new ArmSpeakerCommand(arm, shooter, led, () -> driveBase.getPosition(false)));
+      .and(driverXboxController.rightTrigger().negate())
+      .whileTrue(new ArmToRegressionCommand(arm, rearLLCamera))
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly());
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)

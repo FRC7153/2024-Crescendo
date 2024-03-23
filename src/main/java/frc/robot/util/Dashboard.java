@@ -22,8 +22,6 @@ public class Dashboard {
   // Subsystems
   private SwerveBase base;
 
-  // Outputs
-
   // Init
   public Dashboard(SwerveBase base, PVCamera camera, Autonomous auto) {
     // Remember subsystems

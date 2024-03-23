@@ -6,6 +6,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,8 +25,8 @@ import frc.robot.subsystems.Arm.ArmState;
 public class Constants {
     /** Build Constants */
     public static final class BuildConstants {
-        public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
-        public static final boolean kARM_TUNE_MODE = true; // For tuning lower pivot PID
+        public static final boolean kOUTPUT_ALL_TELEMETRY = false; // For debugging, output all live values to NT
+        public static final boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
     }
 
     /** Shooter Constants */
@@ -76,11 +77,12 @@ public class Constants {
     public static final class ArmPositions {
         public static final ArmState kDEFAULT = new ArmState(108.0, 180.0, 0.0);
 
-        public static final ArmState kGROUND_INTAKE = new ArmState(110.0, 255.0, 0.5); // 110
+        public static final ArmState kGROUND_INTAKE = new ArmState(110.0, 255.0, 0.8); // 110
         public static final ArmState kSOURCE_INTAKE_FRONT = new ArmState(138.0, 180.0, 1.0);
 
         public static final ArmState kSUBWOOFER_SPEAKER_FRONT = new ArmState(120.0, 200.0, 0.0);
         public static final ArmState kSUBWOOFER_SPEAKER_REAR = new ArmState(125.0, 270.0, 0.0);
+        public static final ArmState kSPEAKER_LONG_REAR = new ArmState(120, 180.0, 0.0); // Upper angle depends on regression
 
         public static final ArmState kFRONT_AMP = new ArmState(145.0, 275.0, 2.5);
         public static final ArmState kREAR_AMP = new ArmState(190.0, 105.0, 1.5);
@@ -102,9 +104,16 @@ public class Constants {
 
     /** Shooting Calculations */
     public static final class ShootingRegressions {
-        /** Determine shoot velocity from distance (m) */
-        public static final double SHOOT_VELOCITY_FROM_DISTANCE(double distance) {
-            return 100.0; // TODO regression
+        /** Determine shooter angle from rear limelight tag distance (m) */
+        public static final ArmState V1_SHOOT_ANGLE_FROM_REAR_LIMELIGHT_DISTANCE(double distance) {
+            // See: https://www.desmos.com/calculator/0cghhlhgfi 
+
+            distance = MathUtil.clamp(distance, 0.0, 4.0);
+            return new ArmState(
+                120.0, 
+                (-17.017 * distance * distance) + (85.3966 * distance) + 183.461,
+                0.0
+            );
         }
     }
 
@@ -143,8 +152,8 @@ public class Constants {
     /** Swerve drive constants */
     public static final class DriveConstants {
         // Max Speeds
-        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 10.0;
-        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 15.5;
+        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 10.5;
+        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 22.5;
         public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 1000.0;
 
         // Base sizes
