@@ -69,7 +69,7 @@ public class Diagnostics {
         // Init timer
         timer = new Timer();
         // Runs every second
-        timer.scheduleAtFixedRate(new PeriodicCheck(), 0, 1000);
+        timer.schedule(new PeriodicCheck(), 0, 1000);
     }
 
     /** This will run periodically */
