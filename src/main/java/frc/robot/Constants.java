@@ -25,8 +25,8 @@ import frc.robot.subsystems.Arm.ArmState;
 public class Constants {
     /** Build Constants */
     public static final class BuildConstants {
-        public static final boolean kOUTPUT_ALL_TELEMETRY = false; // For debugging, output all live values to NT
-        public static final boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
+        public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
+        public static final boolean kARM_TUNE_MODE = true; // For tuning lower pivot PID
     }
 
     /** Shooter Constants */
@@ -78,7 +78,7 @@ public class Constants {
         public static final ArmState kDEFAULT = new ArmState(108.0, 180.0, 0.0);
 
         public static final ArmState kGROUND_INTAKE = new ArmState(110.0, 255.0, 0.8); // 110
-        public static final ArmState kSOURCE_INTAKE_FRONT = new ArmState(138.0, 180.0, 1.0);
+        public static final ArmState kSOURCE_INTAKE_FRONT = new ArmState(135.0, 180.0, 1.0);
 
         public static final ArmState kSUBWOOFER_SPEAKER_FRONT = new ArmState(120.0, 200.0, 0.0);
         public static final ArmState kSUBWOOFER_SPEAKER_REAR = new ArmState(125.0, 270.0, 0.0);
@@ -124,7 +124,7 @@ public class Constants {
         public static final int kUPPER_PIVOT_CURRENT_LIMIT = 15; // 25
         public static final int kELEVATOR_EXT_CURRENT_LIMIT = 15; // 35
 
-        public static final double kLOWER_ANGLE_OFFSET = 0.163; // rots
+        public static final double kLOWER_ANGLE_OFFSET = 0.18 + 0.5; // rots
         public static final double kUPPER_ANGLE_OFFSET = 0.3356208; // rots 0.5 = forward
 
         public static final double kLOWER_PIVOT_RATIO = 1.0 / (4.0 * 3.0 * 3.0 * (60.0/18.0));
@@ -152,8 +152,8 @@ public class Constants {
     /** Swerve drive constants */
     public static final class DriveConstants {
         // Max Speeds
-        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 10.5;
-        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 22.5;
+        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 4.5;
+        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 6.5;
         public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 1000.0;
 
         // Base sizes
@@ -202,9 +202,9 @@ public class Constants {
         // Drive Motor
         public static final double kDRIVE_RATIO = 6.75; // SDS Mk4i L2 modules
         public static final int kDRIVE_CURRENT_LIMIT = 45;
-        public static final double kDRIVE_P = 0.00005;
-        public static final double kDRIVE_I = 0.0;
-        public static final double kDRIVE_D = 0.0; // 5e-7
+        public static final double kDRIVE_P = 0.00025; // 0.00025
+        public static final double kDRIVE_I = 0.0; // 0.0000005
+        public static final double kDRIVE_D = 0.0;
 
         // Steer Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;

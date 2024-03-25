@@ -266,10 +266,10 @@ public class Arm implements Subsystem {
     @Override
     public void periodic(){
         // Disable arm if lowered
-        if (setpoint.equals(ArmPositions.kDEFAULT) && lowerPivotEncoder.getPosition() * 360.0 < 111.0) {
+        /*if (setpoint.equals(ArmPositions.kDEFAULT) && lowerPivotEncoder.getPosition() * 360.0 < 111.0) {
             lowerLeftPivot.disable();
             lowerRightPivot.disable();
-        }
+        }*/
 
         // Log
         lowerPivotPositionLog.append(lowerPivotEncoder.getPosition() * 360.0);

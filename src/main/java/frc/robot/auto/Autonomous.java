@@ -7,12 +7,16 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import frc.robot.Constants.ArmPositions;
+import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.LoadShooterGroundCommand;
+import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
@@ -64,7 +68,16 @@ public class Autonomous {
         //chooser.addOption("Time-based Speaker/Drive", () -> new TimeBasedAutos(base, arm, shooter, indexer, true));
 
         // Simple trajectory autos
-        chooser.addOption("Simple forward", this::simpleForward);
+        chooser.addOption("Simple forward", this::buildSimpleForward);
+
+        // Shoot and stay
+        chooser.addOption("Single rear shot (left 45)", () -> buildShootDontMove(45.0));
+        chooser.addOption("Single rear shot (center)", () -> buildShootDontMove(0.0));
+        chooser.addOption("Single rear shot (right 45)", () -> buildShootDontMove(360.0 - 45.0));
+
+        //Amp 1 Note
+        chooser.addOption("Single Note Amp Shot (blue alliance)", () -> buildPerpendicularAmp1Note(270.0));
+        chooser.addOption("Single Note Amp Shot (red alliance)", () -> buildPerpendicularAmp1Note(90.0));
 
         // Center Subwoofer Autos
         chooser.addOption("Center Subwoofer Double Note", this::buildDoubleNoteFromSpeakerCenter);
@@ -88,8 +101,39 @@ public class Autonomous {
     }
     
     /** Drive forward straight */
-    private Command simpleForward() {
-        return AutoUtils.createFollowPathCommand(base, "StraightLine", true);
+    private Command buildSimpleForward() {
+        return AutoUtils.createFollowPathCommand(base, "StraightLine", true)
+            .withName("Simple-forward");
+    }
+
+    /** Shoot and don't move */
+    private Command buildShootDontMove(double startAngle) {
+        return new SequentialCommandGroup(
+            new WaitCommand(2.69), // nice
+            new InstantCommand(() -> base.resetPosition(AutoUtils.defaultInitPos())),
+            new InstantCommand(() -> base.setYawAngle(startAngle)),
+            AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer),
+            new PrintCommand("Shot, waiting...")
+        ).withName(String.format("Shoot-do-not-move-%f", startAngle));
+    }
+
+    /**
+     * Amp 90 or 270 Degrees 
+     */
+    private Command buildPerpendicularAmp1Note(double startAngle){
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> base.resetPosition(AutoUtils.defaultInitPos())),
+            new InstantCommand(() -> base.setYawAngle(startAngle)),
+            new ParallelRaceGroup(
+                new ArmToStateCommand(arm, ArmPositions.kREAR_AMP),
+                new SequentialCommandGroup(
+                    new WaitCommand(3.0),
+                    new ShootCommand(indexer, false)
+                ),
+                new WaitCommand(6.0)
+            ),
+            new ArmToStateCommand(arm, ArmPositions.kDEFAULT)
+        ).withName(String.format("Single-shot-amp-%f", startAngle));
     }
 
     /** Double note from speaker center */
@@ -107,7 +151,7 @@ public class Autonomous {
             AutoUtils.finishIntakingCommand(indexer, intake),
             AutoUtils.createFollowPathCommand(base, "CenterNoteToSubwooferFront", false),
             AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer)
-        );
+        ).withName("Double-note-from-speaker-center");
     }
 
     /**
@@ -128,5 +172,5 @@ public class Autonomous {
             AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer)
             //build45Subwoofer2Note() // TODO test
         );
-     }
+     } 
 }

@@ -24,7 +24,7 @@ public class ArmSourceCommand extends ParallelRaceGroup {
       new ArmToStateCommand(arm, ArmPositions.kSOURCE_INTAKE_FRONT, null, null, 0, 0),
       // Move wheels
       new SequentialCommandGroup(
-        new InstantCommand(() -> shooter.setShootVelocity(-5.0), shooter), // Reverse shooter
+        new InstantCommand(() -> shooter.setShootVelocity(-7.0), shooter), // Reverse shooter
         new InstantCommand(() -> indexer.setIndexerVelocity(0.0), indexer), // Stop indexer
         new WaitUntilCommand(button.negate()), // Wait until released
         new InstantCommand(() -> shooter.setShootVelocity(0.0), shooter), // Stop shooter

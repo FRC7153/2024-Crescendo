@@ -179,6 +179,14 @@ public class SwerveBase implements Subsystem {
     }
 
     /**
+     * Sets the gyro's yaw angle
+     * @param degrees, CCW+
+     */
+    public void setYawAngle(double degrees) {
+        gyro.setGyroAngle(IMUAxis.kYaw, degrees);
+    }
+
+    /**
      * Resets the pose estimator and gyro's position.
      * It is expected that the gyro always starts facing FORWARD!
      * (Call this at the beginning of autonomous)

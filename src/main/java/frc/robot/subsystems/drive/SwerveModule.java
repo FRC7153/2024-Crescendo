@@ -63,6 +63,9 @@ public class SwerveModule {
         drivePIDController.setP(SwerveModuleConstants.kDRIVE_P, 0);
         drivePIDController.setI(SwerveModuleConstants.kDRIVE_I, 0);
         drivePIDController.setD(SwerveModuleConstants.kDRIVE_D, 0);
+
+        drivePIDController.setIAccum(0.0);
+        drivePIDController.setIMaxAccum(6.0, 0);
         //drivePIDController.setSmartMotionMaxAccel(SwerveModuleConstants.kDRIVE_MAX_ACCEL, 0);
         //drivePIDController.setSmartMotionMaxVelocity(SwerveModuleConstants.kDRIVE_MAX_ACCEL, 0);
 
