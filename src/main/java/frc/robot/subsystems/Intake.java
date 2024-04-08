@@ -134,6 +134,7 @@ public class Intake implements Subsystem {
     @Override
     public void periodic() {
         intakeVeloLog.append(intakeEncoder.getVelocity() * IntakeConstants.kINTAKE_RATIO);
+        secondaryIntakeVeloLog.append(secondaryIntakeEncoder.getVelocity() * SecondaryIntakeConstants.kINTAKE_RATIO);
 
         // Ensure not stalled
         if (
@@ -144,6 +145,7 @@ public class Intake implements Subsystem {
         ) {
             DriverStation.reportError("Intake motor PID stall detected!", false);
             intake.set(setpoint / 6000.0);
+            secondaryIntake.set(setpoint / 6000.00);
         }
     }
 }
