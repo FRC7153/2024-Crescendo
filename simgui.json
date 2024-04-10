@@ -4,6 +4,7 @@
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Drive/Auto": "String Chooser",
       "/Shuffleboard/Drive/Autonomous": "String Chooser",
+      "/Shuffleboard/Drive/Recheck Swerves": "Command",
       "/Shuffleboard/Drive/Reset Odometry": "Command"
     }
   },

@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -30,6 +31,7 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.CalibrationTime;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -43,6 +45,9 @@ import frc.robot.util.Util;
 public class SwerveBase implements Subsystem {
     // Shared SwerveModuleStateStruct
     private static SwerveModuleStateStruct kSwerveModuleState = new SwerveModuleStateStruct();
+
+    // Distance Sensor
+    private Ultrasonic distanceSensor = new Ultrasonic(0, 1);
 
     // Modules
     private SwerveModule[] modules = {
@@ -106,6 +111,7 @@ public class SwerveBase implements Subsystem {
     private StructArrayPublisher<SwerveModuleState> setpointPub;
     private StructPublisher<Pose3d> globalPoseEstPub;
     private StructPublisher<Pose3d> alliancePoseEstPub;
+    private DoublePublisher distSensorPub;
 
     // Module state arrays (for logging)
     private SwerveModuleState[] setpointArray = new SwerveModuleState[4];
@@ -114,6 +120,10 @@ public class SwerveBase implements Subsystem {
 
     // Constructor
     public SwerveBase() {
+        // Distance sensor
+        distanceSensor.setEnabled(true);
+        Ultrasonic.setAutomaticMode(true);
+
         // Start logging
         DiagUtil.addDevice(gyro);
 
@@ -126,6 +136,8 @@ public class SwerveBase implements Subsystem {
 
             globalPoseEstPub = nt.getStructTopic("Global Pose Estimation", new Pose3dStruct()).publish();
             alliancePoseEstPub = nt.getStructTopic("Alliance Pose Estimation", new Pose3dStruct()).publish();
+
+            distSensorPub = nt.getDoubleTopic("Front Distance Sensor Out (in)").publish();
         }
 
         register();
@@ -306,6 +318,13 @@ public class SwerveBase implements Subsystem {
         gyro.setGyroAngle(IMUAxis.kRoll, 0.0);
     }
 
+    /**
+     * @return The front ultrasonic sensor distances, in
+     */
+    public double getFrontSensorDistance() {
+        return distanceSensor.getRangeInches();
+    }
+
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
         return kinematics.toChassisSpeeds(stateArray); // This should be populated automatically
     }
@@ -343,6 +362,8 @@ public class SwerveBase implements Subsystem {
 
             globalPoseEstPub.set(get3dPose(true));
             alliancePoseEstPub.set(get3dPose(false));
+
+            distSensorPub.set(getFrontSensorDistance());
         }
     }
 
