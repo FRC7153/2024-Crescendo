@@ -22,8 +22,12 @@ public class IntakeCommand extends Command {
     // Start
     @Override
     public void initialize() {
-        if (direction) intake.enableIntake();
-        else intake.reverseIntake();
+        if (direction){ 
+            intake.enableIntake();
+            
+        } else {
+         intake.reverseIntake();
+        }
     }
 
     // End

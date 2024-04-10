@@ -55,6 +55,16 @@ public class Constants {
         public static final double kINTAKE_I = 5e-7;
         public static final double kINTAKE_D = 0.0;
     }
+    /** Secondary Intake Constants */
+    public static final class SecondaryIntakeConstants {
+        public static final double kINTAKE_RATIO = 1.0 / 25.0;
+
+        public static final int kINTAKE_CURRENT_LIMIT = 30;
+
+        public static final double kINTAKE_P = 0.000005;
+        public static final double kINTAKE_I = 5e-7;
+        public static final double kINTAKE_D = 0.0;
+    }
     /** Climber Constants */
     public static final class ClimberConstants {
         public static final double kCLIMBER_RATIO = 1.0 / 25.0;
@@ -258,6 +268,8 @@ public class Constants {
         public static final int kELEVATOR_EXT_CAN = 23;
 
         public static final String kCANIVORE_BUS = "CANivore"; // CANivore
+
+        public static final int kINTAKE_SECONDARY = 24;
     }
 
     /** Field Constants */
