@@ -115,6 +115,13 @@ public class Constants {
                 0.0
             );
         }
+
+        /** Determine shooter angle from rear limelight tag distance (m) */
+        public static final ArmState V2_SHOOT_ANGLE_FROM_REAR_LIMELIGHT_DISTANCE(double distance) {
+            ArmState state = V1_SHOOT_ANGLE_FROM_REAR_LIMELIGHT_DISTANCE(distance);
+            state.upperAngle = state.upperAngle + 5.0;
+            return state;
+        }
     }
 
     /** Arm Constants */
@@ -190,7 +197,7 @@ public class Constants {
         public static final Path kAPRIL_TAG_LAYOUT_JSON = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2024Layout.json");
 
         // Heading Correction PID
-        public static final double kHEADING_CORRECTION_P = 0.5; // TODO
+        public static final double kHEADING_CORRECTION_P = 1.5; // TODO
         public static final double kHEADING_CORRECTION_I = 0.0; // TODO
         public static final double kHEADING_CORRECTION_D = 0.0; // TODO        
     }

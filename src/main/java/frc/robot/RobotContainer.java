@@ -93,7 +93,8 @@ public class RobotContainer {
         () -> driverXboxController.getLeftX(), 
         () -> -driverXboxController.getRightX(),
         true,
-        () -> driverXboxController.leftStick().getAsBoolean()
+        () -> driverXboxController.leftStick().getAsBoolean(),
+        () -> driverXboxController.leftTrigger().getAsBoolean()
       ).repeatedly());
 
     // Driver speaker heading lock (A held)
@@ -107,7 +108,8 @@ public class RobotContainer {
           () -> driveBase.getPosition(false)
         )),
         false,
-        () -> false // Don't allow fast mode here
+        () -> false, // Don't allow fast mode here
+        () -> false // Dont obstacle avoidance here
       ));
 
     // Driver Intake Button (RT)
@@ -131,8 +133,8 @@ public class RobotContainer {
     // Operator Arm Speaker Long Shot Button (6)
     operatorController.button(6)
       .and(driverXboxController.rightTrigger().negate())
-      .whileTrue(new ArmToRegressionCommand(arm, rearLLCamera))
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly());
+      .whileTrue(new ArmToRegressionCommand(arm, rearLLCamera)) // TODO fix arm return issue
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(2800.0), shooter).repeatedly()); // 3500
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)
@@ -148,8 +150,8 @@ public class RobotContainer {
     // Assumes shooter is already up-to-speed (if needed)
     operatorController.trigger()
       .whileTrue(new ConditionalCommand(
-        new ShootCommand(indexer, true), // Shoot forwards
-        new ShootCommand(indexer, false), // Shoot backwards (if placing in AMP from rear)
+        new ShootCommand(indexer, true, () -> operatorController.button(4).getAsBoolean()), // Shoot forwards
+        new ShootCommand(indexer, false, () -> operatorController.button(4).getAsBoolean()), // Shoot backwards (if placing in AMP from rear)
         shooter::isShooterRunning
       ));
     

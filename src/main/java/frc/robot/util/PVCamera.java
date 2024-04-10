@@ -83,7 +83,7 @@ public class PVCamera extends SubsystemBase {
     camera.setLED(VisionLEDMode.kOff);
 
     // Default cache (speaker tags)
-    //tagCache.put(3, new TimestampedPhotonTrackedTarget());
+    tagCache.put(5, new TimestampedPhotonTrackedTarget());
     tagCache.put(4, new TimestampedPhotonTrackedTarget());
     tagCache.put(7, new TimestampedPhotonTrackedTarget());
     //tagCache.put(8, new TimestampedPhotonTrackedTarget());

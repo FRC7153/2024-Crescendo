@@ -20,8 +20,12 @@ public class PhotonCameraDevice extends CheckableDevice {
     @Override
     protected boolean isOk() {
         // Note: in Driver Mode, the camera does not need to be producing targets
-        timeSinceLastTarget = camera.getLatestResult().getTimestampSeconds() - Timer.getFPGATimestamp();
-        return camera.isConnected() && (camera.getDriverMode() || timeSinceLastTarget < 10.0);
+        try {
+            timeSinceLastTarget = camera.getLatestResult().getTimestampSeconds() - Timer.getFPGATimestamp();
+            return camera.isConnected() && (camera.getDriverMode() || timeSinceLastTarget < 10.0);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

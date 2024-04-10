@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.SwerveBase;
@@ -12,8 +13,13 @@ public class TeleopDriveCommand extends Command {
 
     // Inputs
     private Supplier<Double> ySupply, xSupply, thetaSupply;
-    private Supplier<Boolean> fastMode;
+    private Supplier<Boolean> fastMode, obstacleAvoidance;
     private boolean isThetaPercentage;
+
+    // Filters
+    private SlewRateLimiter xLimiter = new SlewRateLimiter(2.0);
+    private SlewRateLimiter yLimiter = new SlewRateLimiter(2.0);
+    private SlewRateLimiter tLimiter = new SlewRateLimiter(2.0);
 
     /**
      * Teleop driving command for the swerve base
@@ -30,13 +36,15 @@ public class TeleopDriveCommand extends Command {
         Supplier<Double> xSupply, 
         Supplier<Double> thetaSupply,
         boolean isThetaPercentage,
-        Supplier<Boolean> fastMode) {
+        Supplier<Boolean> fastMode,
+        Supplier<Boolean> obstacleAvoidance) {
             this.base = base;
             this.xSupply = xSupply;
             this.ySupply = ySupply;
             this.thetaSupply = thetaSupply;
             this.isThetaPercentage = isThetaPercentage;
             this.fastMode = fastMode;
+            this.obstacleAvoidance = obstacleAvoidance;
         
         addRequirements(base);
     }
@@ -48,9 +56,10 @@ public class TeleopDriveCommand extends Command {
         double max = (fastMode.get()) ? DriveConstants.kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED : DriveConstants.kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED;
 
         base.driveFieldOriented(
-            ySupply.get() * max, 
-            xSupply.get() * max, 
-            thetaSupply.get() * (isThetaPercentage ? DriveConstants.kMAX_TELEOP_ROTATIONAL_SPEED : 1.0)
+            yLimiter.calculate(ySupply.get()) * max, 
+            xLimiter.calculate(xSupply.get()) * max, 
+            tLimiter.calculate(thetaSupply.get()) * (isThetaPercentage ? DriveConstants.kMAX_TELEOP_ROTATIONAL_SPEED : 1.0),
+            obstacleAvoidance.get()
         );
     }
 

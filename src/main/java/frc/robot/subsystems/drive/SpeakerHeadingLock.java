@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.util.PVCamera;
 import frc.robot.util.Util;
@@ -42,16 +43,20 @@ public class SpeakerHeadingLock implements Supplier<Double> {
    */
   @Override
   public Double get() {
-    int targetTag = (Util.isRedAlliance()) ? 4 : 7;
+    //int targetTag = (Util.isRedAlliance()) ? 4 : 7;
+    int targetTag = 5;
 
     // Once we have two cameras, we will see which one is newer here
     PVCamera bestCam = this.rearCamera;
 
-    if (bestCam.getTagCacheTime(targetTag) == -1.0) {
+    if (bestCam.getTagCacheTime(targetTag) == -1.0 || Timer.getFPGATimestamp() - bestCam.getTagCacheTime(targetTag) >= 3.0) {
       // This tag was never seen, take best guess!
       // With two cameras, pose supplier can better be used to take a better guess
-      return 250.0;
+      System.out.printf("Guessing tag (age is %f)\n", Timer.getFPGATimestamp()-bestCam.getTagCacheTime(targetTag));
+      return 450.0;
     }
+
+    System.out.printf("Running with tag dist -> %f\n", bestCam.getAngleToTag(targetTag));
 
     return MathUtil.clamp(
       headingPID.calculate(bestCam.getAngleToTag(targetTag)),

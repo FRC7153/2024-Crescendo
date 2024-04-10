@@ -128,7 +128,7 @@ public class Autonomous {
                 new ArmToStateCommand(arm, ArmPositions.kREAR_AMP),
                 new SequentialCommandGroup(
                     new WaitCommand(3.0),
-                    new ShootCommand(indexer, false)
+                    new ShootCommand(indexer, false, () -> false)
                 ),
                 new WaitCommand(6.0)
             ),

@@ -27,7 +27,18 @@ public class ArmToRegressionCommand extends Command {
   // Run
   @Override
   public void execute() {
-    double dist = camera.getDistanceToTag(Util.isRedAlliance() ? 4 : 7);
-    arm.setState(ShootingRegressions.V1_SHOOT_ANGLE_FROM_REAR_LIMELIGHT_DISTANCE(dist));
+    double dist = camera.getDistanceToTag(5); camera.getDistanceToTag(Util.isRedAlliance() ? 4 : 7);
+    arm.setState(ShootingRegressions.V2_SHOOT_ANGLE_FROM_REAR_LIMELIGHT_DISTANCE(dist));
+  }
+
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
+
+  // Cancel self
+  @Override
+  public InterruptionBehavior getInterruptionBehavior() {
+    return InterruptionBehavior.kCancelSelf;
   }
 }

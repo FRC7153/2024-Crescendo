@@ -7,6 +7,7 @@ import com.frc7153.diagnostics.DiagUtil;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -47,7 +48,9 @@ public class SwerveBase implements Subsystem {
     private static SwerveModuleStateStruct kSwerveModuleState = new SwerveModuleStateStruct();
 
     // Distance Sensor
+    private LinearFilter distanceSensorFilter = LinearFilter.movingAverage(5);
     private Ultrasonic distanceSensor = new Ultrasonic(0, 1);
+    private double distanceSensorOutput = 0.0;
 
     // Modules
     private SwerveModule[] modules = {
@@ -179,7 +182,7 @@ public class SwerveBase implements Subsystem {
      * @param x Left - /Right + (m/s)
      * @param theta Rotation (degrees/second, CCW+)
      */
-    public void driveFieldOriented(double y, double x, double theta) {
+    public void driveFieldOriented(double y, double x, double theta, boolean avoidObstacle) {
         ChassisSpeeds chassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(
             y, 
             -x, 
@@ -187,7 +190,17 @@ public class SwerveBase implements Subsystem {
             getYaw()
         );
 
+        if (avoidObstacle && getFrontSensorDistance() <= 7.5) {
+            chassisSpeed.vxMetersPerSecond = Math.min(chassisSpeed.vxMetersPerSecond, 0.0);
+        } else if (avoidObstacle && getFrontSensorDistance() <= 16) {
+            chassisSpeed.vxMetersPerSecond = Math.min(chassisSpeed.vxMetersPerSecond, 0.2);
+        }
+
         drive(kinematics.toSwerveModuleStates(chassisSpeed));
+    }
+
+    public void driveFieldOriented(double y, double x, double theta) {
+        driveFieldOriented(y, x, theta, false);
     }
 
     /**
@@ -322,7 +335,7 @@ public class SwerveBase implements Subsystem {
      * @return The front ultrasonic sensor distances, in
      */
     public double getFrontSensorDistance() {
-        return distanceSensor.getRangeInches();
+        return distanceSensorOutput;
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
@@ -347,6 +360,9 @@ public class SwerveBase implements Subsystem {
         estimator.update(Rotation2d.fromDegrees(gyro.getAngle(IMUAxis.kYaw)), modulePositions);
 
         //System.out.printf("X: %f, Y: %f, Z: %f\n", gyro.getAngle(IMUAxis.kX), gyro.getAngle(IMUAxis.kY), gyro.getAngle(IMUAxis.kZ));
+
+        // Update distance filter
+        distanceSensorOutput = distanceSensorFilter.calculate(distanceSensor.getRangeInches());
 
         // Log
         setpointLog.append(setpointArray);
