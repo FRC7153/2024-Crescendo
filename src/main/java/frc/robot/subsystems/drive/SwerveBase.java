@@ -1,9 +1,9 @@
 package frc.robot.subsystems.drive;
 
+import com.frc7153.diagnostics.DiagUtil;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
-import com.frc7153.diagnostics.DiagUtil;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -19,9 +19,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -41,6 +44,7 @@ import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HardwareConstants;
+import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.util.Util;
 
 public class SwerveBase implements Subsystem {
@@ -114,12 +118,23 @@ public class SwerveBase implements Subsystem {
     private StructArrayPublisher<SwerveModuleState> setpointPub;
     private StructPublisher<Pose3d> globalPoseEstPub;
     private StructPublisher<Pose3d> alliancePoseEstPub;
-    private DoublePublisher distSensorPub;
+    private DoublePublisher distSensorPub, xAccelPub, yAccelPub, zAccelPub;
+
+    // Smooth accel
+    private LinearFilter xAccelSmooth = LinearFilter.movingAverage(15);
+    private LinearFilter yAccelSmooth = LinearFilter.movingAverage(15);
+    private LinearFilter zAccelSmooth = LinearFilter.movingAverage(15);
 
     // Module state arrays (for logging)
     private SwerveModuleState[] setpointArray = new SwerveModuleState[4];
     private SwerveModuleState[] stateArray = new SwerveModuleState[4];
     private SwerveModuleState[] stateWithRelEncArray = new SwerveModuleState[4]; // only for logging
+
+    // PIDF Tuning
+    private DoubleEntry tuneDrivePInput;
+    private DoubleEntry tuneDriveIInput;
+    private DoubleEntry tuneDriveDInput;
+    private DoubleEntry tuneDriveFFInput;
 
     // Constructor
     public SwerveBase() {
@@ -141,6 +156,24 @@ public class SwerveBase implements Subsystem {
             alliancePoseEstPub = nt.getStructTopic("Alliance Pose Estimation", new Pose3dStruct()).publish();
 
             distSensorPub = nt.getDoubleTopic("Front Distance Sensor Out (in)").publish();
+
+            xAccelPub = nt.getDoubleTopic("X accel (mps^2)").publish();
+            yAccelPub = nt.getDoubleTopic("Y accel (mps^2)").publish();
+            zAccelPub = nt.getDoubleTopic("Z accel (mps^2)").publish();
+        }
+
+        if (BuildConstants.kDRIVE_TUNE_MODE) {
+            NetworkTable nt = NetworkTableInstance.getDefault().getTable("Swerve Drive Tune");
+
+            tuneDrivePInput = nt.getDoubleTopic("Velo P").getEntry(0.0);
+            tuneDriveIInput = nt.getDoubleTopic("Velo I").getEntry(0.0);
+            tuneDriveDInput = nt.getDoubleTopic("Velo D").getEntry(0.0);
+            tuneDriveFFInput = nt.getDoubleTopic("Velo FF").getEntry(0.0);
+
+            tuneDrivePInput.set(0.0);
+            tuneDriveIInput.set(0.0);
+            tuneDriveDInput.set(0.0);
+            tuneDriveFFInput.set(0.0);
         }
 
         register();
@@ -354,6 +387,8 @@ public class SwerveBase implements Subsystem {
             stateArray[m] = modules[m].getStateWithCanivore();
             stateWithRelEncArray[m] = modules[m].getStateWithSparkEnc();
             modulePositions[m] = modules[m].getPosition();
+
+            modules[m].output();
         }
 
         // Update pose estimator
@@ -380,6 +415,22 @@ public class SwerveBase implements Subsystem {
             alliancePoseEstPub.set(get3dPose(false));
 
             distSensorPub.set(getFrontSensorDistance());
+
+            xAccelPub.set(xAccelSmooth.calculate(gyro.getAccelX()));
+            yAccelPub.set(yAccelSmooth.calculate(gyro.getAccelY()));
+            zAccelPub.set(zAccelSmooth.calculate(gyro.getAccelZ()));
+        }
+
+        // Check if tuning
+        if (BuildConstants.kDRIVE_TUNE_MODE) {
+            for (int m = 0; m < 4; m++) {
+                modules[m].setConfigs(
+                    tuneDrivePInput.get(),
+                    tuneDriveIInput.get(),
+                    tuneDriveDInput.get(),
+                    tuneDriveFFInput.get()
+                );
+            }
         }
     }
 

@@ -183,6 +183,11 @@ public class RobotContainer {
    */
   public void recheckSwerveHeadings() { driveBase.doubleCheckHeadings(); }
 
+  /**
+   * Restarts the timers for the arm's motion profile. Call at start of teleop.
+   */
+  public void resetArmMotionProfile() { arm.resetLowerPivotProfileTimer(); }
+
   // Test modes
   public void testInit() { arm.initTestMode(); shooter.testInit(); indexer.stop(); }
   public void testExec() { arm.execTestMode(); shooter.testExec(); indexer.testExec(operatorController); }

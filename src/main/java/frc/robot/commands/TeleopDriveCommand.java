@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
@@ -17,9 +18,9 @@ public class TeleopDriveCommand extends Command {
     private boolean isThetaPercentage;
 
     // Filters
-    private SlewRateLimiter xLimiter = new SlewRateLimiter(2.0);
-    private SlewRateLimiter yLimiter = new SlewRateLimiter(2.0);
-    private SlewRateLimiter tLimiter = new SlewRateLimiter(2.0);
+    //private SlewRateLimiter xLimiter = new SlewRateLimiter(2.0);
+    //private SlewRateLimiter yLimiter = new SlewRateLimiter(2.0);
+    //private SlewRateLimiter tLimiter = new SlewRateLimiter(2.0);
 
     /**
      * Teleop driving command for the swerve base
@@ -55,11 +56,17 @@ public class TeleopDriveCommand extends Command {
         // Fast mode?
         double max = (fastMode.get()) ? DriveConstants.kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED : DriveConstants.kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED;
 
-        base.driveFieldOriented(
+        /*base.driveFieldOriented(
             yLimiter.calculate(ySupply.get()) * max, 
             xLimiter.calculate(xSupply.get()) * max, 
             tLimiter.calculate(thetaSupply.get()) * (isThetaPercentage ? DriveConstants.kMAX_TELEOP_ROTATIONAL_SPEED : 1.0),
             obstacleAvoidance.get()
+        );*/
+
+        base.driveFieldOriented(
+            MathUtil.applyDeadband(ySupply.get(), 0.05) * max, 
+            MathUtil.applyDeadband(xSupply.get(), 0.05) * max, 
+            MathUtil.applyDeadband(thetaSupply.get(), 0.05) * (isThetaPercentage ? DriveConstants.kMAX_TELEOP_ROTATIONAL_SPEED : 1.0)
         );
     }
 

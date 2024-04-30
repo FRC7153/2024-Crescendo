@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
@@ -27,6 +28,8 @@ public class Constants {
     public static final class BuildConstants {
         public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
         public static final boolean kARM_TUNE_MODE = true; // For tuning lower pivot PID
+
+        public static final boolean kDRIVE_TUNE_MODE = false; // For tuning drive base PID
     }
 
     /** Shooter Constants */
@@ -104,9 +107,9 @@ public class Constants {
     /** Auto Constants */
     public static final class AutoConstants {
         public static final HolonomicPathFollowerConfig kAUTO_PATH_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
-            new PIDConstants(10.5, 0.0, 0.0), 
-            new PIDConstants(6.5, 0.0, 0.0), 
-            5.0, 
+            new PIDConstants(5.0, 4.65, 0.0), 
+            new PIDConstants(6.5, 2.0, 0.0), 
+            4.0, 
             DriveConstants.kRL_SWERVE_POS.getNorm(), 
             new ReplanningConfig()
         );
@@ -141,6 +144,8 @@ public class Constants {
         public static final int kUPPER_PIVOT_CURRENT_LIMIT = 15; // 25
         public static final int kELEVATOR_EXT_CURRENT_LIMIT = 15; // 35
 
+        public static final Constraints kLOWER_PIVOT_TRAPEZOID_CONTROL = new Constraints(45.0, 15.0);
+
         public static final double kLOWER_ANGLE_OFFSET = 0.18 + 0.5; // rots
         public static final double kUPPER_ANGLE_OFFSET = 0.3356208; // rots 0.5 = forward
 
@@ -148,7 +153,7 @@ public class Constants {
         public static final double kUPPER_PIVOT_RATIO = 1.0 / 16.0;
         public static final double kELEVATOR_EXT_RATIO = 1.0 / 25.0;
 
-        public static final double kLOWER_PIVOT_P = 3.15;
+        public static final double kLOWER_PIVOT_P = 3.3; // 3.15
         public static final double kLOWER_PIVOT_I = 0.001;
         public static final double kLOWER_PIVOT_D = 0.0;
         public static final double kLOWER_PIVOT_FF = 0.00001;
@@ -169,8 +174,8 @@ public class Constants {
     /** Swerve drive constants */
     public static final class DriveConstants {
         // Max Speeds
-        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 4.5;
-        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 6.5;
+        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 3.0;
+        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 4.0;
         public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 1000.0;
 
         // Base sizes
@@ -222,6 +227,7 @@ public class Constants {
         public static final double kDRIVE_P = 0.00025; // 0.00025
         public static final double kDRIVE_I = 0.0; // 0.0000005
         public static final double kDRIVE_D = 0.0;
+        public static final double kDRIVE_FF = 0.000025;
 
         // Steer Motor
         public static final double kSTEER_RATIO = 150.0 / 7.0;
@@ -229,7 +235,7 @@ public class Constants {
         public static final double kSTEER_P = 0.45;
         public static final double kSTEER_I = 0.00001;
         public static final double kSTEER_D = 0.0;
-        public static final double kSTEER_FF = 0.0; // TODO
+        public static final double kSTEER_FF = 0.0;
     }
 
     /** CAN Hardware Constants */

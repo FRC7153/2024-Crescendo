@@ -82,6 +82,9 @@ public class Autonomous {
         // Center Subwoofer Autos
         chooser.addOption("Center Subwoofer Double Note", this::buildDoubleNoteFromSpeakerCenter);
         chooser.addOption("Left 45 Subwoofer Double Note", this::build45Subwoofer2Note);
+
+        // Testing
+        chooser.addOption("Test - Forward", this::buildTestCommand);
     }
 
     // On change
@@ -173,4 +176,8 @@ public class Autonomous {
             //build45Subwoofer2Note() // TODO test
         );
      } 
+
+     private Command buildTestCommand() {
+        return AutoUtils.createFollowPathCommand(base, "TestPath", true);
+     }
 }

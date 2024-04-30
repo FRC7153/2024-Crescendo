@@ -79,6 +79,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    // Restart motion profile
+    m_robotContainer.resetArmMotionProfile();
+
     // Check swerves
     m_robotContainer.recheckSwerveHeadings();
   }

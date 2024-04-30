@@ -15,6 +15,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants.BuildConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.util.Util;
@@ -37,6 +44,9 @@ public class SwerveModule {
 
     // State
     private SwerveModuleState setpoint = new SwerveModuleState(0.0, Rotation2d.fromDegrees(0.0));
+
+    // Output
+    private DoubleEntry tuneDriveVoltsOut;
 
     /**
      * Creates a new Swerve Module
@@ -96,10 +106,19 @@ public class SwerveModule {
         steerPIDControl.setP(SwerveModuleConstants.kSTEER_P, 0);
         steerPIDControl.setI(SwerveModuleConstants.kSTEER_I, 0);
         steerPIDControl.setD(SwerveModuleConstants.kSTEER_D, 0);
+        steerPIDControl.setFF(SwerveModuleConstants.kSTEER_FF, 0);
         //steerPIDControl.setOutputRange(-10.0, 10.0, 0);
         steerPIDControl.setPositionPIDWrappingMinInput(-0.5 * SwerveModuleConstants.kSTEER_RATIO);
         steerPIDControl.setPositionPIDWrappingMaxInput(0.5 * SwerveModuleConstants.kSTEER_RATIO);
         steerPIDControl.setPositionPIDWrappingEnabled(true);
+
+        // Log volts if tuning drive
+        NetworkTable nt = NetworkTableInstance.getDefault().getTable("Swerve Drive Volts");
+
+        tuneDriveVoltsOut = 
+            nt.getDoubleTopic(String.format("Module %d drive volts", driveCan)).getEntry(-99.0);
+
+        tuneDriveVoltsOut.set(-99.0);
 
         // Initiate diagnostics
         DiagUtil.addDevice(driveMotor);
@@ -109,6 +128,23 @@ public class SwerveModule {
         // Reduce CAN usage
         Util.disableExternalEncoderFrames(driveMotor);
         Util.disableExternalEncoderFrames(steerMotor);
+    }
+
+    /**
+     * Sets the P, I, D, and FF constants of the velocity controller.
+     */
+    public void setConfigs(double p, double i, double d, double ff) {
+        // Safety check
+        if (!BuildConstants.kDRIVE_TUNE_MODE) {
+            DriverStation.reportError("Not in drive tune mode!", false);
+            return;
+        }
+
+        // Set values
+        drivePIDController.setP(p, 0);
+        drivePIDController.setI(i, 0);
+        drivePIDController.setD(d, 0);
+        drivePIDController.setFF(ff, 0);
     }
 
     /** Checks cancoder vs spark rel encoder. CALL WHEN DISABLED */
@@ -202,5 +238,12 @@ public class SwerveModule {
             driveEncoder.getPosition() / SwerveModuleConstants.kDRIVE_RATIO * SwerveModuleConstants.kWHEEL_CIRCUMFERENCE,
             Rotation2d.fromRotations(steerCANCoder.getAbsolutePosition())
         );
+    }
+
+    /**
+     * Outputs data to NT
+     */
+    public void output() {
+        tuneDriveVoltsOut.set(driveMotor.getAppliedOutput() * driveMotor.getBusVoltage());
     }
 }
