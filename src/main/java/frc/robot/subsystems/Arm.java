@@ -82,13 +82,14 @@ public class Arm implements Subsystem {
     
     private LinearFilter lowerPivotVeloFilter = LinearFilter.movingAverage(10);
     private double lowerPivotVeloFilterOut = 0.0;
-
-    private ArmState setpoint;
-    private Timer lowerPivotProfileTimer = new Timer();
-    private State lowerPivotStartState = new TrapezoidProfile.State();
-    private State lowerPivotProfileState = new TrapezoidProfile.State();
-    private TrapezoidProfile lowerPivotProfile = new TrapezoidProfile(ArmConstants.kLOWER_PIVOT_TRAPEZOID_CONTROL);
     private double tempFF = ArmConstants.kLOWER_PIVOT_FF;
+    private ArmState setpoint;
+
+    // Motion profiling
+    private Timer lowerPivotProfileTimer;
+    private State lowerPivotStartState;
+    private State lowerPivotProfileState;
+    private TrapezoidProfile lowerPivotProfile;
 
     // Log
     private DoubleLogEntry lowerPivotPositionLog = 
@@ -194,6 +195,14 @@ public class Arm implements Subsystem {
                 .getEntry().getTopic().genericPublish("double");
         }
 
+        // Motion Profiling
+        if (BuildConstants.kARM_MOTION_PROFILING) {
+            lowerPivotProfileTimer = new Timer();
+            lowerPivotStartState = new TrapezoidProfile.State();
+            lowerPivotProfileState = new TrapezoidProfile.State();
+            lowerPivotProfile = new TrapezoidProfile(ArmConstants.kLOWER_PIVOT_TRAPEZOID_CONTROL);
+        }
+
         // Default
         setpoint = new ArmState(ArmPositions.kDEFAULT.lowerAngle, ArmPositions.kDEFAULT.upperAngle, ArmPositions.kDEFAULT.ext);
         setState(setpoint);
@@ -224,7 +233,9 @@ public class Arm implements Subsystem {
      * Call this when teleop or auto is enabled.
      */
     public void resetLowerPivotProfileTimer() {
-        lowerPivotProfileTimer.restart();
+        if (BuildConstants.kARM_MOTION_PROFILING) {
+            lowerPivotProfileTimer.restart();
+        }
     }
 
     private boolean firstLowerPivotCommand = true; // If lower pivot has not been commanded yet
@@ -237,39 +248,40 @@ public class Arm implements Subsystem {
         // Safety
         angle = Math.max(90.0, Math.min(angle, 190.0));
 
-        /*double diff = -1.0 * Math.sin(
-            Units.degreesToRadians(angle - 90.0) - Units.rotationsToRadians(lowerPivotEncoder.getPosition() - 0.25)
-        ) * (21.0 + (setpoint.ext * 2.0));
+        if (BuildConstants.kARM_MOTION_PROFILING) {
+            // Moving will be done in periodic()
+            if (angle != setpoint.lowerAngle || firstLowerPivotCommand) {
+                System.out.println("Lower pivot profile timer has reset!");
+    
+                lowerPivotProfileTimer.restart();
+    
+                lowerPivotProfileState.velocity = 0.0;
+                lowerPivotProfileState.position = angle;
+    
+                lowerPivotStartState.velocity = lowerPivotVeloFilterOut;
+                lowerPivotStartState.position = lowerPivotEncoder.getPosition() * 360.0;
+    
+                setpoint.lowerAngle = angle;
+                
+                firstLowerPivotCommand = false;
+            }
+        } else {
+            double diff = -1.0 * Math.sin(
+                Units.degreesToRadians(angle - 90.0) - Units.rotationsToRadians(lowerPivotEncoder.getPosition() - 0.25)
+            ) * (21.0 + (setpoint.ext * 2.0));
 
-        lowerRightPivotController.setReference(
-            angle / 360.0, 
-            ControlType.kPosition, 
-            0, 
-            (BuildConstants.kARM_TUNE_MODE) ? 
-                Math.max(0.0, diff) * tempFF :
-                Math.max(0.0, diff) * ArmConstants.kLOWER_PIVOT_FF, // FF, add voltage depending on target
-            ArbFFUnits.kVoltage
-        );*/
-
-        // Moving will be done in periodic()
-
-        if (angle != setpoint.lowerAngle || firstLowerPivotCommand) {
-            System.out.println("Lower pivot profile timer has reset!");
-
-            lowerPivotProfileTimer.restart();
-
-            lowerPivotProfileState.velocity = 0.0;
-            lowerPivotProfileState.position = angle;
-
-            lowerPivotStartState.velocity = lowerPivotVeloFilterOut;
-            lowerPivotStartState.position = lowerPivotEncoder.getPosition() * 360.0;
+            lowerRightPivotController.setReference(
+                angle / 360.0, 
+                ControlType.kPosition, 
+                0, 
+                (BuildConstants.kARM_TUNE_MODE) ? 
+                    Math.max(0.0, diff) * tempFF :
+                    Math.max(0.0, diff) * ArmConstants.kLOWER_PIVOT_FF, // FF, add voltage depending on target
+                ArbFFUnits.kVoltage
+            );
 
             setpoint.lowerAngle = angle;
-            
-            firstLowerPivotCommand = false;
         }
-
-        //setpoint.lowerAngle = angle;
 
         lowerPivotSetpointLog.append(angle);
     }
@@ -329,23 +341,25 @@ public class Arm implements Subsystem {
             lowerRightPivot.disable();
         }*/
 
-        // Lower arm control
-        //lowerPivotCurrentState.position = lowerPivotEncoder.getPosition() * 360.0;
-        //lowerPivotCurrentState.velocity = lowerPivotEncoder.getVelocity() * 360.0;
-        /*State lowerState = lowerPivotProfile.calculate(
-            lowerPivotProfileTimer.get(), 
-            lowerPivotStartState, 
-            lowerPivotProfileState
-        );
+        if (BuildConstants.kARM_MOTION_PROFILING) {
+            // Lower arm control
+            //lowerPivotCurrentState.position = lowerPivotEncoder.getPosition() * 360.0;
+            //lowerPivotCurrentState.velocity = lowerPivotEncoder.getVelocity() * 360.0;
+            State lowerState = lowerPivotProfile.calculate(
+                lowerPivotProfileTimer.get(), 
+                lowerPivotStartState, 
+                lowerPivotProfileState
+            );
 
-        double diff = -1.0 * Math.sin(
-            Units.degreesToRadians(lowerState.position - 90.0) - Units.rotationsToRadians(lowerPivotEncoder.getPosition() - 0.25)
-        ) * (21.0 + (setpoint.ext * 2.0));
+            double diff = -1.0 * Math.sin(
+                Units.degreesToRadians(lowerState.position - 90.0) - Units.rotationsToRadians(lowerPivotEncoder.getPosition() - 0.25)
+            ) * (21.0 + (setpoint.ext * 2.0));
 
-        lowerRightPivotController.setReference(lowerState.position / 360.0, ControlType.kPosition, 0,
-        Math.max(0.0, diff) * ArmConstants.kLOWER_PIVOT_FF, ArbFFUnits.kVoltage); 
+            lowerRightPivotController.setReference(lowerState.position / 360.0, ControlType.kPosition, 0,
+            Math.max(0.0, diff) * ArmConstants.kLOWER_PIVOT_FF, ArbFFUnits.kVoltage); 
 
-        lowerPivotVeloFilterOut = lowerPivotVeloFilter.calculate(lowerPivotEncoder.getVelocity() * 360.0);*/
+            lowerPivotVeloFilterOut = lowerPivotVeloFilter.calculate(lowerPivotEncoder.getVelocity() * 360.0);
+        }
 
         // Log
         lowerPivotPositionLog.append(lowerPivotEncoder.getPosition() * 360.0);
@@ -364,9 +378,12 @@ public class Arm implements Subsystem {
 
             lowerPivotCommandedPosOut.setDouble(setpoint.lowerAngle);
             lowerPivotVeloOut.setDouble(lowerPivotVeloFilterOut);
-            //lowerPivotProfilePosOut.setDouble(lowerState.position);
-            //lowerPivotProfileVeloOut.setDouble(lowerState.velocity);
-            //lowerPivotProfileTimestamp.setDouble(lowerPivotProfileTimer.get());
+
+            /*if (BuildConstants.kARM_MOTION_PROFILING) {
+                lowerPivotProfilePosOut.setDouble(lowerState.position);
+                lowerPivotProfileVeloOut.setDouble(lowerState.velocity);
+                lowerPivotProfileTimestamp.setDouble(lowerPivotProfileTimer.get());
+            }*/
         }
     }
 

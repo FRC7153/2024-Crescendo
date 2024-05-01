@@ -8,19 +8,16 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ArmPositions;
 import frc.robot.Constants.HardwareConstants;
-import frc.robot.Constants.ShootingRegressions;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.ArmSourceCommand;
 import frc.robot.commands.ArmToRegressionCommand;
 import frc.robot.commands.ArmToStateCommand;
 import frc.robot.commands.BalanceArmClimbCommand;
-import frc.robot.commands.ClimbBalancedCommand;
 import frc.robot.commands.ClimberStageCommand;
 import frc.robot.commands.IndexerRegripCommand;
 import frc.robot.commands.IntakeCommand;
@@ -52,7 +49,7 @@ public class RobotContainer {
   // Cameras + Devices
   private PDHLogger pdh = new PDHLogger(HardwareConstants.kPDH_CAN);
   //private PVCamera frontArmCamera = new PVCamera("FrontUSBCamera");
-  private PVCamera rearLLCamera = new PVCamera("RearLLCamera");
+  //private PVCamera rearLLCamera = new PVCamera("RearLLCamera");
 
   // Auto
   private Autonomous auto = new Autonomous(driveBase, intake, arm, shooter, indexer);
@@ -61,7 +58,7 @@ public class RobotContainer {
   private CommandXboxController driverXboxController = new CommandXboxController(0);
   private CommandJoystick operatorController = new CommandJoystick(1);
   
-  private Dashboard dashboard = new Dashboard(driveBase, rearLLCamera, auto);
+  private Dashboard dashboard = new Dashboard(driveBase, null, auto);
 
   // Init
   public RobotContainer() {
@@ -98,7 +95,7 @@ public class RobotContainer {
       ).repeatedly());
 
     // Driver speaker heading lock (A held)
-    driverXboxController.a()
+    /*driverXboxController.a()
       .whileTrue(new TeleopDriveCommand(
         driveBase, 
         () -> -driverXboxController.getLeftY(), 
@@ -110,7 +107,7 @@ public class RobotContainer {
         false,
         () -> false, // Don't allow fast mode here
         () -> false // Dont obstacle avoidance here
-      ));
+      ));*/
 
     // Driver Intake Button (RT)
     driverXboxController.rightTrigger()
@@ -131,10 +128,10 @@ public class RobotContainer {
       .onTrue(new ArmSourceCommand(arm, shooter, indexer, operatorController.button(2)));
     
     // Operator Arm Speaker Long Shot Button (6)
-    operatorController.button(6)
+    /*operatorController.button(6)
       .and(driverXboxController.rightTrigger().negate())
       .whileTrue(new ArmToRegressionCommand(arm, rearLLCamera)) // TODO fix arm return issue
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(2800.0), shooter).repeatedly()); // 3500
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(2800.0), shooter).repeatedly()); // 3500*/
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)
@@ -146,6 +143,12 @@ public class RobotContainer {
       .whileTrue(new ArmToStateCommand(arm, ArmPositions.kSUBWOOFER_SPEAKER_FRONT, ArmPositions.kSUBWOOFER_SPEAKER_REAR, driveBase::getYaw, 90.0, 270.0))
       .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly()); // I know, this velocity is obscenely high. Don't question it :)
 
+    // Operator Pass Button
+    operatorController.button(8)
+      .and(driverXboxController.rightTrigger().negate()) // Not while intaking
+      .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFULL_COURT_PASS))
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(150.0), shooter).repeatedly());
+      
     // Operator Shoot Button (trigger)
     // Assumes shooter is already up-to-speed (if needed)
     operatorController.trigger()

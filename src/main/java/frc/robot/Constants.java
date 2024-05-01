@@ -30,6 +30,10 @@ public class Constants {
         public static final boolean kARM_TUNE_MODE = true; // For tuning lower pivot PID
 
         public static final boolean kDRIVE_TUNE_MODE = false; // For tuning drive base PID
+
+        public static final boolean kARM_MOTION_PROFILING = false; // Using trapezoidal motion profile for arm?
+
+        public static final boolean kSECONDARY_INTAKE_MOTOR = false; // If secondary motor is attacked
     }
 
     /** Shooter Constants */
@@ -90,7 +94,7 @@ public class Constants {
     public static final class ArmPositions {
         public static final ArmState kDEFAULT = new ArmState(108.0, 180.0, 0.0);
 
-        public static final ArmState kGROUND_INTAKE = new ArmState(110.0, 255.0, 0.8); // 110
+        public static final ArmState kGROUND_INTAKE = new ArmState(110.0, 255.0, 0.75); // 0.8
         public static final ArmState kSOURCE_INTAKE_FRONT = new ArmState(135.0, 180.0, 1.0);
 
         public static final ArmState kSUBWOOFER_SPEAKER_FRONT = new ArmState(120.0, 200.0, 0.0);
@@ -102,6 +106,7 @@ public class Constants {
 
         public static final ArmState kCLIMB_BALANCE = new ArmState(108.0, 180.0, 1.5);
 
+        public static final ArmState kFULL_COURT_PASS = new ArmState(125.0, 180.0, 0.0);
     }
 
     /** Auto Constants */
