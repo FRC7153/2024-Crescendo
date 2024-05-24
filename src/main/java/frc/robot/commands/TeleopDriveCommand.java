@@ -3,7 +3,6 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.SwerveBase;
@@ -66,7 +65,8 @@ public class TeleopDriveCommand extends Command {
         base.driveFieldOriented(
             MathUtil.applyDeadband(ySupply.get(), 0.05) * max, 
             MathUtil.applyDeadband(xSupply.get(), 0.05) * max, 
-            MathUtil.applyDeadband(thetaSupply.get(), 0.05) * (isThetaPercentage ? DriveConstants.kMAX_TELEOP_ROTATIONAL_SPEED : 1.0)
+            MathUtil.applyDeadband(thetaSupply.get(), 0.05) * (isThetaPercentage ? DriveConstants.kMAX_TELEOP_ROTATIONAL_SPEED : 1.0),
+            obstacleAvoidance.get()
         );
     }
 

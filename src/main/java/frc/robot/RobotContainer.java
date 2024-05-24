@@ -22,6 +22,7 @@ import frc.robot.commands.ClimberStageCommand;
 import frc.robot.commands.IndexerRegripCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.LoadShooterGroundCommand;
+import frc.robot.commands.ManualIntakeWheelCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TeleopDriveCommand;
 import frc.robot.commands.ReverseIndexerCommand;
@@ -29,16 +30,18 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SpeakerHeadingLock;
 import frc.robot.subsystems.drive.SwerveBase;
 import frc.robot.util.Dashboard;
+import frc.robot.util.LimelightCamera;
 import frc.robot.util.PDHLogger;
-import frc.robot.util.PVCamera;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 
 public class RobotContainer {
+  private LimelightCamera frontCamera = new LimelightCamera("limelight-aetos");
+
   // Subsystems
-  private SwerveBase driveBase = new SwerveBase();
+  private SwerveBase driveBase = new SwerveBase(frontCamera);
   private Shooter shooter = new Shooter();
   private Indexer indexer = new Indexer();
   private Intake intake = new Intake();
@@ -95,19 +98,19 @@ public class RobotContainer {
       ).repeatedly());
 
     // Driver speaker heading lock (A held)
-    /*driverXboxController.a()
+    driverXboxController.a()
       .whileTrue(new TeleopDriveCommand(
         driveBase, 
         () -> -driverXboxController.getLeftY(), 
         ()-> driverXboxController.getLeftX(),
         (new SpeakerHeadingLock(
-          rearLLCamera, 
+          frontCamera, 
           () -> driveBase.getPosition(false)
         )),
         false,
         () -> false, // Don't allow fast mode here
         () -> false // Dont obstacle avoidance here
-      ));*/
+      ));
 
     // Driver Intake Button (RT)
     driverXboxController.rightTrigger()
@@ -123,15 +126,20 @@ public class RobotContainer {
       .whileTrue(new IntakeCommand(intake, false))
       .whileTrue(new ReverseIndexerCommand(indexer));
 
+    // Driver Manual Intake Wheel Button (Y)
+    driverXboxController.y()
+      .and(operatorController.trigger().negate()) // Not while trying to shoot
+      .whileTrue(new ManualIntakeWheelCommand(indexer));
+
     // Operator Source Intake Button (Button 2)
     operatorController.button(2)
       .onTrue(new ArmSourceCommand(arm, shooter, indexer, operatorController.button(2)));
     
     // Operator Arm Speaker Long Shot Button (6)
-    /*operatorController.button(6)
-      .and(driverXboxController.rightTrigger().negate())
-      .whileTrue(new ArmToRegressionCommand(arm, rearLLCamera)) // TODO fix arm return issue
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(2800.0), shooter).repeatedly()); // 3500*/
+    operatorController.button(6)
+      .and(driverXboxController.rightTrigger().negate()) // Not while intaking!
+      .whileTrue(new ArmToRegressionCommand(arm, frontCamera))
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(2800.0), shooter).repeatedly());
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)
@@ -179,6 +187,7 @@ public class RobotContainer {
   // Periodically update dashboard
   public void periodic() {
     dashboard.periodic();
+    frontCamera.refresh();
   }
 
   /**
@@ -190,6 +199,11 @@ public class RobotContainer {
    * Restarts the timers for the arm's motion profile. Call at start of teleop.
    */
   public void resetArmMotionProfile() { arm.resetLowerPivotProfileTimer(); }
+
+  /**
+   * Sets the limelight's priority tag id from the alliance color. Call at start of teleop.
+   */
+  public void setLimelightPriorityTag() { frontCamera.setAllianceTag(); }
 
   // Test modes
   public void testInit() { arm.initTestMode(); shooter.testInit(); indexer.stop(); }

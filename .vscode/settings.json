@@ -36,9 +36,12 @@
     "intaking",
     "ntcore",
     "pigpio",
+    "priorityid",
     "revrobotics",
+    "robotspace",
     "SUBWOOFER",
     "swervedrive",
+    "targetpose",
     "VELO",
     "WPILOG"
   ]

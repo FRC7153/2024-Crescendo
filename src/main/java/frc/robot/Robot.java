@@ -84,6 +84,9 @@ public class Robot extends TimedRobot {
 
     // Check swerves
     m_robotContainer.recheckSwerveHeadings();
+
+    // Recheck limelight
+    m_robotContainer.setLimelightPriorityTag();
   }
 
   @Override

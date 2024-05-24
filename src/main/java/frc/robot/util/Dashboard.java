@@ -2,14 +2,9 @@ package frc.robot.util;
 
 import java.util.Map;
 
-import org.photonvision.PhotonCamera;
-
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.dashboard.RecheckSwerveModulesCommand;
 import frc.robot.commands.dashboard.ResetOdometryCommand;
@@ -20,12 +15,12 @@ import frc.robot.subsystems.drive.SwerveBase;
  */
 public class Dashboard {
   // Subsystems
-  private SwerveBase base;
+  //private SwerveBase base;
 
   // Init
   public Dashboard(SwerveBase base, PVCamera camera, Autonomous auto) {
     // Remember subsystems
-    this.base = base;
+    //this.base = base;
 
     // Create tab
     ShuffleboardTab driveTab = Shuffleboard.getTab("Drive");
@@ -44,12 +39,12 @@ public class Dashboard {
       .withSize(2, 1)
       .withPosition(2, 3);
 
-    // TODO camera name here
-    /*driveTab.add("Front Arm Camera", CameraServer.getServer("Front Arm Camera").getSource())
-      .withWidget(BuiltInWidgets.kCameraStream)
-      .withPosition(0, 0)
+    // Add camera
+    driveTab.addCamera("Limelight", "limelight-aetos", "http://limelight-aetos.local:5800/")
       .withSize(3, 4)
-      .withProperties(Map.of("SHOW CONTROLS", false));*/
+      .withPosition(0, 0)
+      .withWidget(BuiltInWidgets.kCameraStream)
+      .withProperties(Map.of("Show controls", false));
   }
 
   /** Call periodically to update outputs */

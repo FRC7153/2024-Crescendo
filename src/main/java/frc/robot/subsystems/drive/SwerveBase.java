@@ -21,10 +21,8 @@ import edu.wpi.first.math.kinematics.struct.SwerveModuleStateStruct;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -44,7 +42,7 @@ import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HardwareConstants;
-import frc.robot.Constants.SwerveModuleConstants;
+import frc.robot.util.LimelightCamera;
 import frc.robot.util.Util;
 
 public class SwerveBase implements Subsystem {
@@ -137,7 +135,7 @@ public class SwerveBase implements Subsystem {
     private DoubleEntry tuneDriveFFInput;
 
     // Constructor
-    public SwerveBase() {
+    public SwerveBase(LimelightCamera limelight) {
         // Distance sensor
         distanceSensor.setEnabled(true);
         Ultrasonic.setAutomaticMode(true);

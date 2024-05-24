@@ -99,7 +99,6 @@ public class Constants {
 
         public static final ArmState kSUBWOOFER_SPEAKER_FRONT = new ArmState(120.0, 200.0, 0.0);
         public static final ArmState kSUBWOOFER_SPEAKER_REAR = new ArmState(125.0, 270.0, 0.0);
-        public static final ArmState kSPEAKER_LONG_REAR = new ArmState(120, 180.0, 0.0); // Upper angle depends on regression
 
         public static final ArmState kFRONT_AMP = new ArmState(145.0, 275.0, 2.5);
         public static final ArmState kREAR_AMP = new ArmState(190.0, 105.0, 1.5);
@@ -139,6 +138,11 @@ public class Constants {
             ArmState state = V1_SHOOT_ANGLE_FROM_REAR_LIMELIGHT_DISTANCE(distance);
             state.upperAngle = state.upperAngle + 5.0;
             return state;
+        }
+
+        /** Determine upper shooter angle from front limelight's tag distance (m) */
+        public static final double LIMELIGHT_REGRESSION_V3(double d) {
+            return 0.0; // TODO
         }
     }
 
@@ -216,10 +220,8 @@ public class Constants {
 
         public static final Path kAPRIL_TAG_LAYOUT_JSON = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2024Layout.json");
 
-        // Heading Correction PID
-        public static final double kHEADING_CORRECTION_P = 1.5; // TODO
-        public static final double kHEADING_CORRECTION_I = 0.0; // TODO
-        public static final double kHEADING_CORRECTION_D = 0.0; // TODO        
+        // Speaker Heading Correction PID
+        public static final double kHEADING_CORRECTION_P = 1.5; // TODO     
     }
 
     /** Swerve module constants */
