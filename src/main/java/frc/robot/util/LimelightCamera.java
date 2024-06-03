@@ -1,8 +1,6 @@
 package frc.robot.util;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
@@ -22,13 +20,14 @@ public class LimelightCamera {
 
   // Network tables
   private DoubleArraySubscriber poseSub, statsSub;
-  private DoubleSubscriber heartbeatSub;
+  private DoubleSubscriber heartbeatSub, txSub;
   private IntegerSubscriber tagInViewSub;
   private DoublePublisher distOut, yawOut;
   private IntegerPublisher priorityTagOut;
 
   // Cache
-  private Pose3d poseCache = new Pose3d();
+  private Translation3d poseCache = new Translation3d();
+  private double txAngleCache = 0.0;
   private int tagIdCache = -1;
 
   // Heartbeat cache
@@ -52,6 +51,9 @@ public class LimelightCamera {
     
     poseSub = 
       cam.getDoubleArrayTopic("targetpose_robotspace").subscribe(new double[6]);
+
+    txSub = 
+      cam.getDoubleTopic("tx").subscribe(0.0);
 
     statsSub =
       cam.getDoubleArrayTopic("hw").subscribe(new double[4]); // fps, cpu temp, ram, temp
@@ -127,13 +129,16 @@ public class LimelightCamera {
     // Get pose
     tagIdCache = (int)tagInViewSub.get();
 
-    double[] poseData = poseSub.get();
-    poseCache = new Pose3d(
-      poseData[0], 
-      poseData[1], 
-      poseData[2], 
-      new Rotation3d(poseData[5], poseData[4], poseData[3])
-    );
+    if (tagIdCache != -1) {
+      double[] poseData = poseSub.get();
+      poseCache = new Translation3d(
+        poseData[0], 
+        poseData[1], 
+        poseData[2]
+      );
+
+      txAngleCache = txSub.get();
+    }
 
     // Log and output
     distLog.append(getDistanceToTag());
@@ -163,14 +168,14 @@ public class LimelightCamera {
    * @return Distance, in meters, to the primary in-view tag.
    */
   public double getDistanceToTag() {
-    return poseCache.getTranslation().getNorm();
+    return poseCache.getNorm();
   }
 
   /**
    * @return The yaw (deg) to the primary in-view tag.
    */
   public double getTagYaw() {
-    return Units.radiansToDegrees(poseCache.getRotation().getZ());
+    return txAngleCache;
   }
 
   /**

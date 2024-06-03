@@ -153,6 +153,7 @@ public class Intake implements Subsystem {
         }
 
         // Ensure not stalled
+        /*
         if (
             Timer.getFPGATimestamp() - setpointTimestamp >= 3.5 && // Time has passed since setpoint
             Math.abs(setpoint) > 1.0 && // Setpoint is not 0
@@ -165,5 +166,7 @@ public class Intake implements Subsystem {
             
             if (BuildConstants.kSECONDARY_INTAKE_MOTOR) secondaryIntake.set(setpoint / 6000.00);
         }
+
+        */
     }
 }

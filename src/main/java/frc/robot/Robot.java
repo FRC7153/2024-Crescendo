@@ -34,6 +34,9 @@ public class Robot extends TimedRobot {
 
     // Create container
     m_robotContainer = new RobotContainer();
+
+    // Important
+    System.out.prtinl
   }
 
   @Override

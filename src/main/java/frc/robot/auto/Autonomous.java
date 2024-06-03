@@ -71,9 +71,9 @@ public class Autonomous {
         chooser.addOption("Simple forward", this::buildSimpleForward);
 
         // Shoot and stay
-        chooser.addOption("Single rear shot (left 45)", () -> buildShootDontMove(45.0));
-        chooser.addOption("Single rear shot (center)", () -> buildShootDontMove(0.0));
-        chooser.addOption("Single rear shot (right 45)", () -> buildShootDontMove(360.0 - 45.0));
+        chooser.addOption("Single rear shot (left 45)", () -> buildShootDontMove(45.0, true));
+        chooser.addOption("Single rear shot (center)", () -> buildShootDontMove(0.0, true));
+        chooser.addOption("Single rear shot (right 45)", () -> buildShootDontMove(360.0 - 45.0, true));
 
         //Amp 1 Note
         chooser.addOption("Single Note Amp Shot (blue alliance)", () -> buildPerpendicularAmp1Note(270.0));
@@ -81,7 +81,8 @@ public class Autonomous {
 
         // Center Subwoofer Autos
         chooser.addOption("Center Subwoofer Double Note", this::buildDoubleNoteFromSpeakerCenter);
-        chooser.addOption("Left 45 Subwoofer Double Note", this::build45Subwoofer2Note);
+        chooser.addOption("Left 45 Subwoofer Double Note", () -> build45Subwoofer2Note(true));
+        chooser.addOption("Right 45 Subwoofer Double Note", () -> build45Subwoofer2Note(false));
 
         // Testing
         chooser.addOption("Test - Forward", this::buildTestCommand);
@@ -110,9 +111,9 @@ public class Autonomous {
     }
 
     /** Shoot and don't move */
-    private Command buildShootDontMove(double startAngle) {
+    private Command buildShootDontMove(double startAngle, boolean initialDelay) {
         return new SequentialCommandGroup(
-            new WaitCommand(2.69), // nice
+            new WaitCommand(initialDelay ? 2.69 : 0.0), // nice
             new InstantCommand(() -> base.resetPosition(AutoUtils.defaultInitPos())),
             new InstantCommand(() -> base.setYawAngle(startAngle)),
             AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer),
@@ -123,7 +124,7 @@ public class Autonomous {
     /**
      * Amp 90 or 270 Degrees 
      */
-    private Command buildPerpendicularAmp1Note(double startAngle){
+    private Command buildPerpendicularAmp1Note(double startAngle) {
         return new SequentialCommandGroup(
             new InstantCommand(() -> base.resetPosition(AutoUtils.defaultInitPos())),
             new InstantCommand(() -> base.setYawAngle(startAngle)),
@@ -160,21 +161,32 @@ public class Autonomous {
     /**
      * 45 Subwoofer 2 Note
      */
-
-     private Command build45Subwoofer2Note(){
+     private Command build45Subwoofer2Note(boolean left) {
+        return new PrintCommand("Don't!");
+        /*
         return new SequentialCommandGroup(
-            AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer), // TODO: With Shooter Regression for that specific angle
+            buildShootDontMove(left ? 45.0 : 460.0 - 45.0, false),
+            new SequentialCommandGroup(
+                new LoadShooterGroundCommand(arm, shooter, intake, indexer)
+            )
+
+
+            AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer),
             new ParallelRaceGroup(
                 new SequentialCommandGroup(
                     new LoadShooterGroundCommand(arm, shooter, intake, indexer),
                     new NeverEndingCommand()
                 ), 
-                AutoUtils.createFollowPathCommand(base, "45Subwoofer2Note", false)
+                AutoUtils.createFollowPathCommand(
+                    base, 
+                    String.format("45%sSubwoofer2Note", left ? "Left" : "Right"), 
+                    false
+                )
             ), 
             AutoUtils.finishIntakingCommand(indexer, intake),
             AutoUtils.rearSpeakerSubwooferShotCommand(arm, shooter, indexer)
             //build45Subwoofer2Note() // TODO test
-        );
+        );*/
      } 
 
      private Command buildTestCommand() {

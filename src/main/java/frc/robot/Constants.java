@@ -27,7 +27,7 @@ public class Constants {
     /** Build Constants */
     public static final class BuildConstants {
         public static final boolean kOUTPUT_ALL_TELEMETRY = true; // For debugging, output all live values to NT
-        public static final boolean kARM_TUNE_MODE = true; // For tuning lower pivot PID
+        public static final boolean kARM_TUNE_MODE = false; // For tuning lower pivot PID
 
         public static final boolean kDRIVE_TUNE_MODE = false; // For tuning drive base PID
 
@@ -56,7 +56,7 @@ public class Constants {
     public static final class IntakeConstants {
         public static final double kINTAKE_RATIO = 1.0 / 25.0;
         
-        public static final int kINTAKE_CURRENT_LIMIT = 30;
+        public static final int kINTAKE_CURRENT_LIMIT = 40;
 
         public static final double kINTAKE_P = 0.000005;
         public static final double kINTAKE_I = 5e-7;
@@ -105,7 +105,7 @@ public class Constants {
 
         public static final ArmState kCLIMB_BALANCE = new ArmState(108.0, 180.0, 1.5);
 
-        public static final ArmState kFULL_COURT_PASS = new ArmState(125.0, 180.0, 0.0);
+        public static final ArmState kFULL_COURT_PASS = kSUBWOOFER_SPEAKER_FRONT;
     }
 
     /** Auto Constants */
@@ -142,7 +142,7 @@ public class Constants {
 
         /** Determine upper shooter angle from front limelight's tag distance (m) */
         public static final double LIMELIGHT_REGRESSION_V3(double d) {
-            return 0.0; // TODO
+            return 4.55516 * d * d + -41.7191 * d + 254.806 + 0.5;
         }
     }
 
@@ -167,8 +167,8 @@ public class Constants {
         public static final double kLOWER_PIVOT_D = 0.0;
         public static final double kLOWER_PIVOT_FF = 0.00001;
 
-        public static final double kUPPER_PIVOT_P = 1.0; // 0.1 while motor's relative
-        public static final double kUPPER_PIVOT_I = 0.00001; 
+        public static final double kUPPER_PIVOT_P = 1.55; // 1.7 oscillates 
+        public static final double kUPPER_PIVOT_I = 0.0004; 
         public static final double kUPPER_PIVOT_D = 0.0;//001; 
 
         public static final double kELEVATOR_EXT_P = 0.03;
@@ -183,9 +183,9 @@ public class Constants {
     /** Swerve drive constants */
     public static final class DriveConstants {
         // Max Speeds
-        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 3.0;
-        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 4.0;
-        public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 1000.0;
+        public static final double kMAX_SLOW_TELEOP_TRANSLATIONAL_SPEED = 5.0; // 5.0 for comp, 11.5 for non-comp
+        public static final double kMAX_FAST_TELEOP_TRANSLATIONAL_SPEED = 15.5; // 15.5 for comp, 13.5 for non-comp
+        public static final double kMAX_TELEOP_ROTATIONAL_SPEED = 800.0;
 
         // Base sizes
         /*
@@ -221,7 +221,8 @@ public class Constants {
         public static final Path kAPRIL_TAG_LAYOUT_JSON = Filesystem.getDeployDirectory().toPath().resolve("AprilTag2024Layout.json");
 
         // Speaker Heading Correction PID
-        public static final double kHEADING_CORRECTION_P = 1.5; // TODO     
+        public static final double kHEADING_CORRECTION_P = 1.85;
+        public static final double kHEADING_CORRECTION_I = 0.2;
     }
 
     /** Swerve module constants */

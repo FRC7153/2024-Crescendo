@@ -29,6 +29,7 @@ public class TeleopDriveCommand extends Command {
      * @param thetaSupply CCW+, see below
      * @param isThetaPercentage if true, theta is % of max rotational speed, else theta is deg/sec
      * @param fastMode if true, increases drive speed
+     * @param obstacleAvoidance boolean supplier
      */
     public TeleopDriveCommand(
         SwerveBase base, 

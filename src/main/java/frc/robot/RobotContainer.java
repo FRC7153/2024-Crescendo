@@ -93,8 +93,8 @@ public class RobotContainer {
         () -> driverXboxController.getLeftX(), 
         () -> -driverXboxController.getRightX(),
         true,
-        () -> driverXboxController.leftStick().getAsBoolean(),
-        () -> driverXboxController.leftTrigger().getAsBoolean()
+        () -> driverXboxController.leftTrigger(0.15).getAsBoolean(),
+        () -> driverXboxController.b().getAsBoolean()
       ).repeatedly());
 
     // Driver speaker heading lock (A held)
@@ -104,7 +104,7 @@ public class RobotContainer {
         () -> -driverXboxController.getLeftY(), 
         ()-> driverXboxController.getLeftX(),
         (new SpeakerHeadingLock(
-          frontCamera, 
+          frontCamera,
           () -> driveBase.getPosition(false)
         )),
         false,
@@ -139,7 +139,9 @@ public class RobotContainer {
     operatorController.button(6)
       .and(driverXboxController.rightTrigger().negate()) // Not while intaking!
       .whileTrue(new ArmToRegressionCommand(arm, frontCamera))
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(2800.0), shooter).repeatedly());
+      //.whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0), shooter).repeatedly());
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3500.0, 3000.0), shooter).repeatedly());
+      // Upper was 3000
 
     // Operator Arm Amp Button (4)
     operatorController.button(4)
@@ -155,7 +157,7 @@ public class RobotContainer {
     operatorController.button(8)
       .and(driverXboxController.rightTrigger().negate()) // Not while intaking
       .whileTrue(new ArmToStateCommand(arm, ArmPositions.kFULL_COURT_PASS))
-      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(150.0), shooter).repeatedly());
+      .whileTrue(new InstantCommand(() -> shooter.setShootVelocity(3200.0), shooter).repeatedly());
       
     // Operator Shoot Button (trigger)
     // Assumes shooter is already up-to-speed (if needed)
@@ -207,6 +209,6 @@ public class RobotContainer {
 
   // Test modes
   public void testInit() { arm.initTestMode(); shooter.testInit(); indexer.stop(); }
-  public void testExec() { arm.execTestMode(); shooter.testExec(); indexer.testExec(operatorController); }
+  public void testExec() { arm.execTestMode(); shooter.testExec(operatorController); indexer.testExec(operatorController); }
   public void testEnd() { arm.endTestMode(); shooter.testEnd(); indexer.stop(); }
 }

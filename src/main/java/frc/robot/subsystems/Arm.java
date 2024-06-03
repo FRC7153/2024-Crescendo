@@ -145,6 +145,8 @@ public class Arm implements Subsystem {
 
         upperPivotController.setPositionPIDWrappingEnabled(false);
 
+        upperPivotController.setIAccum(0.0); // Reset I
+
         // Config sensors
         //elevatorLimitSwitch.enableLimitSwitch(true);
         //elevatorExtEncoder.setPosition(0.0);
@@ -335,6 +337,8 @@ public class Arm implements Subsystem {
 
     @Override
     public void periodic(){
+        //System.out.printf("Arm command ->%s\n", getCurrentCommand());
+
         // Disable arm if lowered
         /*if (setpoint.equals(ArmPositions.kDEFAULT) && lowerPivotEncoder.getPosition() * 360.0 < 111.0) {
             lowerLeftPivot.disable();

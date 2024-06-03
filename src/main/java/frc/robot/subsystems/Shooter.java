@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.BuildConstants;
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -98,7 +99,6 @@ public class Shooter implements Subsystem {
 
     /** Set shoot velocity (r/s) */
     public void setShootVelocity(double velocity) {
-
         if (Math.abs(velocity) <= .05) {
             shooterUpper.disable();
             shooterLower.disable();
@@ -111,6 +111,20 @@ public class Shooter implements Subsystem {
 
             shooterSetpointLog.append(velocity);
             velocitySetpoint = velocity;
+        }
+    }
+
+    public void setShootVelocity(double lowerShootVelocity, double upperShootVelocity) {
+        if (Math.abs(lowerShootVelocity) <= .05 && Math.abs(upperShootVelocity) <= .05) {
+            shooterUpper.disable();
+            shooterLower.disable();
+
+            velocitySetpoint = 0.0;
+        } else {
+            shooterUpper.setControl(shooterControl.withVelocity(upperShootVelocity / ShooterConstants.kSHOOT_RATIO));
+            shooterLower.setControl(shooterControl.withVelocity(lowerShootVelocity / ShooterConstants.kSHOOT_RATIO));
+
+            velocitySetpoint = upperShootVelocity;
         }
     }
 
@@ -140,19 +154,30 @@ public class Shooter implements Subsystem {
     }
 
     // TEST MODE //
-    private GenericEntry testShootVelo;
+    private GenericEntry lowerTestShootVelo, upperTestShootVelo;
 
     public void testInit() {
-        if (testShootVelo != null) return; // Already initialized
+        if (lowerTestShootVelo != null) return; // Already initialized
 
         ShuffleboardTab tab = Shuffleboard.getTab("Arm Debug");
 
-        testShootVelo = tab.add("Shoot Velocity (RPS)", 0.0)
+        lowerTestShootVelo = tab.add("Lower Shoot Velocity (RPS)", 0.0)
+            .getEntry();
+        
+        upperTestShootVelo = tab.add("Upper Shoot Velocity (RPS)", 0.0)
             .getEntry();
     }
 
-    public void testExec() {
-        setShootVelocity(testShootVelo.getDouble(0.0));
+    public void testExec(CommandJoystick operatorController) {
+        if (operatorController.button(2).getAsBoolean()) {
+            // Left button 2 down
+            setShootVelocity(
+                lowerTestShootVelo.getDouble(0.0), 
+                upperTestShootVelo.getDouble(0.0)
+            );
+        } else {
+            setShootVelocity(0.0);
+        }
     }
 
     public void testEnd() {

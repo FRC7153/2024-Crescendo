@@ -16,7 +16,11 @@ public class SpeakerHeadingLock implements Supplier<Double> {
   private LimelightCamera camera;
 
   // Control
-  private PIDController headingPID = new PIDController(DriveConstants.kHEADING_CORRECTION_P, 0.0, 0.0);
+  private PIDController headingPID = new PIDController(
+    DriveConstants.kHEADING_CORRECTION_P, 
+    DriveConstants.kHEADING_CORRECTION_I, 
+    0.0
+  );
 
   /**
    * Drives the heading of the robot to the speaker.
@@ -38,7 +42,7 @@ public class SpeakerHeadingLock implements Supplier<Double> {
   @Override
   public Double get() {
     int tag = camera.getTagId();
-    double yaw = camera.getTagYaw();
+    double yaw = camera.getTagYaw() - 10.0; // Compensate for off-center camera
 
     if (tag == -1) {
       // We have no targets!
@@ -46,8 +50,8 @@ public class SpeakerHeadingLock implements Supplier<Double> {
 
       double angle = FieldConstants.kSPEAKER_POS.minus(poseGuess.getTranslation()).getAngle().getDegrees();
 
-      if (angle > 0.0) return 600.0;
-      else return -600.0;
+      if (angle > 0.0) return 150.0;
+      else return -150.0;
     } else {
       // We have target
       // TODO clamp this for safety

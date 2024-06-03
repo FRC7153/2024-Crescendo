@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.auto.Autonomous;
 import frc.robot.commands.dashboard.RecheckSwerveModulesCommand;
+import frc.robot.commands.dashboard.ResetGyroCommand;
 import frc.robot.commands.dashboard.ResetOdometryCommand;
 import frc.robot.subsystems.drive.SwerveBase;
 
@@ -28,19 +29,23 @@ public class Dashboard {
     // Reset odometry button
     driveTab.add("Reset Odometry", new ResetOdometryCommand(base))
       .withSize(1, 1)
-      .withPosition(0, 3);
+      .withPosition(3, 2);
 
     driveTab.add("Recheck Swerves", new RecheckSwerveModulesCommand(base))
       .withSize(1, 1)
-      .withPosition(1, 3);
+      .withPosition(3, 1);
 
     // Add Auto chooser
     driveTab.add("Auto", auto.getChooser())
       .withSize(2, 1)
-      .withPosition(2, 3);
+      .withPosition(3, 0);
+
+    driveTab.add("Reset Gyro!!", new ResetGyroCommand(base))
+      .withSize(1, 1)
+      .withPosition(4, 1);
 
     // Add camera
-    driveTab.addCamera("Limelight", "limelight-aetos", "http://limelight-aetos.local:5800/")
+    driveTab.addCamera("Limelight", "limelight", "http://limelight-aetos.local:5800/")
       .withSize(3, 4)
       .withPosition(0, 0)
       .withWidget(BuiltInWidgets.kCameraStream)

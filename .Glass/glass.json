@@ -1,8 +1,30 @@
 {
+  "NetworkTables": {
+    "retained": {
+      "limelight-aetos": {
+        "open": true
+      }
+    },
+    "transitory": {
+      "limelight-aetos": {
+        "open": true
+      },
+      "limelight-aetos-out": {
+        "open": true
+      }
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Drive/Auto": "String Chooser",
+      "/Shuffleboard/Drive/Recheck Swerves": "Command",
+      "/Shuffleboard/Drive/Reset Odometry": "Command"
+    }
+  },
   "NetworkTables Info": {
     "visible": true
   },
   "NetworkTables Settings": {
-    "mode": "Server"
+    "mode": "Client (NT4)",
+    "serverTeam": "7153"
   }
 }
