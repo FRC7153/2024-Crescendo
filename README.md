@@ -45,7 +45,7 @@ Crescendo, 2024 Season
 7. Front Right Swerve Drive Motor (Neo/CAN Spark Max)
 8. Rear Left Swerve Drive Motor (Neo/CAN Spark Max)
 9. Rear Right Swerve Drive Motor (Neo/CAN Spark Max)
-10. Intake Motor (Neo550/CAN Spark Max)
+10. ~~Ground Intake Motor (Neo550/CAN Spark Max)~~
 11. Indexer Motor (Neo550/CAN Spark Max)
 12. Arm Lower Right Pivot (Neo/CAN Spark Max)
 13. Arm Lower Left Pivot (Neo/CAN Spark Max)
