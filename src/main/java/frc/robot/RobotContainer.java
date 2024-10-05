@@ -113,7 +113,7 @@ public class RobotContainer {
       ));
 
     // Driver Intake Button (RT)
-    driverXboxController.rightTrigger()
+    /*driverXboxController.rightTrigger()
       .onTrue(
         new LoadShooterGroundCommand(arm, shooter, intake, indexer).until(driverXboxController.rightTrigger().negate())
         .andThen(intake::end, intake)
@@ -124,7 +124,7 @@ public class RobotContainer {
     driverXboxController.rightBumper()
       .and(operatorController.trigger().negate()) // Not while trying to shoot!
       .whileTrue(new IntakeCommand(intake, false))
-      .whileTrue(new ReverseIndexerCommand(indexer));
+      .whileTrue(new ReverseIndexerCommand(indexer));*/
 
     // Driver Manual Intake Wheel Button (Y)
     driverXboxController.y()

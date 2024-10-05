@@ -167,7 +167,7 @@ public class Constants {
         public static final double kLOWER_PIVOT_D = 0.0;
         public static final double kLOWER_PIVOT_FF = 0.00001;
 
-        public static final double kUPPER_PIVOT_P = 1.55; // 1.7 oscillates 
+        public static final double kUPPER_PIVOT_P = 1.5; // was 1.55, 1.7 oscillates 
         public static final double kUPPER_PIVOT_I = 0.0004; 
         public static final double kUPPER_PIVOT_D = 0.0;//001; 
 

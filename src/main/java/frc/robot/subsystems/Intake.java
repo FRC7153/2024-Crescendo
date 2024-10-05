@@ -21,9 +21,12 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-/** Lower Intake Subsystem */
+/** Lower Intake Subsystem 
+ * (removed)
+*/
 public class Intake implements Subsystem {
     // Hardware
+    /*
     private CANSparkMax intake = new CANSparkMax(HardwareConstants.kINTAKE_CAN, MotorType.kBrushless);
     private SparkPIDController intakeController;
     private RelativeEncoder intakeEncoder = intake.getEncoder();
@@ -46,9 +49,11 @@ public class Intake implements Subsystem {
         new DoubleLogEntry(DataLogManager.getLog(), "SecondaryIntake/Setpoint", "rpm");
     private DoubleLogEntry secondaryIntakeVeloLog = 
         new DoubleLogEntry(DataLogManager.getLog(), "SecondaryIntake/Setpoint", "rpm");
+    */
 
     // Init
     public Intake() {
+        /*
         // Clear some problematic configs
         intake.restoreFactoryDefaults();
 
@@ -89,16 +94,20 @@ public class Intake implements Subsystem {
 
         // Reduce CAN usage
         Util.disableExternalEncoderFrames(intake);
+        */
     }
 
     /** Sets the intake's default command (not moving) */
     public void initDefaultCommand() {
+        /*
         setDefaultCommand(new InstantCommand(
             this::end, this
         ));
+        */
     }
     /** Runs the Intake Motors at the Maximum speed */
     private void intakeFullSend() {
+        /*
         setpoint = 0.0; // no setpoint
         setpointTimestamp = Timer.getFPGATimestamp();
 
@@ -109,10 +118,12 @@ public class Intake implements Subsystem {
 
         intake.set(1.0);
         intakeSetpointLog.append(6000 * IntakeConstants.kINTAKE_RATIO);
+        */
     }
 
     /** Runs the intake at a speed */
     private void setIntakeSpeed(double velocity) {
+        /*
         setpointTimestamp = Timer.getFPGATimestamp();
         setpoint = velocity;
         
@@ -123,34 +134,39 @@ public class Intake implements Subsystem {
 
         intakeController.setReference(velocity, ControlType.kVelocity, 0);
         intakeSetpointLog.append(velocity * IntakeConstants.kINTAKE_RATIO);
+        */
     }
 
     /** Runs the intake forward */
     public void enableIntake() {
-        intakeFullSend();
+        //intakeFullSend();
     }
 
     /** Runs the intake in reverse */
     public void reverseIntake() {
-        setIntakeSpeed(-5000);
+        //setIntakeSpeed(-5000);
     }
 
     /** Ends the intake function */
     public void end() {
+        /*
         setIntakeSpeed(0.0);
         intake.disable();
         
         if (BuildConstants.kSECONDARY_INTAKE_MOTOR) secondaryIntake.disable();
+        */
     }
 
     @Override
     @SuppressWarnings("unused")
     public void periodic() {
+        /*
         intakeVeloLog.append(intakeEncoder.getVelocity() * IntakeConstants.kINTAKE_RATIO);
 
         if (BuildConstants.kSECONDARY_INTAKE_MOTOR) {
             secondaryIntakeVeloLog.append(secondaryIntakeEncoder.getVelocity() * SecondaryIntakeConstants.kINTAKE_RATIO);
         }
+        */
 
         // Ensure not stalled
         /*
